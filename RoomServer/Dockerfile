@@ -1,6 +1,7 @@
 FROM alpine AS build
 RUN apk add --no-cache build-base
-COPY *.cpp build.sh ./
+COPY *.cpp prebuild.sh build.sh ./
+RUN ./prebuild.sh
 RUN ./build.sh
 
 FROM alpine
