@@ -1,5 +1,6 @@
 FROM alpine AS build
-RUN apk add --no-cache build-base
+RUN apk add -v --no-cache build-base libressl-dev nss
+RUN g++ --version
 COPY *.cpp prebuild.sh build.sh ./
 RUN ./prebuild.sh
 RUN ./build.sh
