@@ -21,3 +21,15 @@ void MidiHandler::handleMidi( double timeStamp, std::vector<unsigned char> *mess
 
     std::cout << "\n";
 }
+
+std::vector<std::string> MidiHandler::getPorts()
+{
+    std::vector<std::string> ports;
+
+    for(int i=0; i<midiin->getPortCount(); i++)
+    {
+        ports.push_back(midiin->getPortName(i));
+    }
+
+    return ports;
+}

@@ -9,6 +9,7 @@ public:
     MidiHandler(int port);
     ~MidiHandler();
 
+    std::vector<std::string> getPorts();
 private:
     RtMidiIn *midiin;
     RtMidiIn::RtMidiCallback handleMidiFunction = &MidiHandler::handleMidi;
