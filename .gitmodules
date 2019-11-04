@@ -1,0 +1,6 @@
+[submodule "Client/rtmidi"]
+	path = Client/rtmidi
+	url = git@github.com:thestk/rtmidi.git
+[submodule "Client/rtmidi-src"]
+	path = Client/rtmidi
+	url = git@github.com:thestk/rtmidi.git
