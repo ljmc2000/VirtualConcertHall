@@ -11,8 +11,7 @@ public:
 
     std::vector<std::string> getPorts();
 private:
-    RtMidiIn *midiin;
-    RtMidiIn::RtMidiCallback handleMidiFunction = &MidiHandler::handleMidi;
+    RtMidiIn midiin;
     static void handleMidi( double timeStamp, std::vector<unsigned char> *message, void *userData );
 };
 

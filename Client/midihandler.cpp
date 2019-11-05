@@ -3,18 +3,18 @@
 
 MidiHandler::MidiHandler(int port)
 {
-    midiin = new RtMidiIn();
-    midiin->openPort(port);
-    midiin->setCallback(handleMidi);
+    midiin.openPort(port);
+    midiin.setCallback(handleMidi);
 }
 
 MidiHandler::~MidiHandler()
 {
+    midiin.closePort();
 }
 
 void MidiHandler::handleMidi( double timeStamp, std::vector<unsigned char> *message, void *userData )
 {
-    for(int i=0; i<message->size(); i++)
+    for(unsigned int i=0; i<message->size(); i++)
     {
         std::cout << (int)message->at(i) << ":";
     }
@@ -26,9 +26,9 @@ std::vector<std::string> MidiHandler::getPorts()
 {
     std::vector<std::string> ports;
 
-    for(int i=0; i<midiin->getPortCount(); i++)
+    for(unsigned int i=0; i<midiin.getPortCount(); i++)
     {
-        ports.push_back(midiin->getPortName(i));
+        ports.push_back(midiin.getPortName(i));
     }
 
     return ports;
