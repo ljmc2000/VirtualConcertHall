@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <iostream>
+#include <QObject>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -8,12 +9,16 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    m = new MidiHandler(0);
+
     comboBox = this->findChild<QComboBox*>("comboBox");
+    setPorts(m->getPorts());
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete m;
 }
 
 void MainWindow::setPorts(std::vector<std::string> ports)

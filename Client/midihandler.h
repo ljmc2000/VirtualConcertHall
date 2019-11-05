@@ -10,6 +10,8 @@ public:
     ~MidiHandler();
 
     std::vector<std::string> getPorts();
+
+    void changePort(unsigned int port);
 private:
     RtMidiIn midiin;
     static void handleMidi( double timeStamp, std::vector<unsigned char> *message, void *userData );

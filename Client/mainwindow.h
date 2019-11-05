@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QComboBox>
+#include <midihandler.h>
 
 namespace Ui {
 class MainWindow;
@@ -21,6 +22,7 @@ public:
 private:
     Ui::MainWindow *ui;
     QComboBox *comboBox;
+    MidiHandler *m;
 };
 
 #endif // MAINWINDOW_H
