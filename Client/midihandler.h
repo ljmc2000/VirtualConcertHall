@@ -2,16 +2,21 @@
 #define MIDIHANDLER_H
 
 #include <rtmidi/RtMidi.h>
+#include <QObject>
 
-class MidiHandler
+class MidiHandler: public QObject
 {
+    Q_OBJECT
+
 public:
     MidiHandler(int port);
     ~MidiHandler();
 
     std::vector<std::string> getPorts();
 
-    void changePort(unsigned int port);
+public slots:
+    void changePort(int port);
+
 private:
     RtMidiIn midiin;
     static void handleMidi( double timeStamp, std::vector<unsigned char> *message, void *userData );

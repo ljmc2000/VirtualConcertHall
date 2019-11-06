@@ -23,6 +23,7 @@ private:
     Ui::MainWindow *ui;
     QComboBox *comboBox;
     MidiHandler *m;
+    QMetaObject::Connection m_connection;
 };
 
 #endif // MAINWINDOW_H

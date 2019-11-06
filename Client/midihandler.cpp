@@ -1,6 +1,5 @@
 #include "midihandler.h"
 
-
 MidiHandler::MidiHandler(int port)
 {
     midiin.openPort(port);
@@ -34,7 +33,7 @@ std::vector<std::string> MidiHandler::getPorts()
     return ports;
 }
 
-void MidiHandler::changePort(unsigned int port)
+void MidiHandler::changePort(int port)
 {
     midiin.closePort();
     midiin.openPort(port);

@@ -13,6 +13,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     comboBox = this->findChild<QComboBox*>("comboBox");
     setPorts(m->getPorts());
+    m_connection = QObject::connect(
+                comboBox, SIGNAL(currentIndexChanged(int)),
+                m, SLOT(changePort(int)));
 }
 
 MainWindow::~MainWindow()
