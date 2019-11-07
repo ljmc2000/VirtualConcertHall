@@ -3,7 +3,7 @@
 MidiHandler::MidiHandler(int port)
 {
     midiin.openPort(port);
-    midiin.setCallback(handleMidi);
+    midiin.setCallback(handleMidi, this);
 }
 
 MidiHandler::~MidiHandler()
@@ -13,12 +13,12 @@ MidiHandler::~MidiHandler()
 
 void MidiHandler::handleMidi( double timeStamp, std::vector<unsigned char> *message, void *userData )
 {
+    MidiHandler* self = static_cast<MidiHandler*>(userData);
+
     for(unsigned int i=0; i<message->size(); i++)
     {
         std::cout << (int)message->at(i) << ":";
     }
-
-    std::cout << "\n";
 }
 
 std::vector<std::string> MidiHandler::getPorts()
