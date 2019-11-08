@@ -2,5 +2,5 @@
 	path = Client/rtmidi
 	url = git@github.com:thestk/rtmidi.git
 [submodule "Client/rtmidi-src"]
-	path = Client/rtmidi
+	path = rtmidi
 	url = git@github.com:thestk/rtmidi.git

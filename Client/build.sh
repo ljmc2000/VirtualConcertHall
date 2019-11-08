@@ -1,5 +1,5 @@
-cd rtmidi; cmake .; make; true; cd .. #will fail but thats fine
+cd ../rtmidi; cmake .; make; true; cd ../Client #will fail but thats fine
 qmake
 make
-LD_LIBRARY_PATH=rtmidi
+LD_LIBRARY_PATH=../rtmidi
 ./Client

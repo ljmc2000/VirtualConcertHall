@@ -1,7 +1,7 @@
 #ifndef MIDIHANDLER_H
 #define MIDIHANDLER_H
 
-#include <rtmidi/RtMidi.h>
+#include <RtMidi.h>
 #include <QObject>
 
 class MidiHandler: public QObject
