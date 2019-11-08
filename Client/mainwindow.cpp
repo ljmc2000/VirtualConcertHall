@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    midiHandler = new MidiHandler("VirtualConcertHallClient");
+    midiHandler = new MidiHandler(&qSocket,"127.0.0.1",1998);
 
     comboBox = this->findChild<QComboBox*>("comboBox");
     setPorts(midiHandler->getPorts());

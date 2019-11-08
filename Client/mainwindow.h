@@ -22,6 +22,7 @@ public:
 private:
     Ui::MainWindow *ui;
     QComboBox *comboBox;
+    QUdpSocket qSocket;
     MidiHandler *midiHandler;
 };
 

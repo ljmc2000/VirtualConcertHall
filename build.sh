@@ -1,0 +1,3 @@
+cd rtmidi
+cmake .
+make
