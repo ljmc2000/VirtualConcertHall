@@ -1,8 +1,9 @@
 #include "midihandler.h"
 
-MidiHandler::MidiHandler(int port)
+MidiHandler::MidiHandler(std::string name)
 {
-    midiin.openPort(port);
+    midiin.openPort(0);
+    midiin.setClientName(name);
     midiin.setCallback(handleMidi, this);
 }
 
@@ -19,6 +20,8 @@ void MidiHandler::handleMidi( double timeStamp, std::vector<unsigned char> *mess
     {
         std::cout << (int)message->at(i) << ":";
     }
+
+    std::cout << "\n";
 }
 
 std::vector<std::string> MidiHandler::getPorts()

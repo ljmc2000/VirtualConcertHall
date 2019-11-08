@@ -9,7 +9,7 @@ class MidiHandler: public QObject
     Q_OBJECT
 
 public:
-    MidiHandler(int port);
+    MidiHandler(std::string name);
     ~MidiHandler();
 
     std::vector<std::string> getPorts();

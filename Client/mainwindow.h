@@ -22,7 +22,7 @@ public:
 private:
     Ui::MainWindow *ui;
     QComboBox *comboBox;
-    MidiHandler *m;
+    MidiHandler *midiHandler;
 };
 
 #endif // MAINWINDOW_H

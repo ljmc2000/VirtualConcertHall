@@ -9,19 +9,19 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m = new MidiHandler(0);
+    midiHandler = new MidiHandler("VirtualConcertHallClient");
 
     comboBox = this->findChild<QComboBox*>("comboBox");
-    setPorts(m->getPorts());
+    setPorts(midiHandler->getPorts());
     QObject::connect(
                 comboBox, SIGNAL(currentIndexChanged(int)),
-                m, SLOT(changePort(int)));
+                midiHandler, SLOT(changePort(int)));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete m;
+    delete midiHandler;
 }
 
 void MainWindow::setPorts(std::vector<std::string> ports)
