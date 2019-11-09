@@ -22,9 +22,10 @@ void Server::readPendingDatagrams()
     {
         QNetworkDatagram datagram = qSocket.receiveDatagram();
         QByteArray data = datagram.data();
+
         for(unsigned int i=0; i<data.size(); i++)
         {
-            std::cout << (unsigned int)data.at(i) << ":";
+            std::cout << (int)(unsigned char)data.at(i) << ":";
         }
 
         std::cout << "\n";

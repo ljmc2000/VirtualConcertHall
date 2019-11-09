@@ -8,7 +8,7 @@ MidiHandler::MidiHandler(QUdpSocket *qSocket, std::string hostname, int port)
 
     this->qSocket=qSocket;
     this->server=QHostAddress(hostname.c_str());
-    this->serverPort=1998;
+    this->serverPort=port;
 }
 
 MidiHandler::~MidiHandler()
@@ -19,18 +19,16 @@ MidiHandler::~MidiHandler()
 void MidiHandler::handleMidi( double timeStamp, std::vector<unsigned char> *message, void *userData )
 {
     MidiHandler* self = static_cast<MidiHandler*>(userData);
-    QNetworkDatagram datagram;
-    QByteArray byteArray;
+    QByteArray data((char*)message->data(),message->size());
+    QNetworkDatagram datagram(data, self->server, self->serverPort);
 
     for(unsigned int i=0; i<message->size(); i++)
     {
         std::cout << (int)message->at(i) << ":";
-        byteArray.append(message->at(i));
     }
 
     std::cout << "\n";
 
-    datagram = QNetworkDatagram(byteArray, self->server, self->serverPort);
     self->qSocket->writeDatagram(datagram);
 }
 
