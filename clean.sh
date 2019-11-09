@@ -1,3 +1,3 @@
 cd rtmidi
-git clean -fd
+git clean -fdx
 cd ../Client
