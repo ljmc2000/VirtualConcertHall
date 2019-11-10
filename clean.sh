@@ -1,3 +1,1 @@
-cd rtmidi
-git clean -fdx
-cd ../Client
+rm -rf rtmidiWindows rtmidiLinux

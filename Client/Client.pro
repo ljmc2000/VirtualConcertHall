@@ -42,9 +42,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../rtmidi/release/ -lrtmidi
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../rtmidi/debug/ -lrtmidi
-else:unix: LIBS += -L$$PWD/../rtmidi/ -lrtmidi
+win32: LIBS += -L$$PWD/../rtmidiWindows/ -lrtmidi
+else:unix: LIBS += -L$$PWD/../rtmidiLinux/ -lrtmidi
 
 INCLUDEPATH += $$PWD/../rtmidi
 DEPENDPATH += $$PWD/../rtmidi
