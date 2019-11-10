@@ -1,4 +1,4 @@
 qmake
 make
-LD_LIBRARY_PATH=../rtmidi
+LD_LIBRARY_PATH=../rtmidiLinux
 ./Client
