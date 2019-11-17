@@ -16,6 +16,13 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(
                 comboBox, SIGNAL(currentIndexChanged(int)),
                 midiHandler, SLOT(changePort(int)));
+
+    serverIPBox = this->findChild<QLineEdit*>("serverIPBox");
+    connectButton = this->findChild<QPushButton*>("connectButton");
+    QObject::connect(
+                connectButton, SIGNAL(clicked()),
+                this, SLOT(setAddress())
+                );
 }
 
 MainWindow::~MainWindow()
@@ -30,4 +37,9 @@ void MainWindow::setPorts(std::vector<std::string> ports)
     {
         comboBox->addItem(ports.at(i).c_str());
     }
+}
+
+void MainWindow::setAddress()
+{
+    midiHandler->setAddress(serverIPBox->text());
 }

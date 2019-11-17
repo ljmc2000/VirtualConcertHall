@@ -49,3 +49,8 @@ void MidiHandler::changePort(int port)
     midiin.closePort();
     midiin.openPort(port);
 }
+
+void MidiHandler::setAddress(QString address)
+{
+    this->server = QHostAddress(address);
+}

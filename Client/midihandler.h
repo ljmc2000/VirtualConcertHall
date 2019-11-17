@@ -15,6 +15,7 @@ public:
     ~MidiHandler();
 
     std::vector<std::string> getPorts();
+    void setAddress(QString address);
 
 public slots:
     void changePort(int port);
@@ -23,6 +24,7 @@ private:
     RtMidiIn midiin;
     QUdpSocket *qSocket;
     QHostAddress server;
+
     unsigned int serverPort;
     static void handleMidi( double timeStamp, std::vector<unsigned char> *message, void *userData );
 };
