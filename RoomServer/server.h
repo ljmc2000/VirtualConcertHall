@@ -6,6 +6,8 @@
 #include <QUdpSocket>
 #include <QNetworkDatagram>
 
+#include <RtMidi.h>
+
 class Server: public QObject
 {
     Q_OBJECT;
@@ -19,6 +21,7 @@ public slots:
 
 private:
     QUdpSocket qSocket;
+    RtMidiOut midiout;
 };
 
 #endif // SERVER_H
