@@ -2,11 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QComboBox>
-#include <QLineEdit>
-#include <QPushButton>
-
-#include <midihandler.h>
+#include <settingswindow.h>
 
 namespace Ui {
 class MainWindow;
@@ -20,18 +16,13 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void setPorts(std::vector<std::string>);
-
 public slots:
-    void setAddress();
+    void openSettings();
 
 private:
     Ui::MainWindow *ui;
-    QComboBox *comboBox;
-    QUdpSocket qSocket;
-    MidiHandler *midiHandler;
-    QLineEdit *serverIPBox;
-    QPushButton *connectButton;
+
+    SettingsWindow settingsWindow;
 };
 
 #endif // MAINWINDOW_H

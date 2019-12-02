@@ -25,16 +25,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
-        main.cpp \
-        mainwindow.cpp \
-        midihandler.cpp
+    main.cpp \
+    midihandler.cpp \
+    settingswindow.cpp \
+    mainwindow.cpp
 
 HEADERS += \
-        mainwindow.h \
-        midihandler.h
+    midihandler.h \
+    settingswindow.h \
+    mainwindow.h
 
 FORMS += \
-        mainwindow.ui
+    settingswindow.ui \
+    mainwindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

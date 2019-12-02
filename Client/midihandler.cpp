@@ -1,14 +1,14 @@
 #include "midihandler.h"
 
-MidiHandler::MidiHandler(QUdpSocket *qSocket, std::string hostname, int port)
+MidiHandler::MidiHandler(QUdpSocket *qSocket)
 {
-    midiin.openPort(0);
+    midiin.openPort(prefs.value("midiPort").toInt());
     midiin.setClientName("VirtualConcertHallClient");
     midiin.setCallback(handleMidi, this);
 
     this->qSocket=qSocket;
-    this->server=QHostAddress(hostname.c_str());
-    this->serverPort=port;
+    this->server=QHostAddress(prefs.value("serverHost").toString());
+    this->serverPort=prefs.value("serverPort").toInt();
 }
 
 MidiHandler::~MidiHandler()
@@ -30,27 +30,4 @@ void MidiHandler::handleMidi( double timeStamp, std::vector<unsigned char> *mess
     std::cout << "\n";
 
     self->qSocket->writeDatagram(datagram);
-}
-
-std::vector<std::string> MidiHandler::getPorts()
-{
-    std::vector<std::string> ports;
-
-    for(unsigned int i=0; i<midiin.getPortCount(); i++)
-    {
-        ports.push_back(midiin.getPortName(i));
-    }
-
-    return ports;
-}
-
-void MidiHandler::changePort(int port)
-{
-    midiin.closePort();
-    midiin.openPort(port);
-}
-
-void MidiHandler::setAddress(QString address)
-{
-    this->server = QHostAddress(address);
 }
