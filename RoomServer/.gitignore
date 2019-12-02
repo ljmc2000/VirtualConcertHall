@@ -1,0 +1,8 @@
+RoomServer
+Makefile
+.qmake.stash
+RoomServer.pro.user
+
+*.o
+moc_predefs.h
+moc_*.cpp

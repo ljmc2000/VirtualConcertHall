@@ -1,0 +1,9 @@
+Client
+Makefile
+.qmake.stash
+Client.pro.user
+
+*.o
+moc_predefs.h
+moc_*.cpp
+ui_*.h
