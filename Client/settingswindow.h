@@ -3,9 +3,6 @@
 
 #include <QMainWindow>
 #include <QSettings>
-#include <QComboBox>
-#include <QLineEdit>
-#include <QPushButton>
 
 #include <RtMidi.h>
 
@@ -32,7 +29,6 @@ private:
     Ui::SettingsWindow *ui;
 
     QMainWindow *lastWindow;
-
     QSettings prefs;
 
     RtMidiIn midiin;

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui network svg
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -28,16 +28,19 @@ SOURCES += \
     main.cpp \
     midihandler.cpp \
     settingswindow.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    playscreen.cpp
 
 HEADERS += \
     midihandler.h \
     settingswindow.h \
-    mainwindow.h
+    mainwindow.h \
+    playscreen.h
 
 FORMS += \
     settingswindow.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    playscreen.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

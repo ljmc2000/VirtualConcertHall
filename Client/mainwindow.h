@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <playscreen.h>
 #include <settingswindow.h>
 
 namespace Ui {
@@ -18,10 +19,12 @@ public:
 
 public slots:
     void openSettings();
+    void openPlayScreen();
 
 private:
     Ui::MainWindow *ui;
 
+    PlayScreen playScreen;
     SettingsWindow settingsWindow;
 };
 

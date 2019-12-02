@@ -9,6 +9,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->settingsButton,SIGNAL(clicked()),
             this,SLOT(openSettings()));
+
+    connect(ui->playButton, SIGNAL(clicked()),
+            this, SLOT(openPlayScreen()));
 }
 
 MainWindow::~MainWindow()
@@ -20,5 +23,12 @@ void MainWindow::openSettings()
 {
     settingsWindow.show();
     settingsWindow.setLastWindow(this);
+    this->hide();
+}
+
+void MainWindow::openPlayScreen()
+{
+    playScreen.show();
+    playScreen.setLastWindow(this);
     this->hide();
 }
