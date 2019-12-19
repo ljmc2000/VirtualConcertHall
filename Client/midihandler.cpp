@@ -2,13 +2,13 @@
 
 MidiHandler::MidiHandler(QUdpSocket *qSocket)
 {
+    QSettings prefs;
+
     midiin.openPort(prefs.value("midiPort").toInt());
     midiin.setClientName("VirtualConcertHallClient");
     midiin.setCallback(handleMidi, this);
 
     this->qSocket=qSocket;
-    this->server=QHostAddress(prefs.value("serverHost").toString());
-    this->serverPort=prefs.value("serverPort").toInt();
 }
 
 MidiHandler::~MidiHandler()
@@ -20,7 +20,7 @@ void MidiHandler::handleMidi( double timeStamp, std::vector<unsigned char> *mess
 {
     MidiHandler* self = static_cast<MidiHandler*>(userData);
     QByteArray data((char*)message->data(),message->size());
-    QNetworkDatagram datagram(data, self->server, self->serverPort);
+    QNetworkDatagram datagram(data);
 
     for(unsigned int i=0; i<message->size(); i++)
     {

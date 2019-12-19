@@ -9,10 +9,6 @@ Server::Server(int port)
         &qSocket, SIGNAL(readyRead()),
         this, SLOT(readPendingDatagrams())
     );
-
-
-
-    midiout.openPort(0);
 }
 
 Server::~Server()
@@ -22,20 +18,20 @@ Server::~Server()
 
 void Server::readPendingDatagrams()
 {
-    while(qSocket.hasPendingDatagrams())
+    QNetworkDatagram datagram = qSocket.receiveDatagram();
+    QByteArray data = datagram.data();
+    std::vector<unsigned char> mididata;
+
+    for(unsigned int i=0; i<data.size(); i++)
     {
-        QNetworkDatagram datagram = qSocket.receiveDatagram();
-        QByteArray data = datagram.data();
-        std::vector<unsigned char> mididata;
-
-        for(unsigned int i=0; i<data.size(); i++)
-        {
-            std::cout << (int)(unsigned char)data.at(i) << ":";
-            mididata.push_back((unsigned char)data.at(i));
-        }
-
-        std::cout << "\n";
-
-        midiout.sendMessage(&mididata);
+        std::cout << (int)(unsigned char)data.at(i) << ":";
+        mididata.push_back((unsigned char)data.at(i));
     }
+
+    std::cout << "\n";
+
+    //test send reply
+    QNetworkDatagram datagram2("foo", datagram.senderAddress(), datagram.senderPort());
+    std::cout << datagram.senderAddress().toString().toStdString() << ":" << datagram.senderPort() << "\n";
+    qSocket.writeDatagram(datagram2);
 }

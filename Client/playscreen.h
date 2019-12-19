@@ -22,6 +22,9 @@ public:
     void setLastWindow(QMainWindow *w);
     void showEvent(QShowEvent *e);
 
+public slots:
+    void handleDataFromServer();
+
 private:
     Ui::PlayScreen *ui;
 

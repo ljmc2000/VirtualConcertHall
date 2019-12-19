@@ -21,10 +21,6 @@ private:
     RtMidiIn midiin;
 
     QUdpSocket *qSocket;
-    QHostAddress server;
-    unsigned int serverPort;
-
-    QSettings prefs;
 
     static void handleMidi( double timeStamp, std::vector<unsigned char> *message, void *userData );
 };
