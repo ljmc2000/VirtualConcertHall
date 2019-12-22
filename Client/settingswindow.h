@@ -22,7 +22,8 @@ public:
 
 public slots:
     void setAddress();
-    void setMidiPort();
+    void setMidiInPort();
+    void setMidiOutPort();
     void returnToLastWindow();
 
 private:
@@ -32,6 +33,7 @@ private:
     QSettings prefs;
 
     RtMidiIn midiin;
+    RtMidiOut midiout;
 
 private: //methods
     void setMidiPortsList();

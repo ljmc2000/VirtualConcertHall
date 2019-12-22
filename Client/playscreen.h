@@ -24,16 +24,10 @@ public:
     void setLastWindow(QMainWindow *w);
     void showEvent(QShowEvent *e);
 
-public slots:
-    void handleDataFromServer();
-    void heartBeat();
-
 private:
     Ui::PlayScreen *ui;
 
     QMainWindow *lastWindow;
-    QUdpSocket qSocket;
-    QTimer heartBeatClock;
 
     QGraphicsSvgItem instramentVisual;
     QGraphicsScene scene;

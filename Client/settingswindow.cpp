@@ -15,7 +15,10 @@ SettingsWindow::SettingsWindow(QWidget *parent) :
             this, SLOT(returnToLastWindow()));
 
     connect(ui->midiInputSelector, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(setMidiPort()));
+            this, SLOT(setMidiInPort()));
+
+    connect(ui->midiOutputSelector, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(setMidiOutPort()));
 
     connect(ui->confirmButton, SIGNAL(clicked()),
             this, SLOT(setAddress()));
@@ -41,7 +44,13 @@ void SettingsWindow::setMidiPortsList()
         ui->midiInputSelector->addItem(midiin.getPortName(i).c_str());
     }
 
-    ui->midiInputSelector->setCurrentIndex(prefs.value("midiPort").toInt());
+    for(unsigned int i=0; i<midiout.getPortCount(); i++)
+    {
+        ui->midiOutputSelector->addItem(midiout.getPortName(i).c_str());
+    }
+
+    ui->midiInputSelector->setCurrentIndex(prefs.value("midiInPort").toInt());
+    ui->midiOutputSelector->setCurrentIndex(prefs.value("midiOutPort").toInt());
 }
 
 void SettingsWindow::setAddress()
@@ -50,9 +59,14 @@ void SettingsWindow::setAddress()
     prefs.setValue("serverPort",ui->serverPortBox->text());
 }
 
-void SettingsWindow::setMidiPort()
+void SettingsWindow::setMidiInPort()
 {
-    prefs.setValue("midiPort",ui->midiInputSelector->currentIndex());
+    prefs.setValue("midiInPort",ui->midiInputSelector->currentIndex());
+}
+
+void SettingsWindow::setMidiOutPort()
+{
+    prefs.setValue("midiOutPort",ui->midiOutputSelector->currentIndex());
 }
 
 void SettingsWindow::returnToLastWindow()

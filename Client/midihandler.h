@@ -5,6 +5,7 @@
 
 #include <QObject>
 #include <QUdpSocket>
+#include <QTimer>
 #include <QNetworkDatagram>
 
 #include <QSettings>
@@ -14,13 +15,19 @@ class MidiHandler: public QObject
     Q_OBJECT
 
 public:
-    MidiHandler(QUdpSocket *qSocket);
+    MidiHandler();
     ~MidiHandler();
+
+public slots:
+    void handleDataFromServer();
+    void heartBeat();
 
 private:
     RtMidiIn midiin;
+    RtMidiOut midiout;
 
-    QUdpSocket *qSocket;
+    QUdpSocket qSocket;
+    QTimer heartBeatClock;
 
     static void handleMidi( double timeStamp, std::vector<unsigned char> *message, void *userData );
 };
