@@ -13,7 +13,7 @@ MidiHandler::MidiHandler()
     midiin.setCallback(handleMidi, this);
 
     int midiOutPort = prefs.value("midiOutPort").toInt();
-    midiout.openPort(midiOutPort<midiin.getPortCount() ? midiOutPort:0);
+    midiout.openPort(midiOutPort<midiout.getPortCount() ? midiOutPort:0);
 
     qSocket.connectToHost(QHostAddress(prefs.value("serverHost").toString()),prefs.value("serverPort").toInt());
     connect(
