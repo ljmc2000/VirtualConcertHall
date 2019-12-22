@@ -51,7 +51,7 @@ void Server::readPendingDatagrams()
         }
 
     case MIDI:
-        sendMidiToClients(data);
+        sendMidiToClients(datagram);
         break;
     }
 }
@@ -70,16 +70,17 @@ void Server::heartBeatTimeout()
     }
 }
 
-void Server::sendMidiToClients(QByteArray data)
+void Server::sendMidiToClients(QNetworkDatagram datagram)
 {
-    int i = 0;
-    foreach(Client client, clients)
-    {
-        data.remove(0,1);
-        data.insert(0,i);
-        i+=1;
+    QByteArray data = datagram.data();
+    Client c = Client(datagram.senderAddress(),datagram.senderPort());
+    int index = clients.indexOf(c);
+    data.remove(0,1);
+    data.insert(0,index);
 
-        QNetworkDatagram datagram(data,client.address,client.port);
+    for(int i=0; i<clients.size(); i++)
+    {
+        QNetworkDatagram datagram(data,clients[i].address,clients[i].port);
         qSocket.writeDatagram(datagram);
     }
 }

@@ -40,7 +40,7 @@ private:
 
     int lastClientId=0;
 
-    void sendMidiToClients(QByteArray data);
+    void sendMidiToClients(QNetworkDatagram data);
 };
 
 #endif // SERVER_H
