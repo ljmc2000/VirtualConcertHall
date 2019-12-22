@@ -1,5 +1,8 @@
 #include "playscreen.h"
 #include "ui_playscreen.h"
+#include "roomcommon.h"
+
+using namespace RoomCommon;
 
 PlayScreen::PlayScreen(QWidget *parent) :
     QMainWindow(parent),
@@ -21,6 +24,13 @@ PlayScreen::PlayScreen(QWidget *parent) :
                 &qSocket, SIGNAL(readyRead()),
                 this, SLOT(handleDataFromServer())
             );
+
+    heartBeatClock.setInterval(HEARTBEATINTERVAL);
+    connect(
+                &heartBeatClock, SIGNAL(timeout()),
+                this, SLOT(heartBeat())
+            );
+    heartBeatClock.start();
 }
 
 PlayScreen::~PlayScreen()
@@ -44,5 +54,17 @@ void PlayScreen::handleDataFromServer()
     QNetworkDatagram datagram = qSocket.receiveDatagram();
     QByteArray data = datagram.data();
 
-    std::cout << data.data() << "\n";
+    foreach(unsigned char c, data)
+    {
+        std::cout << (int) c << ":";
+    }
+    std::cout << "\n";
+}
+
+void PlayScreen::heartBeat()
+{
+    QByteArray data;
+    data.push_front(HEARTBEAT);
+
+    qSocket.writeDatagram(QNetworkDatagram(data));
 }

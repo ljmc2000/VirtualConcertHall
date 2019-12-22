@@ -1,7 +1,7 @@
 QT -= gui
 QT += network
 
-CONFIG += c++11 console
+CONFIG += c++20 console
 CONFIG -= app_bundle
 
 # The following define makes your compiler emit warnings if you use
@@ -26,3 +26,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     server.h
+
+INCLUDEPATH += $$PWD/../RoomCommon

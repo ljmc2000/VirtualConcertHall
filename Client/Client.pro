@@ -47,7 +47,10 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
+#common files shared with server
+INCLUDEPATH +=$$PWD/../RoomCommon
 
+#rtmidi
 win32: LIBS += -L$$PWD/../rtmidiWindows/ -lrtmidi
 else:unix: LIBS += -L$$PWD/../rtmidiLinux/ -lrtmidi
 

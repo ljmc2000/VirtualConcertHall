@@ -1,0 +1,7 @@
+#define HEARTBEATINTERVAL 40
+#define SERVERHEARTBEATTIMEOUT HEARTBEATINTERVAL*3
+
+namespace RoomCommon
+{
+    enum PacketType {HEARTBEAT,MIDI};
+}

@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include <QUdpSocket>
+#include <QTimer>
+
 #include <QGraphicsSvgItem>
 #include <QGraphicsScene>
 #include <midihandler.h>
@@ -24,12 +26,15 @@ public:
 
 public slots:
     void handleDataFromServer();
+    void heartBeat();
 
 private:
     Ui::PlayScreen *ui;
 
     QMainWindow *lastWindow;
     QUdpSocket qSocket;
+    QTimer heartBeatClock;
+
     QGraphicsSvgItem instramentVisual;
     QGraphicsScene scene;
 

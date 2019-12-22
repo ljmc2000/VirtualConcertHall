@@ -1,4 +1,7 @@
 #include "midihandler.h"
+#include "roomcommon.h"
+
+using namespace RoomCommon;
 
 MidiHandler::MidiHandler(QUdpSocket *qSocket)
 {
@@ -19,15 +22,8 @@ MidiHandler::~MidiHandler()
 void MidiHandler::handleMidi( double timeStamp, std::vector<unsigned char> *message, void *userData )
 {
     MidiHandler* self = static_cast<MidiHandler*>(userData);
-    QByteArray data((char*)message->data(),message->size());
+    QByteArray data((char *)message->data(),message->size());
+    data.insert(0,MIDI);
     QNetworkDatagram datagram(data);
-
-    for(unsigned int i=0; i<message->size(); i++)
-    {
-        std::cout << (int)message->at(i) << ":";
-    }
-
-    std::cout << "\n";
-
     self->qSocket->writeDatagram(datagram);
 }
