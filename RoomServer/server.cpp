@@ -30,28 +30,48 @@ void Server::readPendingDatagrams()
 {
     QNetworkDatagram datagram = qSocket.receiveDatagram();
     QByteArray data = datagram.data();
+    Client c = Client(datagram.senderAddress(),datagram.senderPort());
+    int index = clients.indexOf(c);
 
     switch(data.at(0))
     {
-        case HEARTBEAT:
+    case INIT:
+        if(index == -1)
         {
-            Client c = Client(datagram.senderAddress(),datagram.senderPort());
-            int index = clients.indexOf(c);
+            qDebug() << "Client Connecting" << c.address;
+            addClient(c);
+        }
+
+        else
+        {
+            QByteArray data;
+            data.append(INIT);
+            data.append(index);
+            QNetworkDatagram datagram(data, c.address, c.port);
+            qSocket.writeDatagram(datagram);
+        }
+
+        break;
+
+    case HEARTBEAT:
+        {
             if(index != -1)
             {
                 clientTimeouts[index]=0;
             }
+
             else
             {
-                clients.append(c);
-                clientTimeouts.append(0);
+
+                QNetworkDatagram disconnection(disconnectPayload,c.address,c.port);
+                qSocket.writeDatagram(disconnection);
             }
 
             break;
         }
 
     case MIDI:
-        sendMidiToClients(datagram);
+        sendToAll(data);
         break;
     }
 }
@@ -64,23 +84,37 @@ void Server::heartBeatTimeout()
         if(clientTimeouts[i]>SERVERHEARTBEATTIMEOUT)
         {
             qDebug() << "Client Disconnecting" << clients[i].address;
-            clients.removeAt(i);
-            clientTimeouts.removeAt(i);
+            disconnectClient(i);
         }
     }
 }
 
-void Server::sendMidiToClients(QNetworkDatagram datagram)
+void Server::sendToAll(QByteArray data)
 {
-    QByteArray data = datagram.data();
-    Client c = Client(datagram.senderAddress(),datagram.senderPort());
-    int index = clients.indexOf(c);
-    data.remove(0,1);
-    data.insert(0,index);
-
-    for(int i=0; i<clients.size(); i++)
+    foreach(Client client, clients)
     {
-        QNetworkDatagram datagram(data,clients[i].address,clients[i].port);
+        QNetworkDatagram datagram(data, client.address, client.port);
         qSocket.writeDatagram(datagram);
     }
+}
+
+void Server::addClient(Client c)
+{
+    QByteArray data;
+    data.append(INIT);
+    data.append(clients.size());
+    QNetworkDatagram datagram(data, c.address, c.port);
+    qSocket.writeDatagram(datagram);
+    clients.append(c);
+    clientTimeouts.append(0);
+}
+
+void Server::disconnectClient(int index)
+{
+    QByteArray data(disconnectPayload);
+    Client c = clients[index];
+    QNetworkDatagram datagram(data, c.address, c.port);
+    qSocket.writeDatagram(datagram);
+    clients.removeAt(index);
+    clientTimeouts.removeAt(index);
 }

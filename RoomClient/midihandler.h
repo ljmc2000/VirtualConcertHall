@@ -30,6 +30,8 @@ private:
     QTimer heartBeatClock;
 
     static void handleMidi( double timeStamp, std::vector<unsigned char> *message, void *userData );
+
+    int clientId=-1;
 };
 
 #endif // MIDIHANDLER_H

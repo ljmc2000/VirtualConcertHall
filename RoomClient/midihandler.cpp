@@ -10,10 +10,10 @@ MidiHandler::MidiHandler()
     int midiInPort = prefs.value("midiInPort").toInt();
     midiin.openPort(midiInPort<midiin.getPortCount() ? midiInPort:0);
     midiin.setClientName("VirtualConcertHallClient");
-    midiin.setCallback(handleMidi, this);
 
     int midiOutPort = prefs.value("midiOutPort").toInt();
     midiout.openPort(midiOutPort<midiout.getPortCount() ? midiOutPort:0);
+    midiout.setClientName("VirtualConcertHallClient");
 
     qSocket.connectToHost(QHostAddress(prefs.value("serverHost").toString()),prefs.value("serverPort").toInt());
     connect(
@@ -21,7 +21,7 @@ MidiHandler::MidiHandler()
                 this, SLOT(handleDataFromServer())
             );
 
-    heartBeatClock.setInterval(HEARTBEATINTERVAL);
+    heartBeatClock.setInterval(RECONNECTDELAY);
     connect(
                 &heartBeatClock, SIGNAL(timeout()),
                 this, SLOT(heartBeat())
@@ -40,6 +40,7 @@ void MidiHandler::handleMidi( double timeStamp, std::vector<unsigned char> *mess
     MidiHandler* self = static_cast<MidiHandler*>(userData);
     QByteArray data((char *)message->data(),message->size());
     data.insert(0,MIDI);
+    data.insert(1,self->clientId);
     QNetworkDatagram datagram(data);
     self->qSocket.writeDatagram(datagram);
 }
@@ -56,13 +57,30 @@ void MidiHandler::handleDataFromServer()
     }
     std::cout << "\n";
 
-    midiout.sendMessage((unsigned char*)data.constData()+1,data.count()-1);
+    switch(data.at(0))
+    {
+    case INIT:
+        clientId=data.at(1);
+        heartBeatClock.setInterval(HEARTBEATINTERVAL);
+        midiin.setCallback(handleMidi, this);
+        break;
+
+    case MIDI:
+        midiout.sendMessage((unsigned char*)data.constData()+PACKETHEADERSIZE,data.count()-PACKETHEADERSIZE);
+        break;
+
+    case DISCONNECT:
+        clientId=-1;
+        heartBeatClock.setInterval(RECONNECTDELAY);
+        midiin.cancelCallback();
+        break;
+    }
 }
 
 void MidiHandler::heartBeat()
 {
     QByteArray data;
-    data.push_front(HEARTBEAT);
+    data.push_front(clientId == -1 ? INIT:HEARTBEAT);
 
     qSocket.writeDatagram(QNetworkDatagram(data));
 }

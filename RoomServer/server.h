@@ -14,7 +14,7 @@ struct Client
         this->port=port;
     }
 
-    auto operator==(const Client& c){return address==c.address && port==c.port;}
+    bool operator==(const Client& c){return address==c.address && port==c.port;}
 
     QHostAddress address;
     int port;
@@ -38,9 +38,9 @@ private:
     QList<Client> clients;
     QList<int> clientTimeouts;
 
-    int lastClientId=0;
-
-    void sendMidiToClients(QNetworkDatagram data);
+    void sendToAll(QByteArray data);
+    void addClient(Client c);
+    void disconnectClient(int index);
 };
 
 #endif // SERVER_H
