@@ -1,11 +1,16 @@
 #define HEARTBEATINTERVAL 40
 #define SERVERHEARTBEATTIMEOUT HEARTBEATINTERVAL*3
-#define PACKETHEADERSIZE 2
+#define MIDIMESSAGESIZE 3
 #define RECONNECTDELAY 3000
 
 namespace RoomCommon
 {
-    enum PacketType {INIT,HEARTBEAT,MIDI,DISCONNECT};
+    enum PacketType {INIT,          //sent on to request connection or upon connection
+                     HEARTBEAT,     //sent constantly to ensure continued connection
+                     MIDI,          //a packet which contains midi data
+                     UPDATENUMBER,  //every client has a number. said numbers are shuffled after a disconnect
+                     DISCONNECT     //sent to inform a player they have been disconnected
+                    };
 
     static char disconnectPayload[]={DISCONNECT};
 }

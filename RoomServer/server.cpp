@@ -78,6 +78,7 @@ void Server::readPendingDatagrams()
 
 void Server::heartBeatTimeout()
 {
+    bool disconnected=false;
     for(int i=0; i<clients.size(); i++)
     {
         clientTimeouts[i]+=1;
@@ -85,8 +86,11 @@ void Server::heartBeatTimeout()
         {
             qDebug() << "Client Disconnecting" << clients[i].address;
             disconnectClient(i);
+            disconnected=true;
         }
     }
+
+    if(disconnected) updateNumbers();
 }
 
 void Server::sendToAll(QByteArray data)
@@ -107,6 +111,19 @@ void Server::addClient(Client c)
     qSocket.writeDatagram(datagram);
     clients.append(c);
     clientTimeouts.append(0);
+}
+
+void Server::updateNumbers()
+{
+    for(int i=0; i<clients.size(); i++)
+    {
+        QByteArray data;
+        data.append(UPDATENUMBER);
+        data.append(i);
+
+        QNetworkDatagram datagram(data, clients[i].address, clients[i].port);
+        qSocket.writeDatagram(datagram);
+    }
 }
 
 void Server::disconnectClient(int index)

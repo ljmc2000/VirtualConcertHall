@@ -66,7 +66,11 @@ void MidiHandler::handleDataFromServer()
         break;
 
     case MIDI:
-        midiout.sendMessage((unsigned char*)data.constData()+PACKETHEADERSIZE,data.count()-PACKETHEADERSIZE);
+        midiout.sendMessage((unsigned char*)data.constEnd()-MIDIMESSAGESIZE,MIDIMESSAGESIZE);
+        break;
+
+    case UPDATENUMBER:
+        clientId=data.at(1);
         break;
 
     case DISCONNECT:

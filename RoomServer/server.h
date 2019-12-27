@@ -40,6 +40,7 @@ private:
 
     void sendToAll(QByteArray data);
     void addClient(Client c);
+    void updateNumbers();
     void disconnectClient(int index);
 };
 

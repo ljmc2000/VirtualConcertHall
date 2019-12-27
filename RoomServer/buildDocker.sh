@@ -1,2 +1,2 @@
-docker build -f Dockerfile .. -t gingerpi.urown.cloud/virtualconcerthall/roomserver
-docker push gingerpi.urown.cloud/virtualconcerthall/roomserver
+docker build -f Dockerfile .. -t thegingernut/roomserver
+docker push thegingernut/roomserver
