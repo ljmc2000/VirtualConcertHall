@@ -46,6 +46,9 @@ void SettingsWindow::setMidiPortsList()
 
     ui->midiInputSelector->setCurrentIndex(prefs.value("midiInPort").toInt());
     ui->midiOutputSelector->setCurrentIndex(prefs.value("midiOutPort").toInt());
+
+    midiin.openPort(prefs.value("midiInPort").toInt());
+    midiin.setCallback(midiHandler,this);
 }
 
 void SettingsWindow::setAddress()
@@ -56,7 +59,9 @@ void SettingsWindow::setAddress()
 
 void SettingsWindow::setMidiInPort()
 {
-    prefs.setValue("midiInPort",ui->midiInputSelector->currentIndex());
+    int port=ui->midiInputSelector->currentIndex();
+    prefs.setValue("midiInPort",port);
+    midiin.openPort(port);
 }
 
 void SettingsWindow::setMidiOutPort()
@@ -67,4 +72,26 @@ void SettingsWindow::setMidiOutPort()
 void SettingsWindow::returnToLastWindow()
 {
     delete this;
+}
+
+void SettingsWindow::midiHandler(double timeStamp, std::vector<unsigned char> *message, void *userData)
+{
+    SettingsWindow *self = static_cast<SettingsWindow*>(userData);
+
+    switch(message->at(0))
+    {
+        case 144:
+            int note=message->at(1);
+            if(note<self->minNote)
+            {
+                self->minNote=note;
+                self->prefs.setValue("minNote",note);
+            }
+            if(note>self->maxNote)
+            {
+                self->maxNote=note;
+                self->prefs.setValue("maxNote",note);
+            }
+            break;
+    }
 }

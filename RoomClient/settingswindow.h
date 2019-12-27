@@ -18,6 +18,8 @@ public:
     explicit SettingsWindow(QWidget *parent = nullptr);
     ~SettingsWindow();
 
+    static void midiHandler( double timeStamp, std::vector<unsigned char> *message, void *userData );
+
 public slots:
     void setAddress();
     void setMidiInPort();
@@ -31,6 +33,8 @@ private:
 
     RtMidiIn midiin;
     RtMidiOut midiout;
+
+    int maxNote=0, minNote=127;
 
 private: //methods
     void setMidiPortsList();
