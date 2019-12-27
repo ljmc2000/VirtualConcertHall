@@ -61,6 +61,7 @@ void SettingsWindow::setMidiInPort()
 {
     int port=ui->midiInputSelector->currentIndex();
     prefs.setValue("midiInPort",port);
+    midiin.closePort();
     midiin.openPort(port);
 }
 
@@ -77,6 +78,8 @@ void SettingsWindow::returnToLastWindow()
 void SettingsWindow::midiHandler(double timeStamp, std::vector<unsigned char> *message, void *userData)
 {
     SettingsWindow *self = static_cast<SettingsWindow*>(userData);
+
+    std::cout << message << "\n";
 
     switch(message->at(0))
     {
