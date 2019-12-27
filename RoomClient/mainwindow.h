@@ -21,11 +21,15 @@ public slots:
     void openSettings();
     void openPlayScreen();
 
+private slots:
+    void closeSettings();
+    void closePlayScreen();
+
 private:
     Ui::MainWindow *ui;
 
-    PlayScreen playScreen;
-    SettingsWindow settingsWindow;
+    PlayScreen *playScreen=nullptr;
+    SettingsWindow *settingsWindow=nullptr;
 };
 
 #endif // MAINWINDOW_H

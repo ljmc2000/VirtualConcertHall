@@ -24,11 +24,6 @@ PlayScreen::~PlayScreen()
     delete ui;
 }
 
-void PlayScreen::setLastWindow(QMainWindow *w)
-{
-    lastWindow = w;
-}
-
 void PlayScreen::showEvent(QShowEvent *event)
 {
     ui->instrament->fitInView(scene.sceneRect(), Qt::KeepAspectRatio);

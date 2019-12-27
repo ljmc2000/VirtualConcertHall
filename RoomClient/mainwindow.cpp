@@ -16,19 +16,36 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    delete settingsWindow;
     delete ui;
 }
 
 void MainWindow::openSettings()
 {
-    settingsWindow.show();
-    settingsWindow.setLastWindow(this);
+    settingsWindow = new SettingsWindow(this);
+    settingsWindow->show();
+    connect(settingsWindow, SIGNAL(destroyed()),
+            this, SLOT(closeSettings()));
     this->hide();
 }
 
 void MainWindow::openPlayScreen()
 {
-    playScreen.show();
-    playScreen.setLastWindow(this);
+    playScreen = new PlayScreen(this);
+    playScreen->show();
+    connect(playScreen, SIGNAL(destroyed()),
+            this, SLOT(closePlayScreen()));
     this->hide();
+}
+
+void MainWindow::closeSettings()
+{
+    settingsWindow=nullptr;
+    show();
+}
+
+void MainWindow::closePlayScreen()
+{
+    playScreen=nullptr;
+    show();
 }

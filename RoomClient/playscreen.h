@@ -21,13 +21,10 @@ public:
     explicit PlayScreen(QWidget *parent = nullptr);
     ~PlayScreen();
 
-    void setLastWindow(QMainWindow *w);
     void showEvent(QShowEvent *e);
 
 private:
     Ui::PlayScreen *ui;
-
-    QMainWindow *lastWindow;
 
     QGraphicsSvgItem instramentVisual;
     QGraphicsScene scene;

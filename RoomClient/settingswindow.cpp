@@ -30,11 +30,6 @@ SettingsWindow::~SettingsWindow()
     delete ui;
 }
 
-void SettingsWindow::setLastWindow(QMainWindow *w)
-{
-    lastWindow = w;
-}
-
 void SettingsWindow::setMidiPortsList()
 {
     ui->midiInputSelector->clear();
@@ -71,6 +66,5 @@ void SettingsWindow::setMidiOutPort()
 
 void SettingsWindow::returnToLastWindow()
 {
-    this->hide();
-    lastWindow->show();
+    delete this;
 }

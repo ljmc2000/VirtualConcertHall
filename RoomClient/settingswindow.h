@@ -18,8 +18,6 @@ public:
     explicit SettingsWindow(QWidget *parent = nullptr);
     ~SettingsWindow();
 
-    void setLastWindow(QMainWindow *w);
-
 public slots:
     void setAddress();
     void setMidiInPort();
@@ -29,7 +27,6 @@ public slots:
 private:
     Ui::SettingsWindow *ui;
 
-    QMainWindow *lastWindow;
     QSettings prefs;
 
     RtMidiIn midiin;
