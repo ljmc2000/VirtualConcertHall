@@ -79,8 +79,6 @@ void SettingsWindow::midiHandler(double timeStamp, std::vector<unsigned char> *m
 {
     SettingsWindow *self = static_cast<SettingsWindow*>(userData);
 
-    std::cout << message << "\n";
-
     switch(message->at(0))
     {
         case 144:

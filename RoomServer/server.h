@@ -5,6 +5,7 @@
 #include <QUdpSocket>
 #include <QNetworkDatagram>
 #include <QTimer>
+#include <QDateTime>
 
 struct Client
 {
@@ -30,13 +31,15 @@ public:
 
 public slots:
     void readPendingDatagrams();
-    void heartBeatTimeout();
+    void heartBeat();
+    void pruneClients();
 
 private:
     QUdpSocket qSocket;
-    QTimer heartBeatTimeoutTimer;
+    QTimer heartBeatTimer;
+    QTimer pruneTimer;
     QList<Client> clients;
-    QList<int> clientTimeouts;
+    QList<qint64> lastMessage;
 
     void sendToAll(QByteArray data);
     void addClient(Client c);

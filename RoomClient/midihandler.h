@@ -20,14 +20,15 @@ public:
 
 public slots:
     void handleDataFromServer();
-    void heartBeat();
+    void attemptConnect();
 
 private:
     RtMidiIn midiin;
     RtMidiOut midiout;
 
     QUdpSocket qSocket;
-    QTimer heartBeatClock;
+    QTimer reconnectClock;
+    qint64 timestamp;
 
     static void handleMidi( double timeStamp, std::vector<unsigned char> *message, void *userData );
 

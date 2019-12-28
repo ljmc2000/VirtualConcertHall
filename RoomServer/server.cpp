@@ -1,5 +1,6 @@
 #include "server.h"
 #include "roomcommon.h"
+#define GETTIME() QDateTime::currentDateTime().toMSecsSinceEpoch()
 
 using namespace RoomCommon;
 
@@ -13,12 +14,19 @@ Server::Server(int port)
         this, SLOT(readPendingDatagrams())
     );
 
-    heartBeatTimeoutTimer.setInterval(1);
+    heartBeatTimer.setInterval(HEARTBEATINTERVAL);
     connect(
-        &heartBeatTimeoutTimer, SIGNAL(timeout()),
-        this, SLOT(heartBeatTimeout())
+        &heartBeatTimer, SIGNAL(timeout()),
+        this, SLOT(heartBeat())
     );
-    heartBeatTimeoutTimer.start();
+    heartBeatTimer.start();
+
+    pruneTimer.setInterval(PRUNINGINTERVAL);
+    connect(
+        &pruneTimer, SIGNAL(timeout()),
+        this, SLOT(pruneClients())
+    );
+    pruneTimer.start();
 }
 
 Server::~Server()
@@ -44,9 +52,11 @@ void Server::readPendingDatagrams()
 
         else
         {
-            QByteArray data;
+            QByteArray data,data1;
+            data1.setNum(GETTIME());
             data.append(INIT);
             data.append(index);
+            data.append(data1);
             QNetworkDatagram datagram(data, c.address, c.port);
             qSocket.writeDatagram(datagram);
         }
@@ -55,20 +65,17 @@ void Server::readPendingDatagrams()
 
     case HEARTBEAT:
         {
-            if(index != -1)
-            {
-                clientTimeouts[index]=0;
-            }
+            QByteArray data1(data.constData()+1,data.size()-1);
+            qint64 timestamp = data1.toLongLong();
+            lastMessage[index]=timestamp;
 
-            else
+            if(timestamp+SERVERHEARTBEATTIMEOUT<GETTIME())
             {
-
                 QNetworkDatagram disconnection(disconnectPayload,c.address,c.port);
                 qSocket.writeDatagram(disconnection);
             }
-
-            break;
-        }
+        }        
+        break;
 
     case MIDI:
         sendToAll(data);
@@ -76,21 +83,36 @@ void Server::readPendingDatagrams()
     }
 }
 
-void Server::heartBeatTimeout()
+void Server::heartBeat()
 {
-    bool disconnected=false;
-    for(int i=0; i<clients.size(); i++)
+    foreach(Client c,clients)
     {
-        clientTimeouts[i]+=1;
-        if(clientTimeouts[i]>SERVERHEARTBEATTIMEOUT)
+        QByteArray data,data1;
+        qint64 t=GETTIME();
+        data.append(HEARTBEAT);
+        data1.setNum(t);
+        data.append(data1);
+
+        QNetworkDatagram datagram(data,c.address,c.port);
+        qSocket.writeDatagram(datagram);
+    }
+}
+
+void Server::pruneClients()
+{
+    bool pruned=false;
+
+    for(int i=0; i<lastMessage.size(); i++)
+    {
+        if(lastMessage[i]+PRUNINGINTERVAL<GETTIME())
         {
-            qDebug() << "Client Disconnecting" << clients[i].address;
+            pruned=true;
             disconnectClient(i);
-            disconnected=true;
+            i--;    //as the previously 1 ahead client is now at current value of i
         }
     }
 
-    if(disconnected) updateNumbers();
+    if(pruned) updateNumbers();
 }
 
 void Server::sendToAll(QByteArray data)
@@ -104,13 +126,15 @@ void Server::sendToAll(QByteArray data)
 
 void Server::addClient(Client c)
 {
-    QByteArray data;
+    QByteArray data,data1;
+    data1.setNum(GETTIME());
     data.append(INIT);
     data.append(clients.size());
+    data.append(data1);
     QNetworkDatagram datagram(data, c.address, c.port);
     qSocket.writeDatagram(datagram);
     clients.append(c);
-    clientTimeouts.append(0);
+    lastMessage.append(GETTIME());
 }
 
 void Server::updateNumbers()
@@ -133,5 +157,6 @@ void Server::disconnectClient(int index)
     QNetworkDatagram datagram(data, c.address, c.port);
     qSocket.writeDatagram(datagram);
     clients.removeAt(index);
-    clientTimeouts.removeAt(index);
+    lastMessage.removeAt(index);
+    qDebug() << "Client Disconnecting" << c.address;
 }
