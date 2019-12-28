@@ -104,7 +104,7 @@ void Server::pruneClients()
 
     for(int i=0; i<lastMessage.size(); i++)
     {
-        if(lastMessage[i]+PRUNINGINTERVAL<GETTIME())
+        if(lastMessage[i]+SERVERHEARTBEATTIMEOUT<GETTIME())
         {
             pruned=true;
             disconnectClient(i);
