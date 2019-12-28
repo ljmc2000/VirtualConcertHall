@@ -52,11 +52,11 @@ void Server::readPendingDatagrams()
 
         else
         {
-            QByteArray data,data1;
-            data1.setNum(GETTIME());
+            QByteArray data;
+            qint64 t = GETTIME();
             data.append(INIT);
             data.append(index);
-            data.append(data1);
+            data.append((char*)&t,sizeof(qint64));
             QNetworkDatagram datagram(data, c.address, c.port);
             qSocket.writeDatagram(datagram);
         }
@@ -65,8 +65,7 @@ void Server::readPendingDatagrams()
 
     case HEARTBEAT:
         {
-            QByteArray data1(data.constData()+1,data.size()-1);
-            qint64 timestamp = data1.toLongLong();
+            qint64 timestamp = *(qint64*)(data.constBegin()+1);
             lastMessage[index]=timestamp;
 
             if(timestamp+SERVERHEARTBEATTIMEOUT<GETTIME())
@@ -87,11 +86,10 @@ void Server::heartBeat()
 {
     foreach(Client c,clients)
     {
-        QByteArray data,data1;
+        QByteArray data;
         qint64 t=GETTIME();
         data.append(HEARTBEAT);
-        data1.setNum(t);
-        data.append(data1);
+        data.append((char*)&t,sizeof(qint64));
 
         QNetworkDatagram datagram(data,c.address,c.port);
         qSocket.writeDatagram(datagram);
@@ -126,11 +124,11 @@ void Server::sendToAll(QByteArray data)
 
 void Server::addClient(Client c)
 {
-    QByteArray data,data1;
-    data1.setNum(GETTIME());
+    qint64 t = GETTIME();
+    QByteArray data;
     data.append(INIT);
     data.append(clients.size());
-    data.append(data1);
+    data.append((char*)&t,sizeof(qint64));
     QNetworkDatagram datagram(data, c.address, c.port);
     qSocket.writeDatagram(datagram);
     clients.append(c);

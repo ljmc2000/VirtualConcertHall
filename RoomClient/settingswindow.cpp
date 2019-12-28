@@ -33,6 +33,11 @@ SettingsWindow::~SettingsWindow()
 void SettingsWindow::setMidiPortsList()
 {
     ui->midiInputSelector->clear();
+    ui->midiOutputSelector->clear();
+
+    midiin.openPort(prefs.value("midiInPort").toInt());
+    midiin.setCallback(midiHandler,this);
+    midiout.openPort(prefs.value("midiOutPort").toInt());
 
     for(unsigned int i=0; i<midiin.getPortCount(); i++)
     {
@@ -46,9 +51,6 @@ void SettingsWindow::setMidiPortsList()
 
     ui->midiInputSelector->setCurrentIndex(prefs.value("midiInPort").toInt());
     ui->midiOutputSelector->setCurrentIndex(prefs.value("midiOutPort").toInt());
-
-    midiin.openPort(prefs.value("midiInPort").toInt());
-    midiin.setCallback(midiHandler,this);
 }
 
 void SettingsWindow::setAddress()
@@ -67,7 +69,10 @@ void SettingsWindow::setMidiInPort()
 
 void SettingsWindow::setMidiOutPort()
 {
-    prefs.setValue("midiOutPort",ui->midiOutputSelector->currentIndex());
+    int port=ui->midiOutputSelector->currentIndex();
+    prefs.setValue("midiOutPort",port);
+    midiout.closePort();
+    midiout.openPort(port);
 }
 
 void SettingsWindow::returnToLastWindow()

@@ -39,11 +39,9 @@ void MidiHandler::handleMidi( double timeStamp, std::vector<unsigned char> *mess
 {
     MidiHandler* self = static_cast<MidiHandler*>(userData);
     QByteArray data((char *)message->data(),message->size());
-    QByteArray data1;
-    data1.setNum(self->timestamp);
     data.insert(0,MIDI);
     data.insert(1,self->clientId);
-    data.insert(2,data1);
+    data.insert(2,(char*)&self->timestamp,sizeof(qint64));
     QNetworkDatagram datagram(data);
     self->qSocket.writeDatagram(datagram);
 
@@ -60,9 +58,8 @@ void MidiHandler::handleDataFromServer()
     {
     case INIT:
         {
-            QByteArray data1(data.constBegin()+2,data.size());
             clientId=data.at(1);
-            timestamp=data1.toLongLong();
+            timestamp=*(char*)(data.constData()+2);
             reconnectClock.stop();
             midiin.setCallback(handleMidi, this);
             break;
@@ -70,8 +67,7 @@ void MidiHandler::handleDataFromServer()
 
     case HEARTBEAT:
         {
-            QByteArray data1(data.constBegin()+2,data.size());
-            timestamp=data1.toLongLong();
+            timestamp=*(qint64*)(data.constBegin()+1);
             QNetworkDatagram rsvp(data);
             qSocket.writeDatagram(rsvp);
             break;
@@ -79,8 +75,7 @@ void MidiHandler::handleDataFromServer()
 
     case MIDI:
         {
-            QByteArray data1(data.constBegin()+2,data.size()-5);
-            qint64 t = data1.toLongLong();
+            qint64 t = *(qint64*)(data.constBegin()+2);
             if(t<timestamp+HEARTBEATINTERVAL) midiout.sendMessage((unsigned char*)data.constEnd()-MIDIMESSAGESIZE,MIDIMESSAGESIZE);
             break;
         }
