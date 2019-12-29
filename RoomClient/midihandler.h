@@ -32,7 +32,7 @@ private:
 
     static void handleMidi( double timeStamp, std::vector<unsigned char> *message, void *userData );
 
-    int clientId=-1;
+    quint8 clientId=-1;
 };
 
 #endif // MIDIHANDLER_H

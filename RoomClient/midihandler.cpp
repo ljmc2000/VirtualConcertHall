@@ -38,14 +38,14 @@ MidiHandler::~MidiHandler()
 void MidiHandler::handleMidi( double timeStamp, std::vector<unsigned char> *message, void *userData )
 {
     MidiHandler* self = static_cast<MidiHandler*>(userData);
-    QByteArray data((char *)message->data(),message->size());
-    data.insert(0,MIDI);
-    data.insert(1,self->clientId);
-    data.insert(2,(char*)&self->timestamp,sizeof(qint64));
+    MidiPacket midiPacket;
+    midiPacket.id=self->clientId;
+    midiPacket.timestamp=self->timestamp;
+    for(unsigned int i=0; i<message->size(); i++) midiPacket.message[i]=message->at(i);
+
+    QByteArray data((char *)&midiPacket,sizeof(midiPacket));
     QNetworkDatagram datagram(data);
     self->qSocket.writeDatagram(datagram);
-
-    return;
 }
 
 void MidiHandler::handleDataFromServer()
@@ -75,8 +75,8 @@ void MidiHandler::handleDataFromServer()
 
     case MIDI:
         {
-            qint64 t = *(qint64*)(data.constBegin()+2);
-            if(t<timestamp+HEARTBEATINTERVAL) midiout.sendMessage((unsigned char*)data.constEnd()-MIDIMESSAGESIZE,MIDIMESSAGESIZE);
+            MidiPacket *midiPacket=(MidiPacket*) data.constData();
+            if(midiPacket->timestamp<timestamp+HEARTBEATINTERVAL) midiout.sendMessage(midiPacket->message,MIDIMESSAGESIZE);
             break;
         }
 

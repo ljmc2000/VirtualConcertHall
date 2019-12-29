@@ -35,9 +35,11 @@ void SettingsWindow::setMidiPortsList()
     ui->midiInputSelector->clear();
     ui->midiOutputSelector->clear();
 
-    midiin.openPort(prefs.value("midiInPort").toInt());
+    int inport=prefs.value("midiInPort").toInt(),outport=prefs.value("midiOutPort").toInt();
+
+    midiin.openPort(inport<midiin.getPortCount() ? inport:0);
     midiin.setCallback(midiHandler,this);
-    midiout.openPort(prefs.value("midiOutPort").toInt());
+    midiout.openPort(outport<midiin.getPortCount() ? outport:0);
 
     for(unsigned int i=0; i<midiin.getPortCount(); i++)
     {

@@ -14,4 +14,12 @@ namespace RoomCommon
                     };
 
     static char disconnectPayload[]={DISCONNECT};
+
+    struct MidiPacket
+    {
+        PacketType packetType=MIDI;
+        quint8 id;
+        qint64 timestamp;
+        quint8 message[3] = {0,0,0};
+    };
 }
