@@ -43,7 +43,7 @@ void Server::readPendingDatagrams()
 
     switch(data.at(0))
     {
-    case INIT:
+    case CONNECT:
         if(index == -1)
         {
             qDebug() << "Client Connecting" << c.address;
@@ -52,11 +52,12 @@ void Server::readPendingDatagrams()
 
         else
         {
+            InitPacket initPacket;
+            initPacket.timestamp = GETTIME();
+            initPacket.clientId=index;
+            data.append((char*)&initPacket,sizeof(InitPacket));
+
             QByteArray data;
-            qint64 t = GETTIME();
-            data.append(INIT);
-            data.append(index);
-            data.append((char*)&t,sizeof(qint64));
             QNetworkDatagram datagram(data, c.address, c.port);
             qSocket.writeDatagram(datagram);
         }
@@ -65,12 +66,13 @@ void Server::readPendingDatagrams()
 
     case HEARTBEAT:
         {
-            qint64 timestamp = *(qint64*)(data.constBegin()+1);
-            lastMessage[index]=timestamp;
+            HeartbeatPacket *heartbeatPacket=(HeartbeatPacket*) data.constData();
+            lastMessage[index]=heartbeatPacket->timestamp;
 
-            if(timestamp+SERVERHEARTBEATTIMEOUT<GETTIME())
+            if(heartbeatPacket->timestamp+SERVERHEARTBEATTIMEOUT<GETTIME())
             {
-                QNetworkDatagram disconnection(disconnectPayload,c.address,c.port);
+                QByteArray data((char*)&disconnectPacket,sizeof(DisconnectPacket));
+                QNetworkDatagram disconnection(data,c.address,c.port);
                 qSocket.writeDatagram(disconnection);
             }
         }        
@@ -86,11 +88,10 @@ void Server::heartBeat()
 {
     foreach(Client c,clients)
     {
-        QByteArray data;
-        qint64 t=GETTIME();
-        data.append(HEARTBEAT);
-        data.append((char*)&t,sizeof(qint64));
+        HeartbeatPacket heartbeatPacket;
+        heartbeatPacket.timestamp=GETTIME();
 
+        QByteArray data((char*)&heartbeatPacket,sizeof(HeartbeatPacket));
         QNetworkDatagram datagram(data,c.address,c.port);
         qSocket.writeDatagram(datagram);
     }
@@ -124,11 +125,11 @@ void Server::sendToAll(QByteArray data)
 
 void Server::addClient(Client c)
 {
-    qint64 t = GETTIME();
-    QByteArray data;
-    data.append(INIT);
-    data.append(clients.size());
-    data.append((char*)&t,sizeof(qint64));
+    InitPacket initPacket;
+    initPacket.clientId=clients.size();
+    initPacket.timestamp=GETTIME();
+
+    QByteArray data((char*)&initPacket,sizeof(InitPacket));
     QNetworkDatagram datagram(data, c.address, c.port);
     qSocket.writeDatagram(datagram);
     clients.append(c);
@@ -137,12 +138,12 @@ void Server::addClient(Client c)
 
 void Server::updateNumbers()
 {
-    for(int i=0; i<clients.size(); i++)
+    for(quint8 i=0; i<clients.size(); i++)
     {
-        QByteArray data;
-        data.append(UPDATENUMBER);
-        data.append(i);
+        UpdateNumberPacket updateNumberPacket;
+        updateNumberPacket.clientId=i;
 
+        QByteArray data((char*)&updateNumberPacket,sizeof(UpdateNumberPacket));
         QNetworkDatagram datagram(data, clients[i].address, clients[i].port);
         qSocket.writeDatagram(datagram);
     }
@@ -150,7 +151,7 @@ void Server::updateNumbers()
 
 void Server::disconnectClient(int index)
 {
-    QByteArray data(disconnectPayload);
+    QByteArray data((char*)&disconnectPacket,sizeof (DisconnectPacket));
     Client c = clients[index];
     QNetworkDatagram datagram(data, c.address, c.port);
     qSocket.writeDatagram(datagram);

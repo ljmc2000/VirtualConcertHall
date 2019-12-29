@@ -18,7 +18,7 @@ struct Client
     bool operator==(const Client& c){return address==c.address && port==c.port;}
 
     QHostAddress address;
-    int port;
+    quint16 port;
 };
 
 class Server: public QObject

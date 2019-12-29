@@ -26,6 +26,7 @@ MidiHandler::MidiHandler()
                 &reconnectClock, SIGNAL(timeout()),
                 this, SLOT(attemptConnect())
             );
+    attemptConnect();
     reconnectClock.start();
 }
 
@@ -39,7 +40,7 @@ void MidiHandler::handleMidi( double timeStamp, std::vector<unsigned char> *mess
 {
     MidiHandler* self = static_cast<MidiHandler*>(userData);
     MidiPacket midiPacket;
-    midiPacket.id=self->clientId;
+    midiPacket.clientId=self->clientId;
     midiPacket.timestamp=self->timestamp;
     for(unsigned int i=0; i<message->size(); i++) midiPacket.message[i]=message->at(i);
 
@@ -58,8 +59,9 @@ void MidiHandler::handleDataFromServer()
     {
     case INIT:
         {
-            clientId=data.at(1);
-            timestamp=*(char*)(data.constData()+2);
+            InitPacket *initPacket=(InitPacket*) data.constData();
+            clientId=initPacket->clientId;
+            timestamp=initPacket->timestamp;
             reconnectClock.stop();
             midiin.setCallback(handleMidi, this);
             break;
@@ -67,7 +69,8 @@ void MidiHandler::handleDataFromServer()
 
     case HEARTBEAT:
         {
-            timestamp=*(qint64*)(data.constBegin()+1);
+            HeartbeatPacket *heartbeatPacket=(HeartbeatPacket*) data.constData();
+            timestamp=heartbeatPacket->timestamp;
             QNetworkDatagram rsvp(data);
             qSocket.writeDatagram(rsvp);
             break;
@@ -81,14 +84,19 @@ void MidiHandler::handleDataFromServer()
         }
 
     case UPDATENUMBER:
-        clientId=data.at(1);
-        break;
+        {
+            UpdateNumberPacket *updateNumberPacket=(UpdateNumberPacket*) data.constData();
+            clientId=updateNumberPacket->clientId;
+            break;
+        }
 
     case DISCONNECT:
-        clientId=-1;
-        reconnectClock.start();
-        midiin.cancelCallback();
-        break;
+        {
+            clientId=-1;
+            reconnectClock.start();
+            midiin.cancelCallback();
+            break;
+        }
     }
 }
 
@@ -96,8 +104,6 @@ void MidiHandler::attemptConnect()
 {
     qDebug() << "attempting connection to server";
 
-    QByteArray data;
-    data.push_front(INIT);
-
+    QByteArray data((char*)&connectPacket,sizeof(ConnectPacket));
     qSocket.writeDatagram(QNetworkDatagram(data));
 }
