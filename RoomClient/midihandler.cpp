@@ -81,6 +81,7 @@ void MidiHandler::handleDataFromServer()
     case MIDI:
         {
             MidiPacket *midiPacket=(MidiPacket*) data.constData();
+            handleMidiFromServer(midiPacket->clientId,midiPacket->timestamp,midiPacket->message);
             if(midiPacket->timestamp<timestamp+HEARTBEATINTERVAL) midiout.sendMessage(midiPacket->message,MIDIMESSAGESIZE);
             break;
         }
@@ -107,6 +108,22 @@ void MidiHandler::handleDataFromServer()
             break;
         }
     }
+}
+
+void MidiHandler::handleMidiFromServer(quint8 clientId, qint64 timestamp, quint8 *midiMessage)
+{
+    if(timestamp+SERVERHEARTBEATTIMEOUT<this->timestamp)
+    if(midiMessage[2]!=0)
+    if(noisyMessages.contains(midiMessage[0]))
+    {
+        qDebug() << "Midi packet dropped from" << clientId;
+        return;
+    }
+    midiout.sendMessage(midiMessage,MIDIMESSAGESIZE);
+
+    QString m;
+    for(unsigned int i=0; i<MIDIMESSAGESIZE; i++) m.append(QString::number(midiMessage[i])+":");
+    qDebug() << m << this->timestamp-timestamp<<"ms";
 }
 
 void MidiHandler::attemptConnect()

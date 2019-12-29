@@ -18,7 +18,7 @@ public:
     MidiHandler();
     ~MidiHandler();
 
-public slots:
+private slots:
     void handleDataFromServer();
     void attemptConnect();
 
@@ -33,6 +33,7 @@ private:
     qint64 timestamp;
 
     static void handleMidi( double timeStamp, std::vector<unsigned char> *message, void *userData );
+    void handleMidiFromServer(quint8 clientId,qint64 timestamp, quint8* midiMessage);
 
     quint8 clientId=-1;
 };

@@ -59,4 +59,9 @@ namespace RoomCommon
         PacketType packetType=DISCONNECT;
     };
     static DisconnectPacket disconnectPacket;
+
+    static QList<quint8> noisyMessages(  //messages that if delivered late would be distracting
+    {
+        144,145,146
+    });
 }
