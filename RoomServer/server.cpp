@@ -1,6 +1,5 @@
 #include "server.h"
 #include "roomcommon.h"
-#define GETTIME() QDateTime::currentDateTime().toMSecsSinceEpoch()
 
 using namespace RoomCommon;
 
@@ -39,42 +38,20 @@ void Server::readPendingDatagrams()
     QNetworkDatagram datagram = qSocket.receiveDatagram();
     QByteArray data = datagram.data();
     Client c = Client(datagram.senderAddress(),datagram.senderPort());
-    int index = clients.indexOf(c);
 
     switch(data.at(0))
     {
     case CONNECT:
-        if(index == -1)
-        {
-            qDebug() << "Client Connecting" << c.address;
+        if(!clients.keys().contains(c))
             addClient(c);
-        }
-
         else
-        {
-            InitPacket initPacket;
-            initPacket.timestamp = GETTIME();
-            initPacket.clientId=index;
-            data.append((char*)&initPacket,sizeof(InitPacket));
-
-            QByteArray data;
-            QNetworkDatagram datagram(data, c.address, c.port);
-            qSocket.writeDatagram(datagram);
-        }
-
+            enableClient(c);
         break;
 
     case HEARTBEAT:
         {
             HeartbeatPacket *heartbeatPacket=(HeartbeatPacket*) data.constData();
-            lastMessage[index]=heartbeatPacket->timestamp;
-
-            if(heartbeatPacket->timestamp+SERVERHEARTBEATTIMEOUT<GETTIME())
-            {
-                QByteArray data((char*)&disconnectPacket,sizeof(DisconnectPacket));
-                QNetworkDatagram disconnection(data,c.address,c.port);
-                qSocket.writeDatagram(disconnection);
-            }
+            clients[c].lastMessage=heartbeatPacket->timestamp;
         }        
         break;
 
@@ -86,7 +63,7 @@ void Server::readPendingDatagrams()
 
 void Server::heartBeat()
 {
-    foreach(Client c,clients)
+    foreach(Client c,clients.keys())
     {
         HeartbeatPacket heartbeatPacket;
         heartbeatPacket.timestamp=GETTIME();
@@ -99,26 +76,26 @@ void Server::heartBeat()
 
 void Server::pruneClients()
 {
-    bool pruned=false;
-
-    for(int i=0; i<lastMessage.size(); i++)
+    foreach(Client c, clients.keys()) if(clients[c].awake)
     {
-        if(lastMessage[i]+SERVERHEARTBEATTIMEOUT<GETTIME())
+        if(clients[c].lastMessage+SERVERTIMEOUT<GETTIME())
         {
-            pruned=true;
-            disconnectClient(i);
-            i--;    //as the previously 1 ahead client is now at current value of i
+            disableClient(c);
         }
     }
+}
 
-    if(pruned) updateNumbers();
+quint8 Server::getNextClientId()
+{
+    return ++nextClientId;
 }
 
 void Server::sendToAll(QByteArray data)
 {
-    foreach(Client client, clients)
+    qint64 timestamp=GETTIME();
+    foreach(Client c, clients.keys()) if(timestamp<clients[c].lastMessage+SERVERTIMEOUT)
     {
-        QNetworkDatagram datagram(data, client.address, client.port);
+        QNetworkDatagram datagram(data, c.address, c.port);
         qSocket.writeDatagram(datagram);
     }
 }
@@ -126,36 +103,34 @@ void Server::sendToAll(QByteArray data)
 void Server::addClient(Client c)
 {
     InitPacket initPacket;
-    initPacket.clientId=clients.size();
+    initPacket.clientId=getNextClientId();
     initPacket.timestamp=GETTIME();
 
     QByteArray data((char*)&initPacket,sizeof(InitPacket));
     QNetworkDatagram datagram(data, c.address, c.port);
     qSocket.writeDatagram(datagram);
-    clients.append(c);
-    lastMessage.append(GETTIME());
+    clients[c].clientId=initPacket.clientId;
+    qDebug() << "Client Connecting" << c.address << c.port;
 }
 
-void Server::updateNumbers()
+void Server::disableClient(Client c)
 {
-    for(quint8 i=0; i<clients.size(); i++)
-    {
-        UpdateNumberPacket updateNumberPacket;
-        updateNumberPacket.clientId=i;
-
-        QByteArray data((char*)&updateNumberPacket,sizeof(UpdateNumberPacket));
-        QNetworkDatagram datagram(data, clients[i].address, clients[i].port);
-        qSocket.writeDatagram(datagram);
-    }
+    DisablePacket disablePacket;
+    disablePacket.clientId=clients[c].clientId;
+    clients[c].awake=false;
+    QByteArray data((char*)&disablePacket,sizeof (DisablePacket));
+    sendToAll(data);
+    qDebug() << "Client Disabled" << c.address << c.port;
 }
 
-void Server::disconnectClient(int index)
+void Server::enableClient(Client c)
 {
-    QByteArray data((char*)&disconnectPacket,sizeof (DisconnectPacket));
-    Client c = clients[index];
+    InitPacket initPacket;
+    initPacket.timestamp = GETTIME();
+    initPacket.clientId=clients[c].clientId;
+
+    QByteArray data((char*)&initPacket,sizeof(InitPacket));
     QNetworkDatagram datagram(data, c.address, c.port);
     qSocket.writeDatagram(datagram);
-    clients.removeAt(index);
-    lastMessage.removeAt(index);
-    qDebug() << "Client Disconnecting" << c.address;
+    qDebug() << "Client Awoken" << c.address << c.port;
 }

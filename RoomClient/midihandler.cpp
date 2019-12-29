@@ -85,10 +85,17 @@ void MidiHandler::handleDataFromServer()
             break;
         }
 
-    case UPDATENUMBER:
+    case DISABLE:
         {
-            UpdateNumberPacket *updateNumberPacket=(UpdateNumberPacket*) data.constData();
-            clientId=updateNumberPacket->clientId;
+            DisablePacket *disablePacket=(DisablePacket*) data.constData();
+            qDebug() << "player" << disablePacket->clientId << "has gone dormant";
+            break;
+        }
+
+    case ENABLE:    //TODO add behaviour for un greying out players who have gone dormant
+        {
+            EnablePacket *enablePacket=(EnablePacket*) data.constData();
+            qDebug() << "player" << enablePacket->clientId << "has awoken";
             break;
         }
 
