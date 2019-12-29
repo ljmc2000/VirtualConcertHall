@@ -27,6 +27,8 @@ private:
     RtMidiOut midiout;
 
     QUdpSocket qSocket;
+    QHostAddress serverHost;
+    quint16 serverPort;
     QTimer reconnectClock;
     qint64 timestamp;
 

@@ -6,16 +6,18 @@ using namespace RoomCommon;
 MidiHandler::MidiHandler()
 {
     QSettings prefs;
+    serverHost = QHostAddress(prefs.value("serverHost").toString());
+    serverPort = prefs.value("serverPort").toUInt();
 
-    int midiInPort = prefs.value("midiInPort").toInt();
+    unsigned int midiInPort = prefs.value("midiInPort").toUInt();
     midiin.openPort(midiInPort<midiin.getPortCount() ? midiInPort:0);
     midiin.setClientName("VirtualConcertHallClient");
 
-    int midiOutPort = prefs.value("midiOutPort").toInt();
+    unsigned int midiOutPort = prefs.value("midiOutPort").toUInt();
     midiout.openPort(midiOutPort<midiout.getPortCount() ? midiOutPort:0);
     midiout.setClientName("VirtualConcertHallClient");
 
-    qSocket.connectToHost(QHostAddress(prefs.value("serverHost").toString()),prefs.value("serverPort").toInt());
+    qSocket.connectToHost(serverHost,serverPort);
     connect(
                 &qSocket, SIGNAL(readyRead()),
                 this, SLOT(handleDataFromServer())
@@ -45,7 +47,7 @@ void MidiHandler::handleMidi( double timeStamp, std::vector<unsigned char> *mess
     for(unsigned int i=0; i<message->size(); i++) midiPacket.message[i]=message->at(i);
 
     QByteArray data((char *)&midiPacket,sizeof(midiPacket));
-    QNetworkDatagram datagram(data);
+    QNetworkDatagram datagram(data,self->serverHost,self->serverPort);
     self->qSocket.writeDatagram(datagram);
 }
 
@@ -71,7 +73,7 @@ void MidiHandler::handleDataFromServer()
         {
             HeartbeatPacket *heartbeatPacket=(HeartbeatPacket*) data.constData();
             timestamp=heartbeatPacket->timestamp;
-            QNetworkDatagram rsvp(data);
+            QNetworkDatagram rsvp(data,serverHost,serverPort);
             qSocket.writeDatagram(rsvp);
             break;
         }
@@ -103,7 +105,8 @@ void MidiHandler::handleDataFromServer()
 void MidiHandler::attemptConnect()
 {
     qDebug() << "attempting connection to server";
+    QSettings prefs;
 
     QByteArray data((char*)&connectPacket,sizeof(ConnectPacket));
-    qSocket.writeDatagram(QNetworkDatagram(data));
+    qSocket.writeDatagram(QNetworkDatagram(data,serverHost,serverPort));
 }
