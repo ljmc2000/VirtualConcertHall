@@ -82,7 +82,6 @@ void MidiHandler::handleDataFromServer()
         {
             MidiPacket *midiPacket=(MidiPacket*) data.constData();
             handleMidiFromServer(midiPacket->clientId,midiPacket->timestamp,midiPacket->message);
-            if(midiPacket->timestamp<timestamp+HEARTBEATINTERVAL) midiout.sendMessage(midiPacket->message,MIDIMESSAGESIZE);
             break;
         }
 
