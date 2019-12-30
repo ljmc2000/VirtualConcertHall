@@ -28,6 +28,7 @@ MidiHandler::MidiHandler()
                 &reconnectClock, SIGNAL(timeout()),
                 this, SLOT(attemptConnect())
             );
+    secretId=prefs.value("secretId").toUInt();
     attemptConnect();
     reconnectClock.start();
 }
@@ -42,7 +43,7 @@ void MidiHandler::handleMidi( double timeStamp, std::vector<unsigned char> *mess
 {
     MidiHandler* self = static_cast<MidiHandler*>(userData);
     MidiPacket midiPacket;
-    midiPacket.clientId=self->clientId;
+    midiPacket.clientId=self->secretId;
     midiPacket.timestamp=self->timestamp;
     for(unsigned int i=0; i<message->size(); i++) midiPacket.message[i]=message->at(i);
 
@@ -73,6 +74,7 @@ void MidiHandler::handleDataFromServer()
         {
             HeartbeatPacket *heartbeatPacket=(HeartbeatPacket*) data.constData();
             timestamp=heartbeatPacket->timestamp;
+            heartbeatPacket->secretId=secretId;
             QNetworkDatagram rsvp(data,serverHost,serverPort);
             qSocket.writeDatagram(rsvp);
             break;
@@ -109,7 +111,7 @@ void MidiHandler::handleDataFromServer()
     }
 }
 
-void MidiHandler::handleMidiFromServer(quint8 clientId, qint64 timestamp, quint8 *midiMessage)
+void MidiHandler::handleMidiFromServer(quint32 clientId, qint64 timestamp, quint8 *midiMessage)
 {
     if(timestamp+SERVERHEARTBEATTIMEOUT<this->timestamp)
     if(midiMessage[2]!=0)
@@ -128,7 +130,8 @@ void MidiHandler::handleMidiFromServer(quint8 clientId, qint64 timestamp, quint8
 void MidiHandler::attemptConnect()
 {
     qDebug() << "attempting connection to server";
-    QSettings prefs;
+    ConnectPacket connectPacket;
+    connectPacket.secretId=secretId;
 
     QByteArray data((char*)&connectPacket,sizeof(ConnectPacket));
     qSocket.writeDatagram(QNetworkDatagram(data,serverHost,serverPort));

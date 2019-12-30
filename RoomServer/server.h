@@ -11,21 +11,8 @@
 
 struct Client
 {
-    Client(QHostAddress address, quint16 port)
-    {
-        this->address=address;
-        this->port=port;
-    }
-
-    friend bool operator==(Client a,const Client& c){return a.address==c.address && a.port==c.port;}
-    friend uint qHash(const Client &c){return qHash(c.address,c.port);}
-
     QHostAddress address;
     quint16 port;
-};
-
-struct ClientData
-{
     quint8 clientId;
     qint64 lastMessage=GETTIME();
     bool awake=true;
@@ -48,14 +35,14 @@ private:
     QUdpSocket qSocket;
     QTimer heartBeatTimer;
     QTimer pruneTimer;
-    QHash<Client,ClientData> clients;
+    QHash<quint32,Client> clients;
     quint8 nextClientId=0;
 
     quint8 getNextClientId();
     void sendToAll(QByteArray data);
-    void addClient(Client c);
-    void disableClient(Client c);
-    void enableClient(Client c);
+    quint32 addClient(QNetworkDatagram joinRequest);
+    void disableClient(quint32 secretId);
+    void enableClient(QNetworkDatagram joinRequest);
 };
 
 #endif // SERVER_H

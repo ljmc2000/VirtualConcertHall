@@ -33,9 +33,9 @@ private:
     qint64 timestamp;
 
     static void handleMidi( double timeStamp, std::vector<unsigned char> *message, void *userData );
-    void handleMidiFromServer(quint8 clientId,qint64 timestamp, quint8* midiMessage);
+    void handleMidiFromServer(quint32 clientId,qint64 timestamp, quint8* midiMessage);
 
-    quint8 clientId=-1;
+    quint32 clientId=-1,secretId;
 };
 
 #endif // MIDIHANDLER_H

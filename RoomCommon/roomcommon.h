@@ -18,26 +18,27 @@ namespace RoomCommon
     struct ConnectPacket
     {
         PacketType packetType=CONNECT;
+        quint32 secretId;
     };
-    static ConnectPacket connectPacket;
 
     struct InitPacket
     {
         PacketType packetType=INIT;
-        quint8 clientId;
+        quint32 clientId;
         qint64 timestamp;
     };
 
     struct HeartbeatPacket
     {
         PacketType packetType=HEARTBEAT;
+        quint32 secretId=-1;
         qint64 timestamp;
     };
 
     struct MidiPacket
     {
         PacketType packetType=MIDI;
-        quint8 clientId;
+        quint32 clientId;
         qint64 timestamp;
         quint8 message[3] = {0,0,0};
     };
@@ -45,13 +46,13 @@ namespace RoomCommon
     struct DisablePacket
     {
         PacketType packetType=DISABLE;
-        quint8 clientId;
+        quint32 clientId;
     };
 
     struct EnablePacket
     {
         PacketType packetType=ENABLE;
-        quint8 clientId;
+        quint32 clientId;
     };
 
     struct DisconnectPacket
@@ -62,6 +63,6 @@ namespace RoomCommon
 
     static QList<quint8> noisyMessages(  //messages that if delivered late would be distracting
     {
-        144,145,146
+        144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159 //on message for all 16 channels
     });
 }

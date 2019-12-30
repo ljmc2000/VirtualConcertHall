@@ -37,33 +37,39 @@ void Server::readPendingDatagrams()
 {
     QNetworkDatagram datagram = qSocket.receiveDatagram();
     QByteArray data = datagram.data();
-    Client c = Client(datagram.senderAddress(),datagram.senderPort());
 
     switch(data.at(0))
     {
     case CONNECT:
-        if(!clients.keys().contains(c))
-            addClient(c);
-        else
-            enableClient(c);
-        break;
+        {
+            ConnectPacket *connectPacket=(ConnectPacket*) data.constData();
+            if(!clients.keys().contains(connectPacket->secretId))
+                addClient(datagram);
+            else
+                enableClient(datagram);
+            break;
+        }
 
     case HEARTBEAT:
         {
             HeartbeatPacket *heartbeatPacket=(HeartbeatPacket*) data.constData();
-            clients[c].lastMessage=heartbeatPacket->timestamp;
+            clients[heartbeatPacket->secretId].lastMessage=heartbeatPacket->timestamp;
         }        
         break;
 
     case MIDI:
-        sendToAll(data);
-        break;
+        {
+            MidiPacket *midiPacket=(MidiPacket*) data.constData();
+            midiPacket->clientId=clients[midiPacket->clientId].clientId;
+            sendToAll(data);
+            break;
+        }
     }
 }
 
 void Server::heartBeat()
 {
-    foreach(Client c,clients.keys())
+    foreach(Client c,clients)
     {
         HeartbeatPacket heartbeatPacket;
         heartbeatPacket.timestamp=GETTIME();
@@ -76,11 +82,11 @@ void Server::heartBeat()
 
 void Server::pruneClients()
 {
-    foreach(Client c, clients.keys()) if(clients[c].awake)
+    foreach(quint32 secretId, clients.keys()) if(clients[secretId].awake)
     {
-        if(clients[c].lastMessage+SERVERTIMEOUT<GETTIME())
+        if(clients[secretId].lastMessage+SERVERTIMEOUT<GETTIME())
         {
-            disableClient(c);
+            disableClient(secretId);
         }
     }
 }
@@ -93,44 +99,73 @@ quint8 Server::getNextClientId()
 void Server::sendToAll(QByteArray data)
 {
     qint64 timestamp=GETTIME();
-    foreach(Client c, clients.keys()) if(timestamp<clients[c].lastMessage+SERVERTIMEOUT)
+    foreach(Client c, clients) if(timestamp<c.lastMessage+SERVERTIMEOUT)
     {
         QNetworkDatagram datagram(data, c.address, c.port);
         qSocket.writeDatagram(datagram);
     }
 }
 
-void Server::addClient(Client c)
+quint32 Server::addClient(QNetworkDatagram joinRequest)
 {
+    QByteArray joinRequestData = joinRequest.data();
+    ConnectPacket *connectPacket=(ConnectPacket*) joinRequestData.constData();
+    Client c;
+    c.clientId=getNextClientId();
+    c.address=joinRequest.senderAddress();
+    c.port=joinRequest.senderPort();
+    clients[connectPacket->secretId]=c;
+
     InitPacket initPacket;
-    initPacket.clientId=getNextClientId();
+    initPacket.clientId=c.clientId;
     initPacket.timestamp=GETTIME();
 
     QByteArray data((char*)&initPacket,sizeof(InitPacket));
     QNetworkDatagram datagram(data, c.address, c.port);
     qSocket.writeDatagram(datagram);
-    clients[c].clientId=initPacket.clientId;
-    qDebug() << "Client Connecting" << c.address << c.port;
+    qDebug() << "Client Connecting" << connectPacket->secretId << c.clientId << c.address << c.port;
+
+    return c.clientId;
 }
 
-void Server::disableClient(Client c)
+void Server::disableClient(quint32 secretId)
 {
     DisablePacket disablePacket;
-    disablePacket.clientId=clients[c].clientId;
-    clients[c].awake=false;
+    Client c = clients[secretId];
+    disablePacket.clientId=c.clientId;
+    c.awake=false;
     QByteArray data((char*)&disablePacket,sizeof (DisablePacket));
     sendToAll(data);
     qDebug() << "Client Disabled" << c.address << c.port;
 }
 
-void Server::enableClient(Client c)
+void Server::enableClient(QNetworkDatagram joinRequest)
 {
+    QByteArray joinRequestData = joinRequest.data();
+    ConnectPacket *connectPacket=(ConnectPacket*) joinRequestData.constData();
+    quint32 secretId=connectPacket->secretId;
+    Client c = clients[secretId];
+    c.address=joinRequest.senderAddress();
+    c.port=joinRequest.senderPort();
+    c.lastMessage=GETTIME();
+    c.awake=true;
+    clients[secretId]=c;
+
+    EnablePacket enablePacket;
+    enablePacket.clientId=c.clientId;
+
+    QByteArray data1((char*)&enablePacket,sizeof(EnablePacket));
+    QNetworkDatagram datagram1(data1, c.address, c.port);
+    qSocket.writeDatagram(datagram1);
+
+
+
     InitPacket initPacket;
     initPacket.timestamp = GETTIME();
-    initPacket.clientId=clients[c].clientId;
+    initPacket.clientId=c.clientId;
 
-    QByteArray data((char*)&initPacket,sizeof(InitPacket));
-    QNetworkDatagram datagram(data, c.address, c.port);
-    qSocket.writeDatagram(datagram);
+    QByteArray data2((char*)&initPacket,sizeof(InitPacket));
+    QNetworkDatagram datagram2(data2, c.address, c.port);
+    qSocket.writeDatagram(datagram2);
     qDebug() << "Client Awoken" << c.address << c.port;
 }
