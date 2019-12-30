@@ -87,7 +87,7 @@ void Server::pruneClients()
 
 quint8 Server::getNextClientId()
 {
-    return ++nextClientId;
+    return nextClientId++;
 }
 
 void Server::sendToAll(QByteArray data)
