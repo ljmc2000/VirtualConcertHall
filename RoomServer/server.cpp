@@ -123,7 +123,7 @@ quint32 Server::addClient(QNetworkDatagram joinRequest)
     QByteArray data((char*)&initPacket,sizeof(InitPacket));
     QNetworkDatagram datagram(data, c.address, c.port);
     qSocket.writeDatagram(datagram);
-    qDebug() << "Client Connecting" << connectPacket->secretId << c.clientId << c.address << c.port;
+    qDebug() << "Client Connecting" << c.address << c.port;
 
     return c.clientId;
 }
@@ -132,8 +132,9 @@ void Server::disableClient(quint32 secretId)
 {
     DisablePacket disablePacket;
     Client c = clients[secretId];
-    disablePacket.clientId=c.clientId;
     c.awake=false;
+    clients[secretId]=c;
+    disablePacket.clientId=c.clientId;
     QByteArray data((char*)&disablePacket,sizeof (DisablePacket));
     sendToAll(data);
     qDebug() << "Client Disabled" << c.address << c.port;
