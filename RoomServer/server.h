@@ -49,7 +49,7 @@ private:
     QTimer heartBeatTimer;
     QTimer pruneTimer;
     QHash<Client,ClientData> clients;
-    quint8 nextClientId;
+    quint8 nextClientId=0;
 
     quint8 getNextClientId();
     void sendToAll(QByteArray data);

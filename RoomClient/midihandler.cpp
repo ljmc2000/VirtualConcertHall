@@ -123,7 +123,7 @@ void MidiHandler::handleMidiFromServer(quint8 clientId, qint64 timestamp, quint8
 
     QString m;
     for(unsigned int i=0; i<MIDIMESSAGESIZE; i++) m.append(QString::number(midiMessage[i])+":");
-    qDebug() << m << this->timestamp-timestamp<<"ms";
+    qDebug() << clientId << m << this->timestamp-timestamp<<"ms";
 }
 
 void MidiHandler::attemptConnect()
