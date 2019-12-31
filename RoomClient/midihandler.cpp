@@ -17,6 +17,12 @@ MidiHandler::MidiHandler()
     midiout.openPort(midiOutPort<midiout.getPortCount() ? midiOutPort:0);
     midiout.setClientName("VirtualConcertHallClient");
 
+    serverTimeIterator.setInterval(SERVERTIMEUPDATEINTERVAL);
+    connect(
+                &serverTimeIterator, SIGNAL(timeout()),
+                this, SLOT(iterateServertime())
+            );
+
     qSocket.connectToHost(serverHost,serverPort);
     connect(
                 &qSocket, SIGNAL(readyRead()),
@@ -66,6 +72,7 @@ void MidiHandler::handleDataFromServer()
             clientId=initPacket->clientId;
             timestamp=initPacket->timestamp;
             reconnectClock.stop();
+            serverTimeIterator.start();
             midiin.setCallback(handleMidi, this);
             break;
         }
@@ -104,6 +111,7 @@ void MidiHandler::handleDataFromServer()
     case DISCONNECT:
         {
             clientId=-1;
+            serverTimeIterator.stop();
             reconnectClock.start();
             midiin.cancelCallback();
             break;
@@ -135,4 +143,9 @@ void MidiHandler::attemptConnect()
 
     QByteArray data((char*)&connectPacket,sizeof(ConnectPacket));
     qSocket.writeDatagram(QNetworkDatagram(data,serverHost,serverPort));
+}
+
+void MidiHandler::iterateServertime()
+{
+    timestamp+=SERVERTIMEUPDATEINTERVAL;
 }

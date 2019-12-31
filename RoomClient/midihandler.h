@@ -21,6 +21,7 @@ public:
 private slots:
     void handleDataFromServer();
     void attemptConnect();
+    void iterateServertime();
 
 private:
     RtMidiIn midiin;
@@ -30,6 +31,7 @@ private:
     QHostAddress serverHost;
     quint16 serverPort;
     QTimer reconnectClock;
+    QTimer serverTimeIterator;
     qint64 timestamp;
 
     static void handleMidi( double timeStamp, std::vector<unsigned char> *message, void *userData );

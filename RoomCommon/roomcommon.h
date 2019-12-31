@@ -4,6 +4,7 @@
 #define MIDIMESSAGESIZE 3           //the size in bytes of a midi message
 #define RECONNECTDELAY 3000         //time waited before attempting to reconnect to server
 #define PRUNINGINTERVAL 5000        //how often to check for dead clients
+#define SERVERTIMEUPDATEINTERVAL 1  //increment the time sent by the heartbeat packet every n seconds
 
 namespace RoomCommon
 {
