@@ -1,6 +1,7 @@
 from databaseClasses import *
 from os import environ
 from bson import json_util
+from bson.objectid import ObjectId
 from flask import Flask,request,Response
 
 if environ.get('DEBUG'):
@@ -69,17 +70,41 @@ def listRooms():
 		r=request.get_json()
 
 		if r == None:
-			rooms=Room.objects(active=True)
+			rooms=Room.objects()
 
 		returnme=[]
 		for room in rooms:
-			returnme.append({"roomId":room.id,"roomname":room.roomname, "owner": room.owner.username,"description":room.description})
+			returnme.append({"roomId":str(room.id),"roomname":room.roomname, "owner": room.owner.username,"description":room.description})
 
 		return jsonify({'status':'success','results':returnme})
 
 	except Exception as e:
 		app.logger.error(e)
 		return jsonify({'status':'failure'})
+
+@app.route("/closeRoom",methods=['POST'])
+def closeRoom():
+	try:
+		r=request.get_json()
+		u=LoginToken.objects.get(token=r['token']).user
+		id=ObjectId(r['roomId'])
+		room=Room.objects.get(id=id)
+
+		if u==room.owner:
+			deleteRoomContainer(room['containerid'])
+			closedRoom=ClosedRoom()
+			closedRoom.fromRoom(room)
+			closedRoom.save()
+			room.delete()
+
+			return jsonify({'status':'success'})
+		else:
+			return jsonify({'status':'failure','reason':'only the owner may close the room'})
+
+	except Exception as e:
+		app.logger.error(e)
+		return jsonify({'status':'failure'})
+
 
 if __name__ == "__main__":
 	connect(environ['MONGO_URL'])

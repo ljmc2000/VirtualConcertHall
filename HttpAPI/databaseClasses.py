@@ -28,7 +28,7 @@ class Room(Document,WithPassword):
 	description = StringField()
 	private = BooleanField(default=False)
 	players = ListField(ReferenceField(User))
-	created = DateField(default=datetime.datetime.now)
+	created = DateTimeField(default=datetime.datetime.now)
 
 class ClosedRoom(Document):
 	roomname = StringField(required=True)
@@ -36,8 +36,8 @@ class ClosedRoom(Document):
 	description = StringField()
 	private = BooleanField(default=False)
 	players = ListField(ReferenceField(User))
-	created = DateField(required=True)
-	closed = DateField(default=datetime.datetime.now)
+	created = DateTimeField(required=True)
+	closed = DateTimeField(default=datetime.datetime.now)
 
 	def fromRoom(self,room: Room):
 		self.roomname = room.roomname
@@ -50,4 +50,3 @@ class ClosedRoom(Document):
 class LoginToken(Document):
 	token=StringField(default=lambda: secrets.token_urlsafe(32),primary_key=True)
 	user=ReferenceField(User, required=True)
-
