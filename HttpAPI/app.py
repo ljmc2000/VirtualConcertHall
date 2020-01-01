@@ -1,14 +1,11 @@
+from dockerProvider import getDockerProvider
 from databaseClasses import *
 from os import environ
 from bson import json_util
 from bson.objectid import ObjectId
 from flask import Flask,request,Response
 
-if environ.get('DEBUG'):
-	from dockerManager import *
-else:
-	from azureManager import *
-
+docker=getDockerProvider[environ.get('DOCKER_PROVIDER')]()
 app = Flask(__name__)
 
 def jsonify(json: dict):
@@ -53,7 +50,7 @@ def createRoom():
 		if r.get('password'):
 			room.setpwd(r['password'])
 
-		roomContainer=startRoomContainer()
+		roomContainer=docker.startRoomContainer()
 		room.ipaddress=IpAddress(ip=roomContainer['ip'],port=roomContainer['port'])
 		room.containerid=roomContainer['id']
 
@@ -91,7 +88,7 @@ def closeRoom():
 		room=Room.objects.get(id=id)
 
 		if u==room.owner:
-			deleteRoomContainer(room['containerid'])
+			docker.deleteRoomContainer(room['containerid'])
 			closedRoom=ClosedRoom()
 			closedRoom.fromRoom(room)
 			closedRoom.save()
