@@ -12,12 +12,15 @@ class WithPassword:
 		return bcrypt.checkpw(password.encode(), self.passhash.encode())
 
 class User(Document,WithPassword):
-	email = StringField(required=True)
 	username = StringField(unique=True,required=True)
-	passhash = StringField(max_length=60)
+	passhash = StringField(max_length=60,required=True)
 
 class Room(Document,WithPassword):
 	roomname = StringField(required=True)
 	passhash = StringField(max_length=60)
 	description = StringField()
 	active = BooleanField(required=True)
+
+class LoginToken(Document):
+	user=ReferenceField(User, required=True)
+

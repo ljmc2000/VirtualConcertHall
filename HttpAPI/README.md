@@ -1,1 +1,1 @@
-requires mongoengine
+requires mongoengine, bcrypt and flask
