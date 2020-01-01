@@ -23,11 +23,14 @@ def login():
 	try:
 		r=request.get_json()
 		u=User.objects.get(username=r['username'])
-		t=LoginToken(user=u)
-		t.save()
-		return jsonify({'status':'success','token':t.id})
+		if u.checkpwd(r['password']):
+			t=LoginToken(user=u)
+			t.save()
+			return jsonify({'status':'success','token':t.id})
+		else:
+			return jsonify({'status':'failure','reason':'invalidPassword'})
 	except Exception as e:
-		app.debug(e)
+		app.logger.error(e)
 		return jsonify({'status':'failure'})
 
 if __name__ == "__main__":
