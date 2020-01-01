@@ -1,4 +1,4 @@
-import bcrypt,secrets
+import bcrypt,secrets,datetime
 from mongoengine import *
 from mongoengine.fields import *
 
@@ -15,14 +15,37 @@ class User(Document,WithPassword):
 	username = StringField(unique=True,required=True)
 	passhash = StringField(max_length=60,required=True)
 
+class IpAddress(EmbeddedDocument):
+	ip = StringField(required=True)
+	port = IntField(required=True)
+
 class Room(Document,WithPassword):
+	ipaddress = EmbeddedDocumentField(IpAddress,required=True)
+	containerid = StringField(required=True,unique=True)
 	roomname = StringField(required=True)
-	owner = ReferenceField(User, required=True)
+	owner = ReferenceField(User, required=True, unique=True)
 	passhash = StringField(max_length=60)
 	description = StringField()
-	active = BooleanField(default=True)
 	private = BooleanField(default=False)
 	players = ListField(ReferenceField(User))
+	created = DateField(default=datetime.datetime.now)
+
+class ClosedRoom(Document):
+	roomname = StringField(required=True)
+	owner = ReferenceField(User, required=True)
+	description = StringField()
+	private = BooleanField(default=False)
+	players = ListField(ReferenceField(User))
+	created = DateField(required=True)
+	closed = DateField(default=datetime.datetime.now)
+
+	def fromRoom(self,room: Room):
+		self.roomname = room.roomname
+		self.owner = room.owner
+		self.description = room.description
+		self.private = room.private
+		self.players = room.players
+		self.created = room.created
 
 class LoginToken(Document):
 	token=StringField(default=lambda: secrets.token_urlsafe(32),primary_key=True)

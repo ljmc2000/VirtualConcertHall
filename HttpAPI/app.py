@@ -2,6 +2,12 @@ from databaseClasses import *
 from os import environ
 from bson import json_util
 from flask import Flask,request,Response
+
+if environ.get('DEBUG'):
+	from dockerManager import *
+else:
+	from azureManager import *
+
 app = Flask(__name__)
 
 def jsonify(json: dict):
@@ -45,6 +51,10 @@ def createRoom():
 			room.private=True
 		if r.get('password'):
 			room.setpwd(r['password'])
+
+		roomContainer=startRoomContainer()
+		room.ipaddress=IpAddress(ip=roomContainer['ip'],port=roomContainer['port'])
+		room.containerid=roomContainer['id']
 
 		room.save()
 		return jsonify({'status':'success','roomId':str(room.id)})
