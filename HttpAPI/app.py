@@ -5,7 +5,7 @@ from bson import json_util
 from bson.objectid import ObjectId
 from flask import Flask,request,Response
 
-docker=getDockerProvider[environ.get('DOCKER_PROVIDER')]()
+dockerProvider=getDockerProvider[environ.get('DOCKER_PROVIDER')]()
 app = Flask(__name__)
 
 def jsonify(json: dict):
@@ -50,7 +50,7 @@ def createRoom():
 		if r.get('password'):
 			room.setpwd(r['password'])
 
-		roomContainer=docker.startRoomContainer()
+		roomContainer=dockerProvider.startRoomContainer()
 		room.ipaddress=IpAddress(ip=roomContainer['ip'],port=roomContainer['port'])
 		room.containerid=roomContainer['id']
 
@@ -88,7 +88,7 @@ def closeRoom():
 		room=Room.objects.get(id=id)
 
 		if u==room.owner:
-			docker.deleteRoomContainer(room['containerid'])
+			dockerProvider.deleteRoomContainer(room['containerid'])
 			closedRoom=ClosedRoom()
 			closedRoom.fromRoom(room)
 			closedRoom.save()
