@@ -17,9 +17,12 @@ class User(Document,WithPassword):
 
 class Room(Document,WithPassword):
 	roomname = StringField(required=True)
+	owner = ReferenceField(User, required=True)
 	passhash = StringField(max_length=60)
 	description = StringField()
-	active = BooleanField(required=True)
+	active = BooleanField(default=True)
+	private = BooleanField(default=False)
+	players = ListField(ReferenceField(User))
 
 class LoginToken(Document):
 	token=StringField(default=lambda: secrets.token_urlsafe(32),primary_key=True)

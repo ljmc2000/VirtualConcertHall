@@ -15,7 +15,8 @@ def register():
 		u.setpwd(r['password'])
 		u.save()
 		return jsonify({'status':'success'})
-	except:
+	except Exception as e:
+		app.logger.error(e)
 		return jsonify({'status':'failure'})
 
 @app.route("/login",methods=['POST'])
@@ -29,6 +30,25 @@ def login():
 			return jsonify({'status':'success','token':t.id})
 		else:
 			return jsonify({'status':'failure','reason':'invalidPassword'})
+	except Exception as e:
+		app.logger.error(e)
+		return jsonify({'status':'failure'})
+
+@app.route("/createRoom",methods=['POST'])
+def createRoom():
+	try:
+		r=request.get_json()
+		owner=LoginToken.objects.get(token=r['token']).user
+		room=Room(roomname=r['roomname'],owner=owner,description=r.get('description'))
+
+		if r.get('private'):
+			room.private=True
+		if r.get('password'):
+			room.setpwd(r['password'])
+
+		room.save()
+		return jsonify({'status':'success','roomId':str(room.id)})
+
 	except Exception as e:
 		app.logger.error(e)
 		return jsonify({'status':'failure'})
