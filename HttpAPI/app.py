@@ -53,6 +53,24 @@ def createRoom():
 		app.logger.error(e)
 		return jsonify({'status':'failure'})
 
+@app.route("/listRooms",methods=['POST','GET'])
+def listRooms():
+	try:
+		r=request.get_json()
+
+		if r == None:
+			rooms=Room.objects(active=True)
+
+		returnme=[]
+		for room in rooms:
+			returnme.append({"roomId":room.id,"roomname":room.roomname, "owner": room.owner.username,"description":room.description})
+
+		return jsonify({'status':'success','results':returnme})
+
+	except Exception as e:
+		app.logger.error(e)
+		return jsonify({'status':'failure'})
+
 if __name__ == "__main__":
 	connect(environ['MONGO_URL'])
 	app.run(debug=True)
