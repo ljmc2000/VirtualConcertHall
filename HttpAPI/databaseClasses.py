@@ -1,4 +1,4 @@
-import bcrypt
+import bcrypt,secrets
 from mongoengine import *
 from mongoengine.fields import *
 
@@ -22,5 +22,6 @@ class Room(Document,WithPassword):
 	active = BooleanField(required=True)
 
 class LoginToken(Document):
+	token=StringField(default=lambda: secrets.token_urlsafe(32),primary_key=True)
 	user=ReferenceField(User, required=True)
 
