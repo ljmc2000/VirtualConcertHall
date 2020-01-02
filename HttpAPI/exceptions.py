@@ -11,8 +11,9 @@ class ExpiredLoginToken(Exception):
 		self.userid=user.id
 		self.age=age
 
-def handleException(e: Exception):
+def handleException(app, e: Exception, endpoint: str):
 	try:
+		app.logger.error(type(e).__name__+' '+str(e))
 		raise e
 	except ExpiredLoginToken:
 		return {"status":"failure","reason":"Your login token has expired"}
@@ -22,5 +23,8 @@ def handleException(e: Exception):
 	except DoesNotExist as e:
 		usefulInformation=doesNotExistRegex.search(str(e))
 		return {"status":"failure","reason":"no such %s exists" % usefulInformation.group(1)}
-	except Exception:
+	except Exception as e:
+		from databaseClasses import UnexpectedError
+		error=UnexpectedError(type=type(e).__name__, message=str(e), endpoint=endpoint)
+		error.save()
 		return {"status":"failure","reason":"an unknown error has occured"}

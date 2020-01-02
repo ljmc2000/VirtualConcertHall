@@ -21,8 +21,7 @@ def register():
 		u.save()
 		return jsonify({'status':'success'})
 	except Exception as e:
-		app.logger.error(e)
-		return jsonify(handleException(e))
+		return jsonify(handleException(app,e,'/register'))
 
 @app.route("/login",methods=['POST'])
 def login():
@@ -36,8 +35,7 @@ def login():
 		else:
 			return jsonify({'status':'failure','reason':'invalidPassword'})
 	except Exception as e:
-		app.logger.error(e)
-		return jsonify(handleException(e))
+		return jsonify(handleException(app,e,'/login'))
 
 @app.route("/createRoom",methods=['POST'])
 def createRoom():
@@ -59,8 +57,7 @@ def createRoom():
 		return jsonify({'status':'success','roomId':str(room.id)})
 
 	except Exception as e:
-		app.logger.error(e)
-		return jsonify(handleException(e))
+		return jsonify(handleException(app,e,'/createRoom'))
 
 @app.route("/listRooms",methods=['POST','GET'])
 def listRooms():
@@ -77,8 +74,7 @@ def listRooms():
 		return jsonify({'status':'success','results':returnme})
 
 	except Exception as e:
-		app.logger.error(e)
-		return jsonify(handleException(e))
+		return jsonify(handleException(app,e,'/listRooms'))
 
 @app.route("/closeRoom",methods=['POST'])
 def closeRoom():
@@ -100,8 +96,7 @@ def closeRoom():
 			return jsonify({'status':'failure','reason':'only the owner may close the room'})
 
 	except Exception as e:
-		app.logger.error(e)
-		return jsonify(handleException(e))
+		return jsonify(handleException(app,e,'/closeRoom'))
 
 
 if __name__ == "__main__":

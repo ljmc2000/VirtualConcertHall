@@ -49,6 +49,12 @@ class ClosedRoom(Document):
 		self.players = room.players
 		self.created = room.created
 
+class UnexpectedError(Document):
+	type=StringField(required=True)
+	message=StringField(required=True)
+	time=DateTimeField(default=datetime.datetime.now)
+	endpoint=StringField(required=True)
+
 class LoginToken(Document):
 	token=StringField(default=lambda: secrets.token_urlsafe(32),primary_key=True)
 	user=ReferenceField(User, required=True)
