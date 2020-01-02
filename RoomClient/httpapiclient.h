@@ -28,7 +28,7 @@ public:
 
 public slots:
     bool signup(QString username,QString password);
-//    QString signin(QString username,QString password);
+    bool signin(QString username,QString password);
 //    QString createRoom(QString name);
     QList<RoomInfo> listRooms();
 //    bool closeRoom(QString roomId);
