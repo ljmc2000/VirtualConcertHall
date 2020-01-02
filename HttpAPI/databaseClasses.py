@@ -1,8 +1,10 @@
 import bcrypt,secrets,datetime
+from os import environ
 from mongoengine import *
 from mongoengine.fields import *
+from exceptions import ExpiredLoginToken
 
-connect('virtualconcerthall')
+connect(environ['MONGO_URL'])
 
 class WithPassword:
 	def setpwd(self,password: str):
@@ -54,6 +56,8 @@ class LoginToken(Document):
 
 	def expired(self):
 		return datetime.datetime.now() > (self.created+datetime.timedelta(days=365))
+	def age(self):
+		return datetime.datetime.now() - self.created
 
 def getUserByToken(token: str):
 	token=LoginToken.objects.get(token=token)
@@ -61,5 +65,5 @@ def getUserByToken(token: str):
 	if not token.expired():
 		return token.user
 	else:
-		token.delete()
-		return None
+#		token.delete()
+		raise ExpiredLoginToken(token.user,token.age())

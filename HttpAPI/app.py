@@ -1,4 +1,5 @@
 from dockerProvider import getDockerProvider
+from exceptions import handleException
 from databaseClasses import *
 from os import environ
 from bson import json_util
@@ -21,7 +22,7 @@ def register():
 		return jsonify({'status':'success'})
 	except Exception as e:
 		app.logger.error(e)
-		return jsonify({'status':'failure'})
+		return jsonify(handleException(e))
 
 @app.route("/login",methods=['POST'])
 def login():
@@ -36,7 +37,7 @@ def login():
 			return jsonify({'status':'failure','reason':'invalidPassword'})
 	except Exception as e:
 		app.logger.error(e)
-		return jsonify({'status':'failure'})
+		return jsonify(handleException(e))
 
 @app.route("/createRoom",methods=['POST'])
 def createRoom():
@@ -59,7 +60,7 @@ def createRoom():
 
 	except Exception as e:
 		app.logger.error(e)
-		return jsonify({'status':'failure'})
+		return jsonify(handleException(e))
 
 @app.route("/listRooms",methods=['POST','GET'])
 def listRooms():
@@ -77,7 +78,7 @@ def listRooms():
 
 	except Exception as e:
 		app.logger.error(e)
-		return jsonify({'status':'failure'})
+		return jsonify(handleException(e))
 
 @app.route("/closeRoom",methods=['POST'])
 def closeRoom():
@@ -100,9 +101,8 @@ def closeRoom():
 
 	except Exception as e:
 		app.logger.error(e)
-		return jsonify({'status':'failure'})
+		return jsonify(handleException(e))
 
 
 if __name__ == "__main__":
-	connect(environ['MONGO_URL'])
 	app.run(debug=True)
