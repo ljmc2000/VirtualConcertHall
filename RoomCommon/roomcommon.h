@@ -66,4 +66,6 @@ namespace RoomCommon
     {
         144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159 //on message for all 16 channels
     });
+
+    static QString httpAPIurl("http://127.0.0.1:5000");
 }

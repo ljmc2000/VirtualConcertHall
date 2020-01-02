@@ -29,13 +29,15 @@ SOURCES += \
     midihandler.cpp \
     settingswindow.cpp \
     mainwindow.cpp \
-    playscreen.cpp
+    playscreen.cpp \
+    httpapiclient.cpp
 
 HEADERS += \
     midihandler.h \
     settingswindow.h \
     mainwindow.h \
-    playscreen.h
+    playscreen.h \
+    httpapiclient.h
 
 FORMS += \
     settingswindow.ui \
