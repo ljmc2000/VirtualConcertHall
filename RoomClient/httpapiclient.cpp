@@ -1,7 +1,7 @@
 #include "httpapiclient.h"
 #include <QApplication>
 
-#define POSTREQUEST QNetworkReply *reply=netman.post(request,QJsonDocument(requestParams).toJson()); REQUEST
+#define POSTREQUEST requestParams.insert("token",prefs.value("loginToken").toString()); QNetworkReply *reply=netman.post(request,QJsonDocument(requestParams).toJson()); REQUEST
 #define GETREQUEST QNetworkReply *reply=netman.get(request); REQUEST
 
 #define REQUEST    while(!reply->isFinished()) qApp->processEvents();\
@@ -14,18 +14,16 @@ HttpAPIClient::HttpAPIClient()
 
 }
 
-bool HttpAPIClient::signup(QString username,QString password)
+void HttpAPIClient::signup(QString username,QString password)
 {
     QNetworkRequest request = getRequest("/register");
     QJsonObject requestParams;
     requestParams.insert("username",username);
     requestParams.insert("password",password);
     POSTREQUEST;
-
-    return json["status"].toString() == "success";
 }
 
-bool HttpAPIClient::signin(QString username,QString password)
+void HttpAPIClient::signin(QString username,QString password)
 {
     QNetworkRequest request = getRequest("/login");
     QJsonObject requestParams;
@@ -36,12 +34,6 @@ bool HttpAPIClient::signin(QString username,QString password)
     if(json["status"].toString() == "success")
     {
         prefs.setValue("loginToken",json["token"].toString());
-        return true;
-    }
-
-    else
-    {
-        return false;
     }
 }
 
@@ -49,7 +41,6 @@ QString HttpAPIClient::createRoom(QString name)
 {
     QNetworkRequest request = getRequest("/createRoom");
     QJsonObject requestParams;
-    requestParams.insert("token",prefs.value("loginToken").toString());
     requestParams.insert("roomname",name);
     POSTREQUEST;
 
@@ -75,6 +66,13 @@ QList<RoomInfo> HttpAPIClient::listRooms()
     }
 
     return returnme;
+}
+
+void HttpAPIClient::closeRoom()
+{
+    QNetworkRequest request = getRequest("/closeRoom");
+    QJsonObject requestParams;
+    POSTREQUEST;
 }
 
 QNetworkRequest HttpAPIClient::getRequest(QString endpoint)

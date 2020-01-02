@@ -27,11 +27,11 @@ public:
     HttpAPIClient();
 
 public slots:
-    bool signup(QString username,QString password);
-    bool signin(QString username,QString password);
+    void signup(QString username,QString password);
+    void signin(QString username,QString password);
     QString createRoom(QString name);
     QList<RoomInfo> listRooms();
-//    bool closeRoom(QString roomId);
+    void closeRoom();
 
 signals:
     void apiError(QString message);

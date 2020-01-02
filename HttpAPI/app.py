@@ -81,10 +81,9 @@ def closeRoom():
 	try:
 		r=request.get_json()
 		u=getUserByToken(r['token'])
-		id=ObjectId(r['roomId'])
-		room=Room.objects.get(id=id)
+		room=Room.objects.get(owner=u)
 
-		if u==room.owner:
+		if room != None:
 			dockerProvider.deleteRoomContainer(room['containerid'])
 			closedRoom=ClosedRoom()
 			closedRoom.fromRoom(room)
@@ -93,7 +92,7 @@ def closeRoom():
 
 			return jsonify({'status':'success'})
 		else:
-			return jsonify({'status':'failure','reason':'only the owner may close the room'})
+			return jsonify({'status':'failure','reason':'You do not currently have a room open'})
 
 	except Exception as e:
 		return jsonify(handleException(app,e,'/closeRoom'))
