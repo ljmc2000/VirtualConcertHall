@@ -12,6 +12,17 @@ app = Flask(__name__)
 def jsonify(json: dict):
 	return Response(json_util.dumps(json),mimetype='application/json')
 
+@app.route("/test",methods=['POST'])
+def test():
+	try:
+		r=request.get_json()
+		getUserByToken(r['token'])
+		return jsonify({"status":"success"})
+	except DoesNotExist as e:
+		return jsonify({"status":"failure","reason":"A non existing login token was transmitted. It may have expired"})
+	except Exception as e:
+		return jsonify(handleException(app,e,'/test'))
+
 @app.route("/register",methods=['POST'])
 def register():
 	try:
@@ -33,7 +44,7 @@ def login():
 			t.save()
 			return jsonify({'status':'success','token':t.id})
 		else:
-			return jsonify({'status':'failure','reason':'invalidPassword'})
+			return jsonify({'status':'failure','reason':'Invalid password'})
 	except Exception as e:
 		return jsonify(handleException(app,e,'/login'))
 

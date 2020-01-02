@@ -14,6 +14,15 @@ HttpAPIClient::HttpAPIClient()
 
 }
 
+bool HttpAPIClient::test()
+{
+    QNetworkRequest request = getRequest("/test");
+    QJsonObject requestParams;
+    POSTREQUEST;
+
+    return json["status"].toString() == "success";
+}
+
 void HttpAPIClient::signup(QString username,QString password)
 {
     QNetworkRequest request = getRequest("/register");
@@ -23,7 +32,7 @@ void HttpAPIClient::signup(QString username,QString password)
     POSTREQUEST;
 }
 
-void HttpAPIClient::signin(QString username,QString password)
+bool HttpAPIClient::signin(QString username,QString password)
 {
     QNetworkRequest request = getRequest("/login");
     QJsonObject requestParams;
@@ -34,6 +43,12 @@ void HttpAPIClient::signin(QString username,QString password)
     if(json["status"].toString() == "success")
     {
         prefs.setValue("loginToken",json["token"].toString());
+        return true;
+    }
+
+    else
+    {
+        return false;
     }
 }
 

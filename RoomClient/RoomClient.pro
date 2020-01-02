@@ -27,22 +27,25 @@ CONFIG += c++11
 SOURCES += \
     main.cpp \
     midihandler.cpp \
+    httpapiclient.cpp \
     settingswindow.cpp \
     mainwindow.cpp \
     playscreen.cpp \
-    httpapiclient.cpp
+    loginwindow.cpp
 
 HEADERS += \
     midihandler.h \
+    httpapiclient.h \
     settingswindow.h \
     mainwindow.h \
     playscreen.h \
-    httpapiclient.h
+    loginwindow.h
 
 FORMS += \
     settingswindow.ui \
     mainwindow.ui \
-    playscreen.ui
+    playscreen.ui \
+    loginwindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

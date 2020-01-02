@@ -71,5 +71,5 @@ def getUserByToken(token: str):
 	if not token.expired():
 		return token.user
 	else:
-#		token.delete()
+		token.delete()
 		raise ExpiredLoginToken(token.user,token.age())
