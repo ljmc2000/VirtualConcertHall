@@ -1,10 +1,13 @@
 #include "httpapiclient.h"
 #include <QApplication>
 
-#define POSTREQUEST QNetworkReply *reply=netman.post(request,QJsonDocument(requestParams).toJson());\
-    while(!reply->isFinished()) qApp->processEvents();\
+#define POSTREQUEST QNetworkReply *reply=netman.post(request,QJsonDocument(requestParams).toJson()); REQUEST
+#define GETREQUEST QNetworkReply *reply=netman.get(request); REQUEST
+
+#define REQUEST    while(!reply->isFinished()) qApp->processEvents();\
     QJsonObject json = QJsonDocument::fromJson(reply->readAll()).object();\
-    reply->deleteLater();
+    if (json["status"].toString() != "success") emit apiError(json["reason"].toString());\
+    reply->deleteLater()
 
 HttpAPIClient::HttpAPIClient()
 {
@@ -17,8 +20,8 @@ bool HttpAPIClient::signup(QString username,QString password)
     QJsonObject requestParams;
     requestParams.insert("username",username);
     requestParams.insert("password",password);
+    POSTREQUEST;
 
-    POSTREQUEST
     return json["status"].toString() == "success";
 }
 
@@ -28,8 +31,7 @@ bool HttpAPIClient::signin(QString username,QString password)
     QJsonObject requestParams;
     requestParams.insert("username",username);
     requestParams.insert("password",password);
-
-    POSTREQUEST
+    POSTREQUEST;
 
     if(json["status"].toString() == "success")
     {
@@ -43,15 +45,24 @@ bool HttpAPIClient::signin(QString username,QString password)
     }
 }
 
+QString HttpAPIClient::createRoom(QString name)
+{
+    QNetworkRequest request = getRequest("/createRoom");
+    QJsonObject requestParams;
+    requestParams.insert("token",prefs.value("loginToken").toString());
+    requestParams.insert("roomname",name);
+    POSTREQUEST;
+
+    return json["roomId"].toString();
+}
+
 QList<RoomInfo> HttpAPIClient::listRooms()
 {
     QNetworkRequest request(RoomCommon::httpAPIurl+"/listRooms");
-    QNetworkReply *reply=netman.get(request);
+    GETREQUEST;
 
-    while(!reply->isFinished()) qApp->processEvents();
-    QJsonDocument json = QJsonDocument::fromJson(reply->readAll());
     QList<RoomInfo> returnme;
-    foreach(QJsonValue j, json.object()["results"].toArray())
+    foreach(QJsonValue j, json["results"].toArray())
     {
         QJsonObject o = j.toObject();
         RoomInfo r;
@@ -63,11 +74,8 @@ QList<RoomInfo> HttpAPIClient::listRooms()
         returnme.append(r);
     }
 
-    reply->deleteLater();
     return returnme;
 }
-
-
 
 QNetworkRequest HttpAPIClient::getRequest(QString endpoint)
 {

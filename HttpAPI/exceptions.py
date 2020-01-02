@@ -25,6 +25,8 @@ def handleException(app, e: Exception, endpoint: str):
 		return {"status":"failure","reason":"No such %s exists" % usefulInformation.group(1)}
 	except BadRequest as e:
 		return {"status":"failure","reason":"A malformed or otherwise invalid request was made to the server"}
+	except KeyError as e:
+		return {"status":"failure","reason":"required fields were missing from the json request"}
 	except Exception as e:
 		from databaseClasses import UnexpectedError
 		error=UnexpectedError(type=type(e).__name__, message=str(e), endpoint=endpoint)
