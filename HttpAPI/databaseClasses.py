@@ -50,3 +50,16 @@ class ClosedRoom(Document):
 class LoginToken(Document):
 	token=StringField(default=lambda: secrets.token_urlsafe(32),primary_key=True)
 	user=ReferenceField(User, required=True)
+	created = DateTimeField(default=datetime.datetime.now)
+
+	def expired(self):
+		return datetime.datetime.now() > (self.created+datetime.timedelta(days=365))
+
+def getUserByToken(token: str):
+	token=LoginToken.objects.get(token=token)
+
+	if not token.expired():
+		return token.user
+	else:
+		token.delete()
+		return None

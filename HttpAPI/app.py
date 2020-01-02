@@ -42,7 +42,7 @@ def login():
 def createRoom():
 	try:
 		r=request.get_json()
-		owner=LoginToken.objects.get(token=r['token']).user
+		owner=getUserByToken(r['token'])
 		room=Room(roomname=r['roomname'],owner=owner,description=r.get('description'))
 
 		if r.get('private'):
@@ -83,7 +83,7 @@ def listRooms():
 def closeRoom():
 	try:
 		r=request.get_json()
-		u=LoginToken.objects.get(token=r['token']).user
+		u=getUserByToken(r['token'])
 		id=ObjectId(r['roomId'])
 		room=Room.objects.get(id=id)
 
