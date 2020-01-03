@@ -5,7 +5,7 @@ from mongoengine.fields import *
 from exceptions import ExpiredLoginToken, ShortPassword, BadPassword
 
 passwordSize=8
-connect(environ['MONGO_URL'])
+connect(environ['MONGO_URL'],serverSelectionTimeoutMS=100)
 
 class WithPassword:
 	def setpwd(self,password: str):

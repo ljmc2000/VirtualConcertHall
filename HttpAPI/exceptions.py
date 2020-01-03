@@ -1,5 +1,6 @@
 from mongoengine.queryset import NotUniqueError,DoesNotExist
 from werkzeug.exceptions import BadRequest
+from pymongo.errors import ServerSelectionTimeoutError
 
 import re	#my patience wears thin for people who write exceptions which include a message and nothing else so you must dig through the message with regular exceptions
 notUniqueErrorRegex=re.compile('Tried to save duplicate unique keys (\(([\w\d]*) duplicate key error collection: \w*\.(\w*) .*)')
@@ -40,6 +41,8 @@ def handleException(app, e: Exception, endpoint: str):
 		return {"status":"failure","reason":"A malformed or otherwise invalid request was made to the server"}
 	except KeyError as e:
 		return {"status":"failure","reason":"required fields were missing from the json request"}
+	except ServerSelectionTimeoutError as e:
+		return {"status":"failure","reason":"Remote application failed to connect to database"}
 	except Exception as e:
 		from databaseClasses import UnexpectedError
 		error=UnexpectedError(type=type(e).__name__, message=str(e), endpoint=endpoint)
