@@ -31,6 +31,8 @@ def register():
 		u.setpwd(r['password'])
 		u.save()
 		return jsonify({'status':'success'})
+	except ValidationError as e:
+		return jsonify({'status':'failure','reason':'Username is too short'})
 	except Exception as e:
 		return jsonify(handleException(app,e,'/register'))
 

@@ -2,19 +2,22 @@ import bcrypt,secrets,datetime
 from os import environ
 from mongoengine import *
 from mongoengine.fields import *
-from exceptions import ExpiredLoginToken
+from exceptions import ExpiredLoginToken, ShortPassword
 
+passwordSize=8
 connect(environ['MONGO_URL'])
 
 class WithPassword:
 	def setpwd(self,password: str):
+		if len(password) < passwordSize:
+			raise ShortPassword(len(password))
 		self.passhash=bcrypt.hashpw(password.encode(),bcrypt.gensalt()).decode()
 
 	def checkpwd(self, password: str):
 		return bcrypt.checkpw(password.encode(), self.passhash.encode())
 
 class User(Document,WithPassword):
-	username = StringField(unique=True,required=True)
+	username = StringField(unique=True,required=True,min_length=4)
 	passhash = StringField(max_length=60,required=True)
 
 class IpAddress(EmbeddedDocument):

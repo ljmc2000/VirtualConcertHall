@@ -11,12 +11,20 @@ class ExpiredLoginToken(Exception):
 		self.userid=user.id
 		self.age=age
 
+class ShortPassword(Exception):
+	def __init__(self, length: int):
+		from databaseClasses import passwordSize
+		super().__init__("Passwords must be a minimum of %d characters but was %d" % (passwordSize,length))
+		self.length = length
+
 def handleException(app, e: Exception, endpoint: str):
 	try:
 		app.logger.error(type(e).__name__+' '+str(e))
 		raise e
 	except ExpiredLoginToken as e:
 		return {"status":"failure","reason":"Your login token has expired"}
+	except ShortPassword as e:
+		return {"status":"failure","reason":str(e)}
 	except NotUniqueError as e:
 		usefulInformation=notUniqueErrorRegex.search(str(e))
 		return {"status":"failure","reason":"A duplicate %s exists" % usefulInformation.group(3)}
