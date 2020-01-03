@@ -1,7 +1,7 @@
 #include "loginwindow.h"
 #include "ui_loginwindow.h"
 
-LoginWindow::LoginWindow(QWidget *parent, QString error) :
+LoginWindow::LoginWindow(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::LoginWindow)
 {
@@ -12,8 +12,6 @@ LoginWindow::LoginWindow(QWidget *parent, QString error) :
 
     connect(&httpApiClient,SIGNAL(apiError(QString)),
             this, SLOT(handleError(QString)));
-
-    ui->errorLabel->setText(error);
 }
 
 LoginWindow::~LoginWindow()

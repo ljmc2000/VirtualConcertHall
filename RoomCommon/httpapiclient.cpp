@@ -17,7 +17,7 @@ bool HttpAPIClient::test()
     QJsonObject requestParams;
     QJsonObject json = postRequest("/test",requestParams);
 
-    return json["status"].toString() == "success";
+    return json["valid"].toString() != "invalid";
 }
 
 void HttpAPIClient::signup(QString username,QString password)

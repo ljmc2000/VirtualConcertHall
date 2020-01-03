@@ -1,5 +1,6 @@
 import bcrypt,secrets,datetime,re
 from os import environ
+from time import sleep
 from mongoengine import *
 from mongoengine.fields import *
 from exceptions import ExpiredLoginToken, ShortPassword, BadPassword
@@ -80,6 +81,7 @@ class LoginToken(Document):
 
 def getUserByToken(token: str):
 	token=LoginToken.objects.get(token=token)
+	sleep(.25)       #make things harder on bad actors
 
 	if not token.expired():
 		return token.user

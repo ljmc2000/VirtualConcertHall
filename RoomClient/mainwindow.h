@@ -22,7 +22,7 @@ public:
 public slots:
     void openSettings();
     void openPlayScreen();
-    void openLoginWindow(QString error);
+    void openLoginWindow();
 
 private slots:
     void closeSettings();
