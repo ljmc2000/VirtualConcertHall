@@ -27,7 +27,7 @@ CONFIG += c++11
 SOURCES += \
     main.cpp \
     midihandler.cpp \
-    httpapiclient.cpp \
+    $$PWD/../RoomCommon/httpapiclient.cpp \
     settingswindow.cpp \
     mainwindow.cpp \
     playscreen.cpp \
@@ -35,7 +35,7 @@ SOURCES += \
 
 HEADERS += \
     midihandler.h \
-    httpapiclient.h \
+    $$PWD/../RoomCommon/httpapiclient.h \
     settingswindow.h \
     mainwindow.h \
     playscreen.h \
