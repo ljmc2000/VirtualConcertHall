@@ -13,7 +13,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->playButton, SIGNAL(clicked()),
             this, SLOT(openPlayScreen()));
 
-    if(!httpApiClient.test()) openLoginWindow();
+    connect(&httpApiClient,SIGNAL(apiError(QString)),
+            this,SLOT(handleError(QString)));
+
+    connect(&httpApiClient,SIGNAL(httpError(int,QString)),
+            this,SLOT(handleError(int,QString)));
+
+    httpApiClient.test();
 }
 
 MainWindow::~MainWindow()
@@ -41,9 +47,9 @@ void MainWindow::openPlayScreen()
     this->hide();
 }
 
-void MainWindow::openLoginWindow()
+void MainWindow::openLoginWindow(QString error)
 {
-    loginWindow = new LoginWindow(this);
+    loginWindow = new LoginWindow(this,error);
     loginWindow->show();
     connect(loginWindow, SIGNAL(destroyed()),
             this, SLOT(closeLoginWindow()));
@@ -64,4 +70,15 @@ void MainWindow::closePlayScreen()
 void MainWindow::closeLoginWindow()
 {
     loginWindow=nullptr;
+}
+
+void MainWindow::handleError(QString error)
+{
+    openLoginWindow(error);
+    qDebug() << error;
+}
+
+void MainWindow::handleError(int code,QString error)
+{
+    qDebug() << code << error;
 }

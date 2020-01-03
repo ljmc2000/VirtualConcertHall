@@ -3,8 +3,8 @@
 
 #define REQUEST    while(!reply->isFinished()) qApp->processEvents();\
     QJsonObject json = QJsonDocument::fromJson(reply->readAll()).object();\
-    if (reply->error() != QNetworkReply::NoError) emit apiError("http error: "+reply->errorString()); \
-    if (json["status"].toString() != "success") emit apiError(json["reason"].toString());\
+    if (reply->error() != QNetworkReply::NoError) emit httpError(reply->error(),reply->errorString()); \
+    else if (json["status"].toString() != "success") emit apiError(json["reason"].toString());\
     reply->deleteLater()
 
 HttpAPIClient::HttpAPIClient()

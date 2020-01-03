@@ -22,12 +22,15 @@ public:
 public slots:
     void openSettings();
     void openPlayScreen();
-    void openLoginWindow();
+    void openLoginWindow(QString error);
 
 private slots:
     void closeSettings();
     void closePlayScreen();
     void closeLoginWindow();
+
+    void handleError(QString);
+    void handleError(int,QString);
 
 private:
     Ui::MainWindow *ui;

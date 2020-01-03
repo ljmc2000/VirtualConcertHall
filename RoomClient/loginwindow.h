@@ -13,7 +13,7 @@ class LoginWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit LoginWindow(QWidget *parent = nullptr);
+    explicit LoginWindow(QWidget *parent = nullptr,QString error="Please sign in");
     ~LoginWindow();
 
 public slots:

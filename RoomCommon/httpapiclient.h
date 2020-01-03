@@ -36,6 +36,7 @@ public slots:
 
 signals:
     void apiError(QString message);
+    void httpError(int code,QString message);
 
 private:
     QJsonObject getRequest(QString endpoint);
