@@ -17,13 +17,18 @@ class ShortPassword(Exception):
 		super().__init__("Passwords must be a minimum of %d characters but was %d" % (passwordSize,length))
 		self.length = length
 
+class BadPassword(Exception):
+	def __init__(self, problem):
+		super().__init__("Passwords must contain one each of a lowercase, uppercase, digit and symbol. Password provided fails on criteria '%s'" % problem)
+		self.problem=problem
+
 def handleException(app, e: Exception, endpoint: str):
 	try:
 		app.logger.error(type(e).__name__+' '+str(e))
 		raise e
 	except ExpiredLoginToken as e:
 		return {"status":"failure","reason":"Your login token has expired"}
-	except ShortPassword as e:
+	except (ShortPassword, BadPassword) as e:
 		return {"status":"failure","reason":str(e)}
 	except NotUniqueError as e:
 		usefulInformation=notUniqueErrorRegex.search(str(e))

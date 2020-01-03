@@ -1,8 +1,8 @@
-import bcrypt,secrets,datetime
+import bcrypt,secrets,datetime,re
 from os import environ
 from mongoengine import *
 from mongoengine.fields import *
-from exceptions import ExpiredLoginToken, ShortPassword
+from exceptions import ExpiredLoginToken, ShortPassword, BadPassword
 
 passwordSize=8
 connect(environ['MONGO_URL'])
@@ -11,6 +11,16 @@ class WithPassword:
 	def setpwd(self,password: str):
 		if len(password) < passwordSize:
 			raise ShortPassword(len(password))
+
+		if not re.search('[a-z]',password):
+			raise BadPassword('no lowercase')
+		if not re.search('[A-Z]',password):
+			raise BadPassword('no uppercase')
+		if not re.search('[\d]',password):
+			 raise BadPassword('no digit')
+		if not re.search('[^\d\w]',password):
+			 raise BadPassword('no symbol')
+
 		self.passhash=bcrypt.hashpw(password.encode(),bcrypt.gensalt()).decode()
 
 	def checkpwd(self, password: str):
