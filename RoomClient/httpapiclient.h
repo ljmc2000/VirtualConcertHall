@@ -38,7 +38,9 @@ signals:
     void apiError(QString message);
 
 private:
-    QNetworkRequest getRequest(QString endpoint);
+    QJsonObject getRequest(QString endpoint);
+    QJsonObject postRequest(QString endpoint, QJsonObject requestParams);
+
 
     QSettings prefs;
     QNetworkAccessManager netman;
