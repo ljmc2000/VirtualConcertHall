@@ -43,7 +43,7 @@ void MainWindow::openPlayScreen()
 
 void MainWindow::openLoginWindow()
 {
-    loginWindow = new LoginWindow(this,&httpApiClient);
+    loginWindow = new LoginWindow(this);
     loginWindow->show();
     connect(loginWindow, SIGNAL(destroyed()),
             this, SLOT(closeLoginWindow()));
