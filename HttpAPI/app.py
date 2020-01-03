@@ -17,9 +17,9 @@ def test():
 	try:
 		r=request.get_json()
 		getUserByToken(r['token'])
-		return jsonify({"status":"success","valid":"valid"})
+		return jsonify({"status":"success","invalid":False})
 	except (DoesNotExist,ExpiredLoginToken) as e:
-		return jsonify({"status":"success","valid":"invalid"})
+		return jsonify({"status":"success","invalid":True})
 	except Exception as e:
 		return jsonify(handleException(app,e,'/test'))
 
