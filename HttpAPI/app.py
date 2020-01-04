@@ -65,8 +65,11 @@ def createRoom():
 		roomContainer=dockerProvider.startRoomContainer()
 		room.ipaddress=IpAddress(ip=roomContainer['ip'],port=roomContainer['port'])
 		room.containerid=roomContainer['id']
-
 		room.save()
+
+		p=Player(user=user,room=room)
+		p.save()
+
 		return jsonify({'status':'success','roomId':str(room.id)})
 
 	except Exception as e:
@@ -111,9 +114,12 @@ def leaveRoom():
 	try:
 		r=request.get_json()
 		player=Player.objects.get(user=getUserByToken(r['token']))
-		player.delete()
-
-		return jsonify({'status':'success'})
+		print(player.room.owner.id,player.id)
+		if player.room.owner.id != player.user.id:
+			player.delete()
+			return jsonify({'status':'success'})
+		else:
+			return jsonify({'status':'failure','reason':'A user may not leave their own room'})
 
 	except Exception as e:
 		return jsonify(handleException(app,e,'/joinRoom'))
