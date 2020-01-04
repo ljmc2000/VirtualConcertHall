@@ -12,6 +12,7 @@ app = Flask(__name__)
 def jsonify(json: dict):
 	return Response(json_util.dumps(json),mimetype='application/json')
 
+#common endpoints
 @app.route("/test",methods=['POST'])
 def test():
 	try:
@@ -23,6 +24,7 @@ def test():
 	except Exception as e:
 		return jsonify(handleException(app,e,'/test'))
 
+#client endpoints
 @app.route("/register",methods=['POST'])
 def register():
 	try:
@@ -56,6 +58,7 @@ def createRoom():
 		r=request.get_json()
 		owner=getUserByToken(r['token'])
 		token=LoginToken()
+		token.save()
 		room=Room(roomname=r['roomname'],owner=owner,players=[owner],description=r.get('description'),token=token)
 
 		if r.get('private'):
@@ -153,6 +156,18 @@ def closeRoom():
 	except Exception as e:
 		return jsonify(handleException(app,e,'/closeRoom'))
 
+#server endpoints
+@app.route("/getClientId",methods=['POST'])
+def getClientId():
+	try:
+		r=request.get_json()
+		checkIfServerToken(r['token'])
+		room=Room.objects.get(id=ObjectId(r['roomId']))
+
+		return jsonify({"status":"success","clientId":Player.objects.get(secretId=r['secretId'],room=room).clientId})
+
+	except Exception as e:
+		return jsonify(handleException(app,e,'/getClientId'))
 
 if __name__ == "__main__":
 	app.run(debug=True)

@@ -4,7 +4,7 @@ from time import sleep
 from random import getrandbits
 from mongoengine import *
 from mongoengine.fields import *
-from exceptions import ExpiredLoginToken, ShortPassword, BadPassword
+from exceptions import ExpiredLoginToken, ShortPassword, BadPassword, Imposter
 
 passwordSize=8
 connect(environ['MONGO_URL'],serverSelectionTimeoutMS=100)
@@ -97,3 +97,10 @@ def getUserByToken(token: str):
 	else:
 		token.delete()
 		raise ExpiredLoginToken(token.user,token.expires)
+
+def checkIfServerToken(token: str):
+	u=getUserByToken(token)
+	if u == None:
+		return True
+	else:
+		raise Imposter(u)

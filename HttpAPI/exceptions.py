@@ -23,6 +23,11 @@ class BadPassword(Exception):
 		super().__init__("Passwords must contain one each of a lowercase, uppercase, digit and symbol. Password provided fails on criteria '%s'" % problem)
 		self.problem=problem
 
+class Imposter(Exception):
+	def __init__(self,user):
+		super().__init__("User %s tried to access a server only function" % user)
+		self.user=user
+
 def handleException(app, e: Exception, endpoint: str):
 	try:
 		app.logger.error(type(e).__name__+' '+str(e))
@@ -31,6 +36,8 @@ def handleException(app, e: Exception, endpoint: str):
 		return {"status":"failure","reason":"Your login token has expired"}
 	except (ShortPassword, BadPassword) as e:
 		return {"status":"failure","reason":str(e)}
+	except Imposter as e:
+		return {"status":"failure","reason":"User tokens may not be used to access server endpoints"}
 	except NotUniqueError as e:
 		usefulInformation=notUniqueErrorRegex.search(str(e))
 		return {"status":"failure","reason":"A duplicate %s exists" % usefulInformation.group(3)}
