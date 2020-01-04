@@ -1,5 +1,5 @@
 #include "httpapiclient.h"
-#include <QApplication>
+#include <QCoreApplication>
 
 #define REQUEST    while(!reply->isFinished()) qApp->processEvents();\
     QJsonObject json = QJsonDocument::fromJson(reply->readAll()).object();\
@@ -9,7 +9,12 @@
 
 HttpAPIClient::HttpAPIClient()
 {
+    this->token=prefs.value("loginToken").toString();
+}
 
+HttpAPIClient::HttpAPIClient(QString token)
+{
+    this->token=token;
 }
 
 bool HttpAPIClient::test()
@@ -37,7 +42,9 @@ bool HttpAPIClient::signin(QString username,QString password)
 
     if(json["status"].toString() == "success")
     {
-        prefs.setValue("loginToken",json["token"].toString());
+        QString t = json["loginToken"].toString();
+        prefs.setValue("loginToken",t);
+        this->token=t;
         return true;
     }
 
@@ -84,7 +91,7 @@ void HttpAPIClient::closeRoom()
 
 QJsonObject HttpAPIClient::getRequest(QString endpoint)
 {
-    QNetworkRequest request(RoomCommon::httpAPIurl+endpoint);
+    QNetworkRequest request(httpAPIurl+endpoint);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     QNetworkReply *reply=netman.get(request);
     REQUEST;
@@ -94,11 +101,13 @@ QJsonObject HttpAPIClient::getRequest(QString endpoint)
 
 QJsonObject HttpAPIClient::postRequest(QString endpoint, QJsonObject requestParams)
 {
-    QNetworkRequest request(RoomCommon::httpAPIurl+endpoint);
+    QNetworkRequest request(httpAPIurl+endpoint);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    requestParams.insert("token",prefs.value("loginToken").toString());
+    requestParams.insert("token",token);
     QNetworkReply *reply=netman.post(request,QJsonDocument(requestParams).toJson());
     REQUEST;
 
     return json;
 }
+
+const QString HttpAPIClient::httpAPIurl="http://127.0.0.1:5000";

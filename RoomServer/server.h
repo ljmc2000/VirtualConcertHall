@@ -3,6 +3,8 @@
 
 #define GETTIME() QDateTime::currentDateTime().toMSecsSinceEpoch()
 
+#include <httpapiclient.h>
+
 #include <QObject>
 #include <QUdpSocket>
 #include <QNetworkDatagram>
@@ -33,6 +35,7 @@ public slots:
 
 private:
     QUdpSocket qSocket;
+    HttpAPIClient hapicli;
     QTimer heartBeatTimer;
     QTimer pruneTimer;
     QHash<quint32,Client> clients;

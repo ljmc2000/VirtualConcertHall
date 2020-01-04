@@ -9,8 +9,6 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-#include "roomcommon.h"
-
 struct RoomInfo
 {
     QString roomId;
@@ -25,6 +23,7 @@ class HttpAPIClient: public QObject
 
 public:
     HttpAPIClient();
+    HttpAPIClient(QString token);
 
 public slots:
     bool test();
@@ -45,6 +44,9 @@ private:
 
     QSettings prefs;
     QNetworkAccessManager netman;
+    QString token;
+
+    const static QString httpAPIurl;
 };
 
 #endif // HTTPAPICLIENT_H
