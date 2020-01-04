@@ -89,6 +89,35 @@ def listRooms():
 	except Exception as e:
 		return jsonify(handleException(app,e,'/listRooms'))
 
+@app.route("/joinRoom",methods=['POST'])
+def joinRoom():
+	try:
+		r=request.get_json()
+		user=getUserByToken(r['token'])
+		room=Room.objects.get(id=r['roomId'])
+		p=Player(user=user,room=room)
+		p.save()
+
+		return jsonify({'status':'success'})
+
+	except NotUniqueError as e:
+		return jsonify({'status':'failure', 'reason':'User is already in a room'})
+
+	except Exception as e:
+		return jsonify(handleException(app,e,'/joinRoom'))
+
+@app.route("/leaveRoom",methods=['POST'])
+def leaveRoom():
+	try:
+		r=request.get_json()
+		player=Player.objects.get(user=getUserByToken(r['token']))
+		player.delete()
+
+		return jsonify({'status':'success'})
+
+	except Exception as e:
+		return jsonify(handleException(app,e,'/joinRoom'))
+
 @app.route("/closeRoom",methods=['POST'])
 def closeRoom():
 	try:

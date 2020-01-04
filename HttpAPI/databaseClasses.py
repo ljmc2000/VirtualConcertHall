@@ -1,6 +1,7 @@
 import bcrypt,secrets,datetime,re
 from os import environ
 from time import sleep
+from random import getrandbits
 from mongoengine import *
 from mongoengine.fields import *
 from exceptions import ExpiredLoginToken, ShortPassword, BadPassword
@@ -43,8 +44,13 @@ class Room(Document,WithPassword):
 	passhash = StringField(max_length=60)
 	description = StringField()
 	private = BooleanField(default=False)
-	players = ListField(ReferenceField(User))
 	created = DateTimeField(default=datetime.datetime.now)
+
+class Player(Document):
+	user = ReferenceField(User, required=True, unique=True)
+	secretId = IntField(default=lambda: getrandbits(32), unique=True)
+	clientId = IntField(default=lambda: getrandbits(32), unique=True)
+	room = ReferenceField(Room, required=True)
 
 class ClosedRoom(Document):
 	roomname = StringField(required=True)
