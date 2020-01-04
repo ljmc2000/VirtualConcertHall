@@ -15,7 +15,7 @@ struct Client
 {
     QHostAddress address;
     quint16 port;
-    quint8 clientId;
+    quint32 clientId;
     qint64 lastMessage=GETTIME();
     bool awake=true;
 };

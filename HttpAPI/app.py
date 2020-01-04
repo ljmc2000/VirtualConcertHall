@@ -162,9 +162,9 @@ def getClientId():
 	try:
 		r=request.get_json()
 		checkIfServerToken(r['token'])
-		room=Room.objects.get(id=ObjectId(r['roomId']))
+		room=Room.objects.get(token=r['token'])
 
-		return jsonify({"status":"success","clientId":Player.objects.get(secretId=r['secretId'],room=room).clientId})
+		return jsonify({"status":"success","clientId":str(Player.objects.get(secretId=int(r['secretId']),room=room).clientId)})
 
 	except Exception as e:
 		return jsonify(handleException(app,e,'/getClientId'))

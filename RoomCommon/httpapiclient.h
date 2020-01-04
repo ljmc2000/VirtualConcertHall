@@ -33,6 +33,8 @@ public slots:
     QList<RoomInfo> listRooms();
     void closeRoom();
 
+    quint32 getClientId(quint32 secretId);
+
 signals:
     void apiError(QString message);
     void httpError(int code,QString message);

@@ -89,6 +89,15 @@ void HttpAPIClient::closeRoom()
     postRequest("/closeRoom",requestParams);
 }
 
+quint32 HttpAPIClient::getClientId(quint32 secretId)
+{
+    QJsonObject requestParams;
+    requestParams.insert("secretId",QString::number(secretId));
+    QJsonObject json = postRequest("/getClientId",requestParams);
+
+    return json["clientId"].toString().toUInt();
+}
+
 QJsonObject HttpAPIClient::getRequest(QString endpoint)
 {
     QNetworkRequest request(httpAPIurl+endpoint);

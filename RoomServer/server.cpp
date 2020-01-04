@@ -92,11 +92,6 @@ void Server::pruneClients()
     }
 }
 
-quint8 Server::getNextClientId()
-{
-    return nextClientId++;
-}
-
 void Server::sendToAll(QByteArray data)
 {
     qint64 timestamp=GETTIME();
@@ -112,7 +107,7 @@ quint32 Server::addClient(QNetworkDatagram joinRequest)
     QByteArray joinRequestData = joinRequest.data();
     ConnectPacket *connectPacket=(ConnectPacket*) joinRequestData.constData();
     Client c;
-    c.clientId=getNextClientId();
+    c.clientId=hapicli.getClientId(connectPacket->secretId);
     c.address=joinRequest.senderAddress();
     c.port=joinRequest.senderPort();
     clients[connectPacket->secretId]=c;
