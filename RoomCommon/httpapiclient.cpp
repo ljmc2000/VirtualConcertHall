@@ -42,7 +42,7 @@ bool HttpAPIClient::signin(QString username,QString password)
 
     if(json["status"].toString() == "success")
     {
-        QString t = json["loginToken"].toString();
+        QString t = json["token"].toString();
         prefs.setValue("loginToken",t);
         this->token=t;
         return true;
