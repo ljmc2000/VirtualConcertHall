@@ -114,12 +114,14 @@ def leaveRoom():
 	try:
 		r=request.get_json()
 		player=Player.objects.get(user=getUserByToken(r['token']))
-		print(player.room.owner.id,player.id)
 		if player.room.owner.id != player.user.id:
 			player.delete()
 			return jsonify({'status':'success'})
 		else:
 			return jsonify({'status':'failure','reason':'A user may not leave their own room'})
+
+	except DoesNotExist as e:
+		return jsonify({'status':'failure', 'reason':'User is not in a room'})
 
 	except Exception as e:
 		return jsonify(handleException(app,e,'/joinRoom'))
