@@ -55,19 +55,21 @@ def createRoom():
 	try:
 		r=request.get_json()
 		owner=getUserByToken(r['token'])
-		room=Room(roomname=r['roomname'],owner=owner,description=r.get('description'))
+		token=LoginToken()
+		room=Room(roomname=r['roomname'],owner=owner,players=[owner],description=r.get('description'),token=token)
 
 		if r.get('private'):
 			room.private=True
 		if r.get('password'):
 			room.setpwd(r['password'])
 
-		roomContainer=dockerProvider.startRoomContainer()
+
+		roomContainer=dockerProvider.startRoomContainer(token)
 		room.ipaddress=IpAddress(ip=roomContainer['ip'],port=roomContainer['port'])
 		room.containerid=roomContainer['id']
 		room.save()
 
-		p=Player(user=user,room=room)
+		p=Player(user=owner,room=room)
 		p.save()
 
 		return jsonify({'status':'success','roomId':str(room.id)})
@@ -98,6 +100,8 @@ def joinRoom():
 		r=request.get_json()
 		user=getUserByToken(r['token'])
 		room=Room.objects.get(id=r['roomId'])
+		room.players.append(user)
+		room.save()
 		p=Player(user=user,room=room)
 		p.save()
 
@@ -138,6 +142,8 @@ def closeRoom():
 			closedRoom=ClosedRoom()
 			closedRoom.fromRoom(room)
 			closedRoom.save()
+			Player.objects(room=room).delete()
+
 			room.delete()
 
 			return jsonify({'status':'success'})

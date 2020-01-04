@@ -36,11 +36,24 @@ class IpAddress(EmbeddedDocument):
 	ip = StringField(required=True)
 	port = IntField(required=True)
 
+class LoginToken(Document):
+	token=StringField(default=lambda: secrets.token_urlsafe(32),primary_key=True)
+	user=ReferenceField(User, required=False)
+	created = DateTimeField(default=datetime.datetime.now)
+	expires = DateTimeField(default=lambda: datetime.datetime.now() + datetime.timedelta(days=365))
+
+	def setExpiry(self,**expiry):
+		self.expires = datetime.datetime.now()+datetime.timedelta(**expiry)
+	def expired(self):
+		return self.expires < datetime.datetime.now()
+
 class Room(Document,WithPassword):
 	ipaddress = EmbeddedDocumentField(IpAddress,required=True)
+	token = ReferenceField(LoginToken,required=True)
 	containerid = StringField(required=True,unique=True)
 	roomname = StringField(required=True)
 	owner = ReferenceField(User, required=True, unique=True)
+	players = ListField(ReferenceField(User))
 	passhash = StringField(max_length=60)
 	description = StringField()
 	private = BooleanField(default=False)
@@ -75,16 +88,6 @@ class UnexpectedError(Document):
 	time=DateTimeField(default=datetime.datetime.now)
 	endpoint=StringField(required=True)
 
-class LoginToken(Document):
-	token=StringField(default=lambda: secrets.token_urlsafe(32),primary_key=True)
-	user=ReferenceField(User, required=True)
-	created = DateTimeField(default=datetime.datetime.now)
-
-	def expired(self):
-		return datetime.datetime.now() > (self.created+datetime.timedelta(days=365))
-	def age(self):
-		return datetime.datetime.now() - self.created
-
 def getUserByToken(token: str):
 	token=LoginToken.objects.get(token=token)
 	sleep(.25)       #make things harder on bad actors
@@ -93,4 +96,4 @@ def getUserByToken(token: str):
 		return token.user
 	else:
 		token.delete()
-		raise ExpiredLoginToken(token.user,token.age())
+		raise ExpiredLoginToken(token.user,token.expires)

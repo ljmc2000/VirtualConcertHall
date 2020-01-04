@@ -39,9 +39,7 @@ private:
     QTimer heartBeatTimer;
     QTimer pruneTimer;
     QHash<quint32,Client> clients;
-    quint8 nextClientId=0;
 
-    quint8 getNextClientId();
     void sendToAll(QByteArray data);
     quint32 addClient(QNetworkDatagram joinRequest);
     void disableClient(quint32 secretId);

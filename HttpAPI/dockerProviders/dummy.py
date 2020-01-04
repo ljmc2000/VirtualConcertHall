@@ -1,4 +1,4 @@
-def startRoomContainer():
+def startRoomContainer(token: str):
 	print('DUMMY DRIVER: starting room')
 	return {'ip':'127.0.0.1','port':1998,'id':'DUMMYROOM'}
 
