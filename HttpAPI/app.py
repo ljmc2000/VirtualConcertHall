@@ -97,6 +97,23 @@ def listRooms():
 	except Exception as e:
 		return jsonify(handleException(app,e,'/listRooms'))
 
+@app.route("/getCurrentRoom",methods=['POST'])
+def getCurrentRoom():
+	try:
+		r=request.get_json()
+		user=getUserByToken(r['token'])
+		player=Player.objects.get(user=user)
+
+		return jsonify({
+				'status':'success',
+				'roomIp':player.room.ipaddress.ip,
+				'roomPort':player.room.ipaddress.port,
+				'secretId':player.secretId
+		})
+
+	except Exception as e:
+		return jsonify(handleException(app,e,'/getCurrentRoom'))
+
 @app.route("/joinRoom",methods=['POST'])
 def joinRoom():
 	try:

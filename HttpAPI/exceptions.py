@@ -44,7 +44,7 @@ def handleException(app, e: Exception, endpoint: str):
 	except DoesNotExist as e:
 		usefulInformation=doesNotExistRegex.search(str(e))
 		return {"status":"failure","reason":"No such %s exists" % usefulInformation.group(1)}
-	except BadRequest as e:
+	except (BadRequest,TypeError) as e:
 		return {"status":"failure","reason":"A malformed or otherwise invalid request was made to the server"}
 	except KeyError as e:
 		return {"status":"failure","reason":"required fields were missing from the json request"}
