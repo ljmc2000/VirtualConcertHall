@@ -1,3 +1,6 @@
+#ifndef ROOMCOMMON_H
+#define ROOMCOMMON_H
+
 #define HEARTBEATINTERVAL 40        //how often to send heartbeat messages
 #define SERVERHEARTBEATTIMEOUT 50   //maximum accepted latency for a packet
 #define SERVERTIMEOUT 3000         //how long to wait since last packet before marking as dorment
@@ -67,3 +70,4 @@ namespace RoomCommon
         144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159 //on message for all 16 channels
     });
 }
+#endif
