@@ -17,6 +17,30 @@ HttpAPIClient::HttpAPIClient(QString token)
     this->token=token;
 }
 
+QJsonObject HttpAPIClient::getRequest(QString endpoint)
+{
+    QNetworkRequest request(httpAPIurl+endpoint);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    QNetworkReply *reply=netman.get(request);
+    REQUEST;
+
+    return json;
+}
+
+QJsonObject HttpAPIClient::postRequest(QString endpoint, QJsonObject requestParams)
+{
+    QNetworkRequest request(httpAPIurl+endpoint);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    requestParams.insert("token",token);
+    QNetworkReply *reply=netman.post(request,QJsonDocument(requestParams).toJson());
+    REQUEST;
+
+    return json;
+}
+
+const QString HttpAPIClient::httpAPIurl="http://127.0.0.1:5000";
+
+//common
 bool HttpAPIClient::test()
 {
     QJsonObject requestParams;
@@ -25,6 +49,7 @@ bool HttpAPIClient::test()
     return !json["invalid"].toBool();
 }
 
+//client
 void HttpAPIClient::signup(QString username,QString password)
 {
     QJsonObject requestParams;
@@ -96,12 +121,26 @@ RoomConnectionInfo HttpAPIClient::getCurrentRoom()
     return r;
 }
 
+void HttpAPIClient::joinRoom(QString roomId)
+{
+    QJsonObject request;
+    request.insert("roomId",roomId);
+    postRequest("joinRoom",request);
+}
+
+void HttpAPIClient::leaveRoom()
+{
+    QJsonObject request;
+    postRequest("leaveRoom",request);
+}
+
 void HttpAPIClient::closeRoom()
 {
     QJsonObject requestParams;
     postRequest("/closeRoom",requestParams);
 }
 
+//server
 quint32 HttpAPIClient::getClientId(quint32 secretId)
 {
     QJsonObject requestParams;
@@ -110,26 +149,3 @@ quint32 HttpAPIClient::getClientId(quint32 secretId)
 
     return json["clientId"].toString().toUInt();
 }
-
-QJsonObject HttpAPIClient::getRequest(QString endpoint)
-{
-    QNetworkRequest request(httpAPIurl+endpoint);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    QNetworkReply *reply=netman.get(request);
-    REQUEST;
-
-    return json;
-}
-
-QJsonObject HttpAPIClient::postRequest(QString endpoint, QJsonObject requestParams)
-{
-    QNetworkRequest request(httpAPIurl+endpoint);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    requestParams.insert("token",token);
-    QNetworkReply *reply=netman.post(request,QJsonDocument(requestParams).toJson());
-    REQUEST;
-
-    return json;
-}
-
-const QString HttpAPIClient::httpAPIurl="http://127.0.0.1:5000";

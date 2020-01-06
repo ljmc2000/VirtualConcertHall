@@ -41,6 +41,8 @@ public slots:   //client
     QString createRoom(QString name);
     QList<RoomInfo> listRooms();
     RoomConnectionInfo getCurrentRoom();
+    void joinRoom(QString roomId);
+    void leaveRoom();
     void closeRoom();
 
 public slots:   //server
