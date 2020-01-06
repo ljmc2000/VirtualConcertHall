@@ -40,7 +40,8 @@ void MainWindow::openSettings()
 
 void MainWindow::openPlayScreen()
 {
-    playScreen = new PlayScreen(this);
+    RoomConnectionInfo r=httpApiClient.getCurrentRoom();
+    playScreen = new PlayScreen(r.secretId,r.roomIp,r.roomPort,this);
     playScreen->show();
     connect(playScreen, SIGNAL(destroyed()),
             this, SLOT(closePlayScreen()));

@@ -3,11 +3,11 @@
 
 using namespace RoomCommon;
 
-MidiHandler::MidiHandler()
+MidiHandler::MidiHandler(quint32 secretId, QString address, quint16 port)
 {
     QSettings prefs;
-    serverHost = QHostAddress(prefs.value("serverHost").toString());
-    serverPort = prefs.value("serverPort").toUInt();
+    serverHost = QHostAddress(address);
+    serverPort = port;
 
     unsigned int midiInPort = prefs.value("midiInPort").toUInt();
     midiin.openPort(midiInPort<midiin.getPortCount() ? midiInPort:0);
@@ -34,7 +34,7 @@ MidiHandler::MidiHandler()
                 &reconnectClock, SIGNAL(timeout()),
                 this, SLOT(attemptConnect())
             );
-    secretId=prefs.value("secretId").toUInt();
+    this->secretId=secretId;
     attemptConnect();
     reconnectClock.start();
 }

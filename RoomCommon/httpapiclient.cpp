@@ -83,6 +83,19 @@ QList<RoomInfo> HttpAPIClient::listRooms()
     return returnme;
 }
 
+RoomConnectionInfo HttpAPIClient::getCurrentRoom()
+{
+    QJsonObject request;
+    QJsonObject json = postRequest("/getCurrentRoom",request);
+
+    RoomConnectionInfo r;
+    r.roomIp=json["roomIp"].toString();
+    r.roomPort=json["roomPort"].toInt();
+    r.secretId=json["secretId"].toInt();
+
+    return r;
+}
+
 void HttpAPIClient::closeRoom()
 {
     QJsonObject requestParams;

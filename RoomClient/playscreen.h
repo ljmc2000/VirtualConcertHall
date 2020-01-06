@@ -18,7 +18,7 @@ class PlayScreen : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit PlayScreen(QWidget *parent = nullptr);
+    explicit PlayScreen(quint32 secretId,QString ipaddress,quint16 port, QWidget *parent = nullptr);
     ~PlayScreen();
 
     void showEvent(QShowEvent *e);

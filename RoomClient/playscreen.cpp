@@ -4,10 +4,11 @@
 
 using namespace RoomCommon;
 
-PlayScreen::PlayScreen(QWidget *parent) :
+PlayScreen::PlayScreen(quint32 secretId,QString ipaddress,quint16 port,QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::PlayScreen),
-    instramentVisual("piano.svg")
+    instramentVisual("piano.svg"),
+    midiHandler(secretId,ipaddress,port)
 {
     ui->setupUi(this);
 

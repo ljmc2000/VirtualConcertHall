@@ -17,6 +17,13 @@ struct RoomInfo
     QString description;
 };
 
+struct RoomConnectionInfo
+{
+    QString roomIp;
+    quint16 roomPort;
+    quint32 secretId;
+};
+
 class HttpAPIClient: public QObject
 {
     Q_OBJECT
@@ -25,14 +32,18 @@ public:
     HttpAPIClient();
     HttpAPIClient(QString token);
 
-public slots:
+public slots:   //common
     bool test();
+
+public slots:   //client
     void signup(QString username,QString password);
     bool signin(QString username,QString password);
     QString createRoom(QString name);
     QList<RoomInfo> listRooms();
+    RoomConnectionInfo getCurrentRoom();
     void closeRoom();
 
+public slots:   //server
     quint32 getClientId(quint32 secretId);
 
 signals:

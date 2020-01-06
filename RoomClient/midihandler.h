@@ -15,7 +15,7 @@ class MidiHandler: public QObject
     Q_OBJECT
 
 public:
-    MidiHandler();
+    MidiHandler(quint32 secretId,QString ipaddress="127.0.0.1",quint16 port=1998);
     ~MidiHandler();
 
 private slots:
