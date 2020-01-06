@@ -22,6 +22,10 @@ class WithPassword:
 			 raise BadPassword('no digit')
 		if not re.search('[^\d\w]',password):
 			 raise BadPassword('no symbol')
+		if not re.search('^[^A-Z]',password):
+			raise BadPassword('must not begin with a capital letter')
+		if not re.search('[a-zA-Z]$',password):
+			raise BadPassword('must not end with a digit or symbol')
 
 		self.passhash=bcrypt.hashpw(password.encode(),bcrypt.gensalt()).decode()
 

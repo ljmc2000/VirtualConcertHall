@@ -20,7 +20,7 @@ class ShortPassword(Exception):
 
 class BadPassword(Exception):
 	def __init__(self, problem):
-		super().__init__("Passwords must contain one each of a lowercase, uppercase, digit and symbol. Password provided fails on criteria '%s'" % problem)
+		super().__init__("Passwords must contain one each of a lowercase, uppercase, digit and symbol. Passwords must not begin with a captial or end on a digit or symbol. Password provided fails on criteria '%s'" % problem)
 		self.problem=problem
 
 class Imposter(Exception):
