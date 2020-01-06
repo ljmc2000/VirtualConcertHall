@@ -20,7 +20,7 @@ class WithPassword:
 			raise BadPassword('no uppercase')
 		if not re.search('[\d]',password):
 			 raise BadPassword('no digit')
-		if not re.search('[^\d\w]',password):
+		if not re.search('[^\w]',password):
 			 raise BadPassword('no symbol')
 		if not re.search('^[^A-Z]',password):
 			raise BadPassword('must not begin with a capital letter')
