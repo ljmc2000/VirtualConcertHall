@@ -24,6 +24,32 @@ def test():
 	except Exception as e:
 		return jsonify(handleException(app,e,'/test'))
 
+@app.route("/getUserStatus",methods=['POST'])
+def getUserStatus():
+	try:
+		r=request.get_json()
+		user=getUserByToken(r['token'])
+		user.lastPing=datetime.datetime.now()
+		user.save()
+
+		if r.get('username'):
+			user=User.objects.get(username=r['username'])
+
+		try:
+			player=Player.objects.get(user=user)
+		except DoesNotExist as e:
+			player=None
+
+		if user.lastPing + datetime.timedelta(minutes=15) < datetime.datetime.now():
+			return jsonify({"status":"success","userStatus":"OFFLINE"})
+		elif player != None:
+			return jsonify({"status":"success","userStatus":"INROOM"})
+		else:
+			return jsonify({"status":"success","userStatus":"ONLINE"})
+
+	except Exception as e:
+		return jsonify(handleException(app,e,'/getUserStatus'))
+
 #client endpoints
 @app.route("/register",methods=['POST'])
 def register():

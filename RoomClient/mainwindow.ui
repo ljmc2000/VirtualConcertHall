@@ -40,6 +40,22 @@
      <string>Play</string>
     </property>
    </widget>
+   <widget class="OnlineStatus" name="onlineStatus">
+    <property name="geometry">
+     <rect>
+      <x>249</x>
+      <y>0</y>
+      <width>121</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -47,12 +63,20 @@
      <x>0</x>
      <y>0</y>
      <width>369</width>
-     <height>33</height>
+     <height>35</height>
     </rect>
    </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>OnlineStatus</class>
+   <extends>QFrame</extends>
+   <header>onlinestatus.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

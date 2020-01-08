@@ -1,4 +1,5 @@
 #include "httpapiclient.h"
+#include "onlinestatus.h"
 #include <QCoreApplication>
 
 #define httpAPIurl "http://127.0.0.1:5000"
@@ -46,6 +47,15 @@ bool HttpAPIClient::test()
     QJsonObject json = postRequest("/test",requestParams);
 
     return !json["invalid"].toBool();
+}
+
+int HttpAPIClient::getUserStatus()
+{
+    QMetaEnum e = QMetaEnum::fromType<OnlineStatuses::State>();
+    QJsonObject requestParams;
+    QJsonObject json = postRequest("/getUserStatus",requestParams);
+
+    return e.keyToValue(json["userStatus"].toString().toStdString().c_str());
 }
 
 //client

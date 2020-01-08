@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <httpapiclient.h>
+#include <onlinestatus.h>
 #include <playscreen.h>
 #include <settingswindow.h>
 #include <loginwindow.h>

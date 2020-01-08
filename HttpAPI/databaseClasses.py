@@ -35,6 +35,7 @@ class WithPassword:
 class User(Document,WithPassword):
 	username = StringField(unique=True,required=True,min_length=4)
 	passhash = StringField(max_length=60,required=True)
+	lastPing = DateTimeField()
 
 class IpAddress(EmbeddedDocument):
 	ip = StringField(required=True)

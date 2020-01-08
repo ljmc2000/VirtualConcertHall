@@ -34,6 +34,7 @@ public:
 
 public slots:   //common
     bool test();
+    int getUserStatus();
 
 public slots:   //client
     void signup(QString username,QString password);
