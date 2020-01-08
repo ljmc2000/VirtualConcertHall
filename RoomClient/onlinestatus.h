@@ -28,8 +28,8 @@ namespace OnlineStatuses
 
     static QIcon icons[] =
     {
-        QIcon(),
-        QIcon(),
+        QIcon("online.svg"),
+        QIcon("offline.svg"),
         QIcon(),
     };
 };
