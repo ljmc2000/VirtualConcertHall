@@ -1,5 +1,6 @@
 #include "settingswindow.h"
 #include "ui_settingswindow.h"
+#include "mainwindow.h"
 #include <iostream>
 #include <QObject>
 
@@ -19,9 +20,6 @@ SettingsWindow::SettingsWindow(QWidget *parent) :
 
     connect(ui->midiOutputSelector, SIGNAL(currentIndexChanged(int)),
             this, SLOT(setMidiOutPort()));
-
-    connect(ui->confirmButton, SIGNAL(clicked()),
-            this, SLOT(setAddress()));
 
 }
 
@@ -53,12 +51,8 @@ void SettingsWindow::setMidiPortsList()
 
     ui->midiInputSelector->setCurrentIndex(prefs.value("midiInPort").toInt());
     ui->midiOutputSelector->setCurrentIndex(prefs.value("midiOutPort").toInt());
-}
 
-void SettingsWindow::setAddress()
-{
-    prefs.setValue("serverHost",ui->serverIPBox->text());
-    prefs.setValue("serverPort",ui->serverPortBox->text());
+    refreshUsername();
 }
 
 void SettingsWindow::setMidiInPort()
@@ -80,6 +74,39 @@ void SettingsWindow::setMidiOutPort()
 void SettingsWindow::returnToLastWindow()
 {
     delete this;
+}
+
+void SettingsWindow::logout()
+{
+    prefs.remove("loginToken");
+    httpApiClient.signout();
+    refreshUsername();
+}
+
+void SettingsWindow::login()
+{
+    MainWindow *w = (MainWindow*)parentWidget();
+    w->openLoginWindow();
+    delete this;
+}
+
+void SettingsWindow::refreshUsername()
+{
+    QString username = httpApiClient.getUsername();
+    if(username != "")
+    {
+        ui->signinLabel->setText("signed in as "+username);
+        ui->signinButton->setText("sign out");
+        connect(ui->signinButton, SIGNAL(clicked()),
+                this, SLOT(logout()));
+    }
+    else
+    {
+        ui->signinLabel->setText("signed out");
+        ui->signinButton->setText("sign in");
+        connect(ui->signinButton, SIGNAL(clicked()),
+                this, SLOT(login()));
+    }
 }
 
 void SettingsWindow::midiHandler(double timeStamp, std::vector<unsigned char> *message, void *userData)

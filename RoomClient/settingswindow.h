@@ -5,6 +5,7 @@
 #include <QSettings>
 
 #include <RtMidi.h>
+#include "httpapiclient.h"
 
 namespace Ui {
 class SettingsWindow;
@@ -21,10 +22,11 @@ public:
     static void midiHandler( double timeStamp, std::vector<unsigned char> *message, void *userData );
 
 public slots:
-    void setAddress();
     void setMidiInPort();
     void setMidiOutPort();
     void returnToLastWindow();
+    void logout();
+    void login();
 
 private:
     Ui::SettingsWindow *ui;
@@ -36,8 +38,11 @@ private:
 
     int maxNote=0, minNote=127;
 
+    HttpAPIClient httpApiClient;
+
 private: //methods
     void setMidiPortsList();
+    void refreshUsername();
 };
 
 #endif // SETTINGSWINDOW_H

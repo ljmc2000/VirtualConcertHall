@@ -35,7 +35,6 @@ void MainWindow::openSettings()
     settingsWindow->show();
     connect(settingsWindow, SIGNAL(destroyed()),
             this, SLOT(closeSettings()));
-    this->hide();
 }
 
 void MainWindow::openPlayScreen()
@@ -59,7 +58,7 @@ void MainWindow::openLoginWindow()
 void MainWindow::closeSettings()
 {
     settingsWindow=nullptr;
-    show();
+    ui->onlineStatus->update();
 }
 
 void MainWindow::closePlayScreen()
@@ -71,6 +70,7 @@ void MainWindow::closePlayScreen()
 void MainWindow::closeLoginWindow()
 {
     loginWindow=nullptr;
+    ui->onlineStatus->update();
 }
 
 void MainWindow::handleError(QString error)

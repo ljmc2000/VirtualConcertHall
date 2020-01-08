@@ -16,6 +16,7 @@ namespace OnlineStatuses
         ONLINE,
         OFFLINE,
         INROOM,
+        NOLOGIN,
     };
     Q_ENUM_NS(State);
 
@@ -24,12 +25,14 @@ namespace OnlineStatuses
         "Online",
         "Offline",
         "In Room",
+        "Signed out",
     };
 
     static QIcon icons[] =
     {
         QIcon("online.svg"),
         QIcon("offline.svg"),
+        QIcon(),
         QIcon(),
     };
 };

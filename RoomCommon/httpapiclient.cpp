@@ -88,6 +88,21 @@ bool HttpAPIClient::signin(QString username,QString password)
     }
 }
 
+void HttpAPIClient::signout()
+{
+    QJsonObject requestParams;
+    QJsonObject json = postRequest("/logout",requestParams);
+    token="";
+}
+
+QString HttpAPIClient::getUsername()
+{
+    QJsonObject requestParams;
+    QJsonObject json = postRequest("/getUsername",requestParams);
+
+    return json["status"].toString() == "success" ? json["username"].toString():"";
+}
+
 QString HttpAPIClient::createRoom(QString name)
 {
     QJsonObject requestParams;

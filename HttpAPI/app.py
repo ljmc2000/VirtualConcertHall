@@ -24,13 +24,25 @@ def test():
 	except Exception as e:
 		return jsonify(handleException(app,e,'/test'))
 
+@app.route("/logout",methods=['POST'])
+def logout():
+	try:
+		r=request.get_json()
+		token=LoginToken.objects.get(r['token'])
+		token.delete()
+
+		return jsonify({"status":"success"})
+
+	except Exception as e:
+		return jsonify(handleException(app,e,'/logout'))
+
 @app.route("/getUserStatus",methods=['POST'])
 def getUserStatus():
 	try:
 		r=request.get_json()
 		user=getUserByToken(r['token'])
+		user.update(set__lastPing=datetime.datetime.now())
 		user.lastPing=datetime.datetime.now()
-		user.save()
 
 		if r.get('username'):
 			user=User.objects.get(username=r['username'])
@@ -46,6 +58,9 @@ def getUserStatus():
 			return jsonify({"status":"success","userStatus":"INROOM"})
 		else:
 			return jsonify({"status":"success","userStatus":"ONLINE"})
+
+	except (DoesNotExist,ExpiredLoginToken) as e:
+		return jsonify({"status":"success","userStatus":"NOLOGIN"})
 
 	except Exception as e:
 		return jsonify(handleException(app,e,'/getUserStatus'))
@@ -77,6 +92,17 @@ def login():
 			return jsonify({'status':'failure','reason':'Invalid password'})
 	except Exception as e:
 		return jsonify(handleException(app,e,'/login'))
+
+@app.route("/getUsername",methods=['POST'])
+def getUsername():
+	try:
+		r=request.get_json()
+		user=getUserByToken(r['token'])
+
+		return jsonify({'status':'success','username':user.username})
+
+	except Exception as e:
+		return jsonify(handleException(app,e,'/getUsername'))
 
 @app.route("/createRoom",methods=['POST'])
 def createRoom():

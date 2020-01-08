@@ -39,6 +39,8 @@ public slots:   //common
 public slots:   //client
     void signup(QString username,QString password);
     bool signin(QString username,QString password);
+    void signout();
+    QString getUsername();
     QString createRoom(QString name);
     QList<RoomInfo> listRooms();
     RoomConnectionInfo getCurrentRoom();
