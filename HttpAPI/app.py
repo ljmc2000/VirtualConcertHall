@@ -28,7 +28,7 @@ def test():
 def logout():
 	try:
 		r=request.get_json()
-		token=LoginToken.objects.get(r['token'])
+		token=LoginToken.objects.get(token=r['token'])
 		token.delete()
 
 		return jsonify({"status":"success"})
