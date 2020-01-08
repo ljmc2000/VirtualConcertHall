@@ -32,8 +32,8 @@ namespace OnlineStatuses
     {
         QIcon("online.svg"),
         QIcon("offline.svg"),
-        QIcon(),
-        QIcon(),
+        QIcon("inroom.svg"),
+        QIcon("nologin.svg"),
     };
 };
 
