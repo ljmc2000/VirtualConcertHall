@@ -1,6 +1,7 @@
 #include "httpapiclient.h"
 #include <QCoreApplication>
 
+#define httpAPIurl "http://127.0.0.1:5000"
 #define REQUEST    while(!reply->isFinished()) qApp->processEvents();\
     QJsonObject json = QJsonDocument::fromJson(reply->readAll()).object();\
     if (reply->error() != QNetworkReply::NoError) emit httpError(reply->error(),reply->errorString()); \
@@ -37,8 +38,6 @@ QJsonObject HttpAPIClient::postRequest(QString endpoint, QJsonObject requestPara
 
     return json;
 }
-
-const QString HttpAPIClient::httpAPIurl="http://127.0.0.1:5000";
 
 //common
 bool HttpAPIClient::test()
