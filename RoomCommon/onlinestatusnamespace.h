@@ -13,6 +13,7 @@ namespace OnlineStatusNamespace
         OFFLINE,
         INROOM,
         NOLOGIN,
+        APIDOWN,
     };
     Q_ENUM_NS(State);
 
@@ -22,6 +23,7 @@ namespace OnlineStatusNamespace
         "Offline",
         "In Room",
         "Signed out",
+        "Server fault",
     };
 };
 
@@ -35,6 +37,7 @@ namespace OnlineStatusNamespace
         QIcon("offline.svg"),
         QIcon("inroom.svg"),
         QIcon("nologin.svg"),
+        QIcon("apidown.svg"),
     };
 }
 #endif  //QT_GUI_LIB

@@ -63,7 +63,9 @@ def getUserStatus():
 		return jsonify({"status":"success","userStatus":"NOLOGIN"})
 
 	except Exception as e:
-		return jsonify(handleException(app,e,'/getUserStatus'))
+		json=handleException(app,e,'/getUserStatus')
+		json["userStatus"]="APIDOWN"
+		return jsonify(json)
 
 #client endpoints
 @app.route("/register",methods=['POST'])
