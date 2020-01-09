@@ -30,12 +30,12 @@ class HttpAPIClient: public QObject
 
 public:
     HttpAPIClient();
-    HttpAPIClient(QString token);
 
 public slots:   //common
     bool test();
     int getUserStatus();
 
+#ifdef QT_GUI_LIB
 public slots:   //client
     void signup(QString username,QString password);
     bool signin(QString username,QString password);
@@ -47,9 +47,10 @@ public slots:   //client
     void joinRoom(QString roomId);
     void leaveRoom();
     void closeRoom();
-
+#else
 public slots:   //server
     quint32 getClientId(quint32 secretId);
+#endif
 
 signals:
     void apiError(QString message);

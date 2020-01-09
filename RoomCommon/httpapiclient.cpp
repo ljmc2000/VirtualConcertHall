@@ -9,37 +9,6 @@
     else if (json["status"].toString() != "success") emit apiError(json["reason"].toString());\
     reply->deleteLater()
 
-HttpAPIClient::HttpAPIClient()
-{
-    this->token=prefs.value("loginToken").toString();
-}
-
-HttpAPIClient::HttpAPIClient(QString token)
-{
-    this->token=token;
-}
-
-QJsonObject HttpAPIClient::getRequest(QString endpoint)
-{
-    QNetworkRequest request(httpAPIurl+endpoint);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    QNetworkReply *reply=netman.get(request);
-    REQUEST;
-
-    return json;
-}
-
-QJsonObject HttpAPIClient::postRequest(QString endpoint, QJsonObject requestParams)
-{
-    QNetworkRequest request(httpAPIurl+endpoint);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    requestParams.insert("token",token);
-    QNetworkReply *reply=netman.post(request,QJsonDocument(requestParams).toJson());
-    REQUEST;
-
-    return json;
-}
-
 //common
 bool HttpAPIClient::test()
 {
@@ -58,7 +27,13 @@ int HttpAPIClient::getUserStatus()
     return e.keyToValue(json["userStatus"].toString().toStdString().c_str());
 }
 
-//client
+
+#ifdef QT_GUI_LIB   //client
+HttpAPIClient::HttpAPIClient()
+{
+    this->token=prefs.value("loginToken").toString();
+}
+
 void HttpAPIClient::signup(QString username,QString password)
 {
     QJsonObject requestParams;
@@ -163,8 +138,12 @@ void HttpAPIClient::closeRoom()
     QJsonObject requestParams;
     postRequest("/closeRoom",requestParams);
 }
+#else   //server
+HttpAPIClient::HttpAPIClient()
+{
+    this->token=qgetenv("TOKEN");
+}
 
-//server
 quint32 HttpAPIClient::getClientId(quint32 secretId)
 {
     QJsonObject requestParams;
@@ -172,4 +151,26 @@ quint32 HttpAPIClient::getClientId(quint32 secretId)
     QJsonObject json = postRequest("/getClientId",requestParams);
 
     return json["clientId"].toString().toUInt();
+}
+#endif
+
+QJsonObject HttpAPIClient::getRequest(QString endpoint)
+{
+    QNetworkRequest request(httpAPIurl+endpoint);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    QNetworkReply *reply=netman.get(request);
+    REQUEST;
+
+    return json;
+}
+
+QJsonObject HttpAPIClient::postRequest(QString endpoint, QJsonObject requestParams)
+{
+    QNetworkRequest request(httpAPIurl+endpoint);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    requestParams.insert("token",token);
+    QNetworkReply *reply=netman.post(request,QJsonDocument(requestParams).toJson());
+    REQUEST;
+
+    return json;
 }

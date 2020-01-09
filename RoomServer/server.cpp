@@ -3,8 +3,7 @@
 
 using namespace RoomCommon;
 
-Server::Server(int port):
-hapicli(qgetenv("TOKEN"))
+Server::Server(int port)
 {
     qSocket.bind(QHostAddress::Any,port);
     qDebug() << "Listening on port" << port;
