@@ -26,7 +26,7 @@ OnlineStatus::~OnlineStatus()
     delete ui;
 }
 
-using namespace OnlineStatuses;
+using namespace OnlineStatusNamespace;
 void OnlineStatus::update()
 {
     int state = httpApiClient.getUserStatus();

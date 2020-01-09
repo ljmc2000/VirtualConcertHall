@@ -2,40 +2,10 @@
 #define ONLINESTATUS_H
 
 #include "httpapiclient.h"
+#include "onlinestatusnamespace.h"
 #include <QFrame>
 #include <QIcon>
 #include <QTimer>
-#include <QMetaEnum>
-
-namespace OnlineStatuses
-{
-    Q_NAMESPACE
-
-    enum State
-    {
-        ONLINE,
-        OFFLINE,
-        INROOM,
-        NOLOGIN,
-    };
-    Q_ENUM_NS(State);
-
-    static QString messages[] =
-    {
-        "Online",
-        "Offline",
-        "In Room",
-        "Signed out",
-    };
-
-    static QIcon icons[] =
-    {
-        QIcon("online.svg"),
-        QIcon("offline.svg"),
-        QIcon("inroom.svg"),
-        QIcon("nologin.svg"),
-    };
-};
 
 namespace Ui {
 class OnlineStatus;

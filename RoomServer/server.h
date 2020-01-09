@@ -10,6 +10,7 @@
 #include <QNetworkDatagram>
 #include <QTimer>
 #include <QDateTime>
+#include <QCoreApplication>
 
 struct Client
 {
@@ -28,16 +29,18 @@ public:
     Server(int port);
     ~Server();
 
-public slots:
+private slots:
     void readPendingDatagrams();
     void heartBeat();
     void pruneClients();
+    void finish();
 
 private:
     QUdpSocket qSocket;
     HttpAPIClient hapicli;
     QTimer heartBeatTimer;
     QTimer pruneTimer;
+    QTimer idleTimeoutTimer;
     QHash<quint32,Client> clients;
 
     void sendToAll(QByteArray data);

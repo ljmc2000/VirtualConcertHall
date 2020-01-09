@@ -37,11 +37,12 @@ SOURCES += \
 HEADERS += \
     midihandler.h \
     $$PWD/../RoomCommon/httpapiclient.h \
+    $$PWD/../RoomCommon/onlinestatusnamespace.h \
     settingswindow.h \
     mainwindow.h \
     playscreen.h \
     loginwindow.h \
-    onlinestatus.h
+    onlinestatus.h \
 
 FORMS += \
     settingswindow.ui \

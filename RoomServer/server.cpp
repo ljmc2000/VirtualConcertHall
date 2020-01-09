@@ -27,6 +27,8 @@ hapicli(qgetenv("TOKEN"))
         this, SLOT(pruneClients())
     );
     pruneTimer.start();
+
+    idleTimeoutTimer.singleShot(IDLETIMEOUT,this,SLOT(finish()));
 }
 
 Server::~Server()
@@ -36,6 +38,7 @@ Server::~Server()
 
 void Server::readPendingDatagrams()
 {
+    idleTimeoutTimer.singleShot(IDLETIMEOUT,this,SLOT(finish()));
     QNetworkDatagram datagram = qSocket.receiveDatagram();
     QByteArray data = datagram.data();
 
@@ -90,6 +93,12 @@ void Server::pruneClients()
             disableClient(secretId);
         }
     }
+}
+
+void Server::finish()
+{
+    qDebug() << "server is shutting down";
+    QCoreApplication::quit();
 }
 
 void Server::sendToAll(QByteArray data)

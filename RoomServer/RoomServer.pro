@@ -27,6 +27,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     server.h \
-    $$PWD/../RoomCommon/httpapiclient.h
+    $$PWD/../RoomCommon/httpapiclient.h \
+    $$PWD/../RoomCommon/onlinestatusnamespace.h
 
 INCLUDEPATH += $$PWD/../RoomCommon
