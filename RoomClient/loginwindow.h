@@ -13,7 +13,7 @@ class LoginWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit LoginWindow(QWidget *parent = nullptr);
+    explicit LoginWindow(HttpAPIClient *httpApiClient, QWidget *parent = nullptr);
     ~LoginWindow();
 
 public slots:
@@ -22,7 +22,7 @@ public slots:
 
 private:
     Ui::LoginWindow *ui;
-    HttpAPIClient httpApiClient;
+    HttpAPIClient *httpApiClient;
 };
 
 #endif // LOGIN_H

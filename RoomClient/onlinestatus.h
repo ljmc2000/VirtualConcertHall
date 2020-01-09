@@ -19,6 +19,8 @@ public:
     explicit OnlineStatus(QWidget *parent = nullptr);
     ~OnlineStatus();
 
+    void setHttpApiClient(HttpAPIClient *httpApiClient);
+
 public slots:
     void update();
     void handleHttpError(int code,QString message);
@@ -27,7 +29,7 @@ private:
     Ui::OnlineStatus *ui;
 
     QTimer refreshTimer;
-    HttpAPIClient httpApiClient;
+    HttpAPIClient *httpApiClient;
     QSize iconSize;
 };
 

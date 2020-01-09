@@ -8,10 +8,19 @@ OnlineStatus::OnlineStatus(QWidget *parent) :
     ui(new Ui::OnlineStatus)
 {
     ui->setupUi(this);
-
     this->iconSize=ui->statusIcon->size();
+}
 
-    connect(&httpApiClient, SIGNAL(httpError(int,QString)),
+OnlineStatus::~OnlineStatus()
+{
+    delete ui;
+}
+
+void OnlineStatus::setHttpApiClient(HttpAPIClient *httpApiClient)
+{
+    this->httpApiClient=httpApiClient;
+
+    connect(httpApiClient, SIGNAL(httpError(int,QString)),
             this, SLOT(handleHttpError(int,QString)));
 
     refreshTimer.setInterval(REFRESHINTERVAL);
@@ -21,15 +30,10 @@ OnlineStatus::OnlineStatus(QWidget *parent) :
     refreshTimer.start();
 }
 
-OnlineStatus::~OnlineStatus()
-{
-    delete ui;
-}
-
 using namespace OnlineStatusNamespace;
 void OnlineStatus::update()
 {
-    int state = httpApiClient.getUserStatus();
+    int state = httpApiClient->getUserStatus();
 
     if(state != -1)
     {

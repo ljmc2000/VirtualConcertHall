@@ -16,7 +16,7 @@ class SettingsWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit SettingsWindow(QWidget *parent = nullptr);
+    explicit SettingsWindow(HttpAPIClient *httpApiClient,QWidget *parent = nullptr);
     ~SettingsWindow();
 
     static void midiHandler( double timeStamp, std::vector<unsigned char> *message, void *userData );
@@ -38,7 +38,7 @@ private:
 
     int maxNote=0, minNote=127;
 
-    HttpAPIClient httpApiClient;
+    HttpAPIClient *httpApiClient;
 
 private: //methods
     void setMidiPortsList();

@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->onlineStatus->setHttpApiClient(&httpApiClient);
 
     connect(ui->settingsButton,SIGNAL(clicked()),
             this,SLOT(openSettings()));
@@ -31,10 +32,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::openSettings()
 {
-    settingsWindow = new SettingsWindow(this);
+    settingsWindow = new SettingsWindow(&httpApiClient,this);
     settingsWindow->show();
     connect(settingsWindow, SIGNAL(destroyed()),
             this, SLOT(closeSettings()));
+    this->hide();
 }
 
 void MainWindow::openPlayScreen()
@@ -49,26 +51,29 @@ void MainWindow::openPlayScreen()
 
 void MainWindow::openLoginWindow()
 {
-    loginWindow = new LoginWindow(this);
+    loginWindow = new LoginWindow(&httpApiClient,this);
     loginWindow->show();
     connect(loginWindow, SIGNAL(destroyed()),
             this, SLOT(closeLoginWindow()));
+    this->hide();
 }
 
 void MainWindow::closeSettings()
 {
+    this->show();
     settingsWindow=nullptr;
     ui->onlineStatus->update();
 }
 
 void MainWindow::closePlayScreen()
 {
+    this->show();
     playScreen=nullptr;
-    show();
 }
 
 void MainWindow::closeLoginWindow()
 {
+    this->show();
     loginWindow=nullptr;
     ui->onlineStatus->update();
 }

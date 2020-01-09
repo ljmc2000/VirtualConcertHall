@@ -4,11 +4,12 @@
 #include <iostream>
 #include <QObject>
 
-SettingsWindow::SettingsWindow(QWidget *parent) :
+SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::SettingsWindow)
 {
     ui->setupUi(this);
+    this->httpApiClient=httpApiClient;
 
     setMidiPortsList();
 
@@ -79,7 +80,7 @@ void SettingsWindow::returnToLastWindow()
 void SettingsWindow::logout()
 {
     prefs.remove("loginToken");
-    httpApiClient.signout();
+    httpApiClient->signout();
     refreshUsername();
 }
 
@@ -92,7 +93,7 @@ void SettingsWindow::login()
 
 void SettingsWindow::refreshUsername()
 {
-    QString username = httpApiClient.getUsername();
+    QString username = httpApiClient->getUsername();
     if(username != "")
     {
         ui->signinLabel->setText("signed in as "+username);
