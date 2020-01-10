@@ -25,9 +25,7 @@ public:
 public slots:
     void setMidiInPort();
     void setMidiOutPort();
-    void returnToLastWindow();
     void logout();
-    void login();
 
 signals:
     void switchScreen(Mode mode);

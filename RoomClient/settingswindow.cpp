@@ -3,6 +3,7 @@
 #include "mainwindow.h"
 #include <iostream>
 #include <QObject>
+#include <QPushButton>
 
 SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
     QWidget(parent),
@@ -12,9 +13,10 @@ SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
     this->httpApiClient=httpApiClient;
 
     setMidiPortsList();
+    refreshUsername();
 
-    connect(ui->backButton, SIGNAL(clicked()),
-            this, SLOT(returnToLastWindow()));
+    connect(ui->backButton, &QPushButton::clicked,
+            [=](){emit switchScreen(MAINMENU);});
 
     connect(ui->midiInputSelector, SIGNAL(currentIndexChanged(int)),
             this, SLOT(setMidiInPort()));
@@ -52,8 +54,6 @@ void SettingsWindow::setMidiPortsList()
 
     ui->midiInputSelector->setCurrentIndex(prefs.value("midiInPort").toInt());
     ui->midiOutputSelector->setCurrentIndex(prefs.value("midiOutPort").toInt());
-
-    refreshUsername();
 }
 
 void SettingsWindow::setMidiInPort()
@@ -72,21 +72,11 @@ void SettingsWindow::setMidiOutPort()
     midiout.openPort(port);
 }
 
-void SettingsWindow::returnToLastWindow()
-{
-    emit switchScreen(MAINMENU);
-}
-
 void SettingsWindow::logout()
 {
     prefs.remove("loginToken");
     httpApiClient->signout();
     refreshUsername();
-}
-
-void SettingsWindow::login()
-{
-    emit switchScreen(LOGIN);
 }
 
 void SettingsWindow::refreshUsername()
@@ -103,8 +93,8 @@ void SettingsWindow::refreshUsername()
     {
         ui->signinLabel->setText("signed out");
         ui->signinButton->setText("sign in");
-        connect(ui->signinButton, SIGNAL(clicked()),
-                this, SLOT(login()));
+        connect(ui->signinButton, &QPushButton::clicked,
+                [=](){emit switchScreen(LOGIN);});
     }
 }
 
