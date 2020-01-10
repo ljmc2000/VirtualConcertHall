@@ -1,7 +1,8 @@
 #ifndef PLAYSCREEN_H
 #define PLAYSCREEN_H
 
-#include <QMainWindow>
+#include "basescreen.h"
+#include <QWidget>
 #include <QUdpSocket>
 #include <QTimer>
 
@@ -13,7 +14,7 @@ namespace Ui {
 class PlayScreen;
 }
 
-class PlayScreen : public QMainWindow
+class PlayScreen : public QWidget
 {
     Q_OBJECT
 
@@ -22,6 +23,9 @@ public:
     ~PlayScreen();
 
     void showEvent(QShowEvent *e);
+
+signals:
+    void switchScreen(Mode mode);
 
 private:
     Ui::PlayScreen *ui;

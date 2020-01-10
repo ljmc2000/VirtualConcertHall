@@ -5,7 +5,7 @@
 #include <QObject>
 
 SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
-    QMainWindow(parent),
+    QWidget(parent),
     ui(new Ui::SettingsWindow)
 {
     ui->setupUi(this);
@@ -74,7 +74,7 @@ void SettingsWindow::setMidiOutPort()
 
 void SettingsWindow::returnToLastWindow()
 {
-    delete this;
+    emit switchScreen(MAINMENU);
 }
 
 void SettingsWindow::logout()
@@ -86,9 +86,7 @@ void SettingsWindow::logout()
 
 void SettingsWindow::login()
 {
-    MainWindow *w = (MainWindow*)parentWidget();
-    w->openLoginWindow();
-    delete this;
+    emit switchScreen(LOGIN);
 }
 
 void SettingsWindow::refreshUsername()

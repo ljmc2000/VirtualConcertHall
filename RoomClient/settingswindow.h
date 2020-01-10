@@ -1,17 +1,18 @@
 #ifndef SETTINGSWINDOW_H
 #define SETTINGSWINDOW_H
 
-#include <QMainWindow>
+#include <QWidget>
 #include <QSettings>
 
 #include <RtMidi.h>
 #include "httpapiclient.h"
+#include "basescreen.h"
 
 namespace Ui {
 class SettingsWindow;
 }
 
-class SettingsWindow : public QMainWindow
+class SettingsWindow : public QWidget
 {
     Q_OBJECT
 
@@ -27,6 +28,9 @@ public slots:
     void returnToLastWindow();
     void logout();
     void login();
+
+signals:
+    void switchScreen(Mode mode);
 
 private:
     Ui::SettingsWindow *ui;

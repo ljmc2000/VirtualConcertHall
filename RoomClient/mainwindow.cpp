@@ -1,6 +1,11 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <mainmenu.h>
+#include <playscreen.h>
+#include <settingswindow.h>
+#include <loginwindow.h>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -8,11 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->onlineStatus->setHttpApiClient(&httpApiClient);
 
-    connect(ui->settingsButton,SIGNAL(clicked()),
-            this,SLOT(openSettings()));
 
-    connect(ui->playButton, SIGNAL(clicked()),
-            this, SLOT(openPlayScreen()));
 
     connect(&httpApiClient,SIGNAL(apiError(QString)),
             this,SLOT(handleError(QString)));
@@ -20,61 +21,40 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&httpApiClient,SIGNAL(httpError(int,QString)),
             this,SLOT(handleError(int,QString)));
 
-    if(!httpApiClient.test()) openLoginWindow();
+    openWidget(httpApiClient.test() ? MAINMENU:LOGIN);
 }
 
 MainWindow::~MainWindow()
 {
-    delete settingsWindow;
+    delete activeWidget;
     delete ui;
-    delete loginWindow;
 }
 
-void MainWindow::openSettings()
+void MainWindow::openWidget(Mode mode)
 {
-    settingsWindow = new SettingsWindow(&httpApiClient,this);
-    settingsWindow->show();
-    connect(settingsWindow, SIGNAL(destroyed()),
-            this, SLOT(closeSettings()));
-    this->hide();
-}
+    delete activeWidget;
 
-void MainWindow::openPlayScreen()
-{
-    RoomConnectionInfo r=httpApiClient.getCurrentRoom();
-    playScreen = new PlayScreen(r.secretId,r.roomIp,r.roomPort,this);
-    playScreen->show();
-    connect(playScreen, SIGNAL(destroyed()),
-            this, SLOT(closePlayScreen()));
-    this->hide();
-}
+    switch(mode)
+    {
+    case LOGIN:
+        activeWidget=new LoginWindow(&httpApiClient,this);
+        break;
+    case MAINMENU:
+        activeWidget=new MainMenu(this);
+        break;
+    case SETTINGS:
+        activeWidget=new SettingsWindow(&httpApiClient,this);
+        break;
+    case PLAYSCREEN:
+        RoomConnectionInfo r=httpApiClient.getCurrentRoom();
+        activeWidget=new PlayScreen(r.secretId,r.roomIp,r.roomPort,this);
+        break;
+    }
 
-void MainWindow::openLoginWindow()
-{
-    loginWindow = new LoginWindow(&httpApiClient,this);
-    loginWindow->show();
-    connect(loginWindow, SIGNAL(destroyed()),
-            this, SLOT(closeLoginWindow()));
-    this->hide();
-}
+    connect(activeWidget, SIGNAL(switchScreen(Mode)),
+            this, SLOT(openWidget(Mode)));
 
-void MainWindow::closeSettings()
-{
-    this->show();
-    settingsWindow=nullptr;
-    ui->onlineStatus->update();
-}
-
-void MainWindow::closePlayScreen()
-{
-    this->show();
-    playScreen=nullptr;
-}
-
-void MainWindow::closeLoginWindow()
-{
-    this->show();
-    loginWindow=nullptr;
+    activeWidget->show();
     ui->onlineStatus->update();
 }
 

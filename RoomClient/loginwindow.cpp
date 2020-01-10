@@ -2,7 +2,7 @@
 #include "ui_loginwindow.h"
 
 LoginWindow::LoginWindow(HttpAPIClient *httpApiClient,QWidget *parent) :
-    QDialog(parent),
+    QWidget(parent),
     ui(new Ui::LoginWindow)
 {
     ui->setupUi(this);
@@ -25,7 +25,7 @@ void LoginWindow::login()
     QString username = ui->usernameBox->text();
     QString password = ui->passwordBox->text();
 
-    if(httpApiClient->signin(username,password)) delete this;
+    if(httpApiClient->signin(username,password)) emit switchScreen(MAINMENU);
 }
 
 void LoginWindow::handleError(QString error)

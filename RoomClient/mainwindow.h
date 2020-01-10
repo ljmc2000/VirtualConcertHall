@@ -2,11 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <httpapiclient.h>
-#include <onlinestatus.h>
-#include <playscreen.h>
-#include <settingswindow.h>
-#include <loginwindow.h>
+#include "httpapiclient.h"
+#include "onlinestatus.h"
+#include "basescreen.h"
 
 namespace Ui {
 class MainWindow;
@@ -21,24 +19,16 @@ public:
     ~MainWindow();
 
 public slots:
-    void openSettings();
-    void openPlayScreen();
-    void openLoginWindow();
+    void openWidget(Mode mode);
 
 private slots:
-    void closeSettings();
-    void closePlayScreen();
-    void closeLoginWindow();
-
     void handleError(QString);
     void handleError(int,QString);
 
 private:
     Ui::MainWindow *ui;
 
-    PlayScreen *playScreen=nullptr;
-    SettingsWindow *settingsWindow=nullptr;
-    LoginWindow *loginWindow=nullptr;
+    QWidget *activeWidget=nullptr;
     HttpAPIClient httpApiClient;
 };
 

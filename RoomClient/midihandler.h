@@ -3,7 +3,6 @@
 
 #include <RtMidi.h>
 
-#include <QObject>
 #include <QUdpSocket>
 #include <QTimer>
 #include <QNetworkDatagram>

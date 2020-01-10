@@ -32,7 +32,8 @@ SOURCES += \
     mainwindow.cpp \
     playscreen.cpp \
     loginwindow.cpp \
-    onlinestatus.cpp
+    onlinestatus.cpp \
+    mainmenu.cpp
 
 HEADERS += \
     midihandler.h \
@@ -43,13 +44,16 @@ HEADERS += \
     playscreen.h \
     loginwindow.h \
     onlinestatus.h \
+    mainmenu.h \
+    basescreen.h
 
 FORMS += \
     settingswindow.ui \
     mainwindow.ui \
     playscreen.ui \
     loginwindow.ui \
-    onlinestatus.ui
+    onlinestatus.ui \
+    mainmenu.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

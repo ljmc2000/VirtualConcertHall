@@ -1,14 +1,15 @@
 #ifndef LOGIN_H
 #define LOGIN_H
 
-#include <QDialog>
+#include <QWidget>
+#include <basescreen.h>
 #include <httpapiclient.h>
 
 namespace Ui {
 class LoginWindow;
 }
 
-class LoginWindow : public QDialog
+class LoginWindow : public QWidget
 {
     Q_OBJECT
 
@@ -19,6 +20,9 @@ public:
 public slots:
     void login();
     void handleError(QString error);
+
+signals:
+    void switchScreen(Mode mode);
 
 private:
     Ui::LoginWindow *ui;
