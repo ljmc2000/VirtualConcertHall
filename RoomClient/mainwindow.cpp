@@ -1,10 +1,14 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <mainmenu.h>
-#include <playscreen.h>
-#include <settingswindow.h>
-#include <loginwindow.h>
+#include "mainmenu.h"
+#include "playscreen.h"
+#include "settingswindow.h"
+#include "loginwindow.h"
+#include "roombrowser.h"
+#include "onlinestatusnamespace.h"
+
+using namespace OnlineStatusNamespace;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -46,8 +50,16 @@ void MainWindow::openWidget(Mode mode)
         activeWidget=new SettingsWindow(&httpApiClient,this);
         break;
     case PLAYSCREEN:
-        RoomConnectionInfo r=httpApiClient.getCurrentRoom();
-        activeWidget=new PlayScreen(r.secretId,r.roomIp,r.roomPort,this);
+        if (ui->onlineStatus->getState()==INROOM)
+        {
+            RoomConnectionInfo r=httpApiClient.getCurrentRoom();
+            activeWidget=new PlayScreen(r.secretId,r.roomIp,r.roomPort,this);
+        }
+        else
+        {
+            activeWidget=new RoomBrowser(&httpApiClient,this);
+        }
+
         break;
     }
 

@@ -10,7 +10,7 @@ MainMenu::MainMenu(QWidget *parent) :
     ui->setupUi(this);
 
     connect(ui->playButton, &QPushButton::clicked,
-            [=](){ emit switchScreen(MAINMENU) ;});
+            [=](){ emit switchScreen(PLAYSCREEN) ;});
 
     connect(ui->settingsButton, &QPushButton::clicked,
             [=](){ emit switchScreen(SETTINGS) ;});

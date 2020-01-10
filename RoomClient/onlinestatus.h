@@ -20,6 +20,7 @@ public:
     ~OnlineStatus();
 
     void setHttpApiClient(HttpAPIClient *httpApiClient);
+    OnlineStatusNamespace::State getState();
 
 public slots:
     void update();
@@ -31,6 +32,7 @@ private:
     QTimer refreshTimer;
     HttpAPIClient *httpApiClient;
     QSize iconSize;
+    OnlineStatusNamespace::State state=OnlineStatusNamespace::OFFLINE;
 };
 
 #endif // ONLINESTATUS_H

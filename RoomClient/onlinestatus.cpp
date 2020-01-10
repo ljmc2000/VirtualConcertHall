@@ -37,9 +37,15 @@ void OnlineStatus::update()
 
     if(state != -1)
     {
+        this->state=(State) state;
         ui->statusLabel->setText(messages[state]);
         ui->statusIcon->setPixmap(icons[state].pixmap(iconSize));
     }
+}
+
+State OnlineStatus::getState()
+{
+    return state;
 }
 
 void OnlineStatus::handleHttpError(int code,QString message)
