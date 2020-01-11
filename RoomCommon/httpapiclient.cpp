@@ -3,6 +3,7 @@
 #include <QCoreApplication>
 
 #define httpAPIurl "http://127.0.0.1:5000"
+#define httpAPIurl "http://192.168.0.73:5000"
 #define REQUEST    while(!reply->isFinished()) qApp->processEvents();\
     QJsonObject json = QJsonDocument::fromJson(reply->readAll()).object();\
     if (reply->error() != QNetworkReply::NoError) emit httpError(reply->error(),reply->errorString()); \

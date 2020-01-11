@@ -2,6 +2,7 @@
 #define ROOMBROWSER_H
 
 #include <QWidget>
+#include <QTableWidgetItem>
 #include "httpapiclient.h"
 #include "basescreen.h"
 
@@ -26,6 +27,7 @@ signals:
 private:
     Ui::RoomBrowser *ui;
     HttpAPIClient *httpApiClient;
+    QTableWidgetItem servers[10][4];
 };
 
 #endif // ROOMBROWSER_H
