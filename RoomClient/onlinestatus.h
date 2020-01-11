@@ -26,6 +26,9 @@ public slots:
     void update();
     void handleHttpError(int code,QString message);
 
+signals:
+    void changeState(OnlineStatusNamespace::State);
+
 private:
     Ui::OnlineStatus *ui;
 

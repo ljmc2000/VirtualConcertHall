@@ -7,6 +7,9 @@
 #include <RtMidi.h>
 #include "httpapiclient.h"
 #include "basescreen.h"
+#include "onlinestatusnamespace.h"
+
+using namespace OnlineStatusNamespace;
 
 namespace Ui {
 class SettingsWindow;
@@ -26,6 +29,7 @@ public slots:
     void setMidiInPort();
     void setMidiOutPort();
     void logout();
+    void refreshUsername(State state);
 
 signals:
     void switchScreen(Mode mode);
@@ -44,7 +48,6 @@ private:
 
 private: //methods
     void setMidiPortsList();
-    void refreshUsername();
 };
 
 #endif // SETTINGSWINDOW_H

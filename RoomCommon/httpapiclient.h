@@ -53,6 +53,7 @@ public slots:   //server
 #endif
 
 signals:
+    void tokenChange();
     void apiError(QString message);
     void httpError(int code,QString message);
 

@@ -25,6 +25,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&httpApiClient,SIGNAL(httpError(int,QString)),
             this,SLOT(handleError(int,QString)));
 
+    connect(&httpApiClient,SIGNAL(tokenChange()),
+            ui->onlineStatus,SLOT(update()));
+
+    connect(ui->onlineStatus, &OnlineStatus::changeState,
+            [=](State s){emit changeOnlineState(s);});
+
     openWidget(httpApiClient.test() ? MAINMENU:LOGIN);
 }
 

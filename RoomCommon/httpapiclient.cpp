@@ -54,6 +54,7 @@ bool HttpAPIClient::signin(QString username,QString password)
         QString t = json["token"].toString();
         prefs.setValue("loginToken",t);
         this->token=t;
+        emit tokenChange();
         return true;
     }
 
@@ -68,6 +69,7 @@ void HttpAPIClient::signout()
     QJsonObject requestParams;
     QJsonObject json = postRequest("/logout",requestParams);
     token="";
+    emit tokenChange();
 }
 
 QString HttpAPIClient::getUsername()

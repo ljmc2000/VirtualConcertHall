@@ -6,6 +6,8 @@
 #include "httpapiclient.h"
 #include "onlinestatus.h"
 
+using namespace OnlineStatusNamespace;
+
 
 namespace Ui {
 class MainWindow;
@@ -29,6 +31,9 @@ public slots:
 private slots:
     void handleError(QString);
     void handleError(int,QString);
+
+signals:
+    void changeOnlineState(State state);
 
 private:
     Ui::MainWindow *ui;

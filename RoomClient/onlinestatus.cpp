@@ -37,7 +37,8 @@ void OnlineStatus::update()
 
     if(state != -1)
     {
-        this->state=(State) state;
+        this->state=(State)state;
+        emit changeState((State)state);
         ui->statusLabel->setText(messages[state]);
         ui->statusIcon->setPixmap(icons[state].pixmap(iconSize));
     }

@@ -5,6 +5,8 @@
 #include <QObject>
 #include <QPushButton>
 
+using namespace OnlineStatusNamespace;
+
 SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SettingsWindow)
@@ -13,7 +15,9 @@ SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
     this->httpApiClient=httpApiClient;
 
     setMidiPortsList();
-    refreshUsername();
+
+    connect(parent, SIGNAL(changeOnlineState(State)),
+            this, SLOT(refreshUsername(State)));
 
     connect(ui->backButton, &QPushButton::clicked,
             [=](){emit switchScreen(MAINMENU);});
@@ -74,27 +78,42 @@ void SettingsWindow::setMidiOutPort()
 
 void SettingsWindow::logout()
 {
+    MainWindow *m=(MainWindow*)parent();
     prefs.remove("loginToken");
     httpApiClient->signout();
-    refreshUsername();
 }
 
-void SettingsWindow::refreshUsername()
+void SettingsWindow::refreshUsername(State state)
 {
-    QString username = httpApiClient->getUsername();
-    if(username != "")
+    switch(state)
     {
-        ui->signinLabel->setText("signed in as "+username);
-        ui->signinButton->setText("sign out");
-        connect(ui->signinButton, SIGNAL(clicked()),
-                this, SLOT(logout()));
-    }
-    else
-    {
-        ui->signinLabel->setText("signed out");
-        ui->signinButton->setText("sign in");
-        connect(ui->signinButton, &QPushButton::clicked,
-                [=](){emit switchScreen(LOGIN);});
+        case ONLINE:
+        case INROOM:
+        {
+            QString username = httpApiClient->getUsername();
+            ui->signinLabel->setText("signed in as "+username);
+            ui->signinButton->setText("sign out");
+            connect(ui->signinButton, SIGNAL(clicked()),
+                    this, SLOT(logout()));
+            break;
+        }
+
+        case NOLOGIN:
+        {
+            ui->signinLabel->setText("signed out");
+            ui->signinButton->setText("sign in");
+            connect(ui->signinButton, &QPushButton::clicked,
+                    [=](){emit switchScreen(LOGIN);});
+            break;
+        }
+
+        default:
+        {
+            ui->signinLabel->setText("Error in httpapi");
+            ui->signinButton->setText("");
+            disconnect(ui->signinButton);
+            break;
+        }
     }
 }
 
