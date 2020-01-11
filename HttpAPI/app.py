@@ -13,22 +13,20 @@ def jsonify(json: dict):
 	return Response(json_util.dumps(json),mimetype='application/json')
 
 #common endpoints
-@app.route("/test",methods=['POST'])
+@app.route("/test",methods=['GET'])
 def test():
 	try:
-		r=request.get_json()
-		getUserByToken(r['token'])
+		getUserByToken(request.headers['loginToken'])
 		return jsonify({"status":"success","invalid":False})
 	except (DoesNotExist,ExpiredLoginToken) as e:
 		return jsonify({"status":"success","invalid":True})
 	except Exception as e:
 		return jsonify(handleException(app,e,'/test'))
 
-@app.route("/logout",methods=['POST'])
+@app.route("/logout",methods=['GET'])
 def logout():
 	try:
-		r=request.get_json()
-		token=LoginToken.objects.get(token=r['token'])
+		token=LoginToken.objects.get(token=request.headers['loginToken'])
 		token.delete()
 
 		return jsonify({"status":"success"})
@@ -40,7 +38,7 @@ def logout():
 def getUserStatus():
 	try:
 		r=request.get_json()
-		user=getUserByToken(r['token'])
+		user=getUserByToken(request.headers['loginToken'])
 		user.update(set__lastPing=datetime.datetime.now())
 		user.lastPing=datetime.datetime.now()
 
@@ -95,11 +93,10 @@ def login():
 	except Exception as e:
 		return jsonify(handleException(app,e,'/login'))
 
-@app.route("/getUsername",methods=['POST'])
+@app.route("/getUsername",methods=['GET'])
 def getUsername():
 	try:
-		r=request.get_json()
-		user=getUserByToken(r['token'])
+		user=getUserByToken(request.headers['loginToken'])
 
 		return jsonify({'status':'success','username':user.username})
 
@@ -110,7 +107,7 @@ def getUsername():
 def createRoom():
 	try:
 		r=request.get_json()
-		owner=getUserByToken(r['token'])
+		owner=getUserByToken(request.headers['loginToken'])
 		token=LoginToken()
 		token.save()
 		room=Room(roomname=r['roomname'],owner=owner,players=[owner],description=r.get('description'),token=token)
@@ -149,11 +146,10 @@ def listRooms():
 	except Exception as e:
 		return jsonify(handleException(app,e,'/listRooms'))
 
-@app.route("/getCurrentRoom",methods=['POST'])
+@app.route("/getCurrentRoom",methods=['GET'])
 def getCurrentRoom():
 	try:
-		r=request.get_json()
-		user=getUserByToken(r['token'])
+		user=getUserByToken(request.headers['loginToken'])
 		player=Player.objects.get(user=user)
 
 		return jsonify({
@@ -170,7 +166,7 @@ def getCurrentRoom():
 def joinRoom():
 	try:
 		r=request.get_json()
-		user=getUserByToken(r['token'])
+		user=getUserByToken(request.headers['loginToken'])
 		room=Room.objects.get(id=r['roomId'])
 		room.players.append(user)
 		room.save()
@@ -189,7 +185,7 @@ def joinRoom():
 def leaveRoom():
 	try:
 		r=request.get_json()
-		player=Player.objects.get(user=getUserByToken(r['token']))
+		player=Player.objects.get(user=getUserByToken(request.headers['loginToken']))
 		if player.room.owner.id != player.user.id:
 			player.delete()
 			return jsonify({'status':'success'})
@@ -206,7 +202,7 @@ def leaveRoom():
 def closeRoom():
 	try:
 		r=request.get_json()
-		u=getUserByToken(r['token'])
+		u=getUserByToken(request.headers['loginToken'])
 		room=Room.objects.get(owner=u)
 
 		if room != None:
@@ -230,8 +226,8 @@ def closeRoom():
 def getClientId():
 	try:
 		r=request.get_json()
-		checkIfServerToken(r['token'])
-		room=Room.objects.get(token=r['token'])
+		checkIfServerToken(request.headers['loginToken'])
+		room=Room.objects.get(token=request.headers['loginToken'])
 		player=Player.objects.get(secretId=int(r['secretId']),room=room)
 
 		return jsonify({"status":"success","clientId":str(player.clientId)})
@@ -243,8 +239,8 @@ def getClientId():
 def timeoutRoom():
 	try:
 		r=request.get_json()
-		checkIfServerToken(r['token'])
-		room=Room.objects.get(token=r['token'])
+		checkIfServerToken(request.headers['loginToken'])
+		room=Room.objects.get(token=request.headers['loginToken'])
 
 		closedRoom=ClosedRoom()
 		closedRoom.fromRoom(room)
@@ -252,7 +248,7 @@ def timeoutRoom():
 
 		Player.objects(room=room).delete()
 		room.delete()
-		LoginToken.objects.get(token=r['token']).delete()
+		LoginToken.objects.get(token=request.headers['loginToken']).delete()
 
 		return jsonify({"status":"success"})
 
