@@ -67,6 +67,7 @@ void MainWindow::openWidget(Mode mode)
             this, SLOT(openWidget(Mode)));
 
     activeWidget->setParent(ui->frame);
+    ui->frame->setMinimumSize(activeWidget->size());
     activeWidget->resize(ui->frame->size());
     activeWidget->show();
     ui->onlineStatus->update();
