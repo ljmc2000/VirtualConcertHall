@@ -14,9 +14,6 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0" colspan="4">
-    <widget class="QTableView" name="tableView"/>
-   </item>
    <item row="0" column="0">
     <widget class="QPushButton" name="backButton">
      <property name="text">
@@ -50,6 +47,9 @@
       </size>
      </property>
     </spacer>
+   </item>
+   <item row="1" column="0" colspan="4">
+    <widget class="QTableWidget" name="roomList"/>
    </item>
   </layout>
  </widget>

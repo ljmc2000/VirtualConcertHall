@@ -27,5 +27,16 @@ RoomBrowser::~RoomBrowser()
 
 void RoomBrowser::refreshRooms()
 {
+    QList<RoomInfo> rooms = httpApiClient->listRooms();
+    ui->roomList->setRowCount(rooms.size());
+    ui->roomList->setColumnCount(ROOMINFOATTRCOUNT);
 
+    for(unsigned int i=0; i<rooms.count(); i++)
+    {
+        RoomInfo r=rooms[i];
+        ui->roomList->itemAt(i,0)->setText(r.roomId);
+        ui->roomList->itemAt(i,1)->setText(r.roomName);
+        ui->roomList->itemAt(i,2)->setText(r.description);
+        ui->roomList->itemAt(i,3)->setText(r.owner);
+    }
 }

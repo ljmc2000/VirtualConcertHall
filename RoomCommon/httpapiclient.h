@@ -9,6 +9,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+#define ROOMINFOATTRCOUNT 4
 struct RoomInfo
 {
     QString roomId;

@@ -94,7 +94,8 @@ QString HttpAPIClient::createRoom(QString name, QString description, QString pas
 
 QList<RoomInfo> HttpAPIClient::listRooms()
 {
-    QJsonObject json = getRequest("/listRooms");
+    QJsonObject request;
+    QJsonObject json = postRequest("/listRooms",request);
 
     QList<RoomInfo> returnme;
     foreach(QJsonValue j, json["results"].toArray())

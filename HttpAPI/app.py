@@ -134,13 +134,11 @@ def createRoom():
 	except Exception as e:
 		return jsonify(handleException(app,e,'/createRoom'))
 
-@app.route("/listRooms",methods=['POST','GET'])
+@app.route("/listRooms",methods=['POST'])
 def listRooms():
 	try:
 		r=request.get_json()
-
-		if r == None:
-			rooms=Room.objects()
+		rooms=Room.objects()
 
 		returnme=[]
 		for room in rooms:
