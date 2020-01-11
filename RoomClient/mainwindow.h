@@ -21,6 +21,8 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    Mode currentMode=MAINMENU;
+
 protected:
     void showEvent(QShowEvent *ev);
     void resizeEvent(QResizeEvent *ev);
@@ -29,6 +31,7 @@ public slots:
     void openWidget(Mode mode);
 
 private slots:
+    void handleChangeOnlineState(State state);
     void handleError(QString);
     void handleError(int,QString);
 

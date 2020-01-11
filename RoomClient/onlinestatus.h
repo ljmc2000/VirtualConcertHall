@@ -7,6 +7,8 @@
 #include <QIcon>
 #include <QTimer>
 
+using namespace OnlineStatusNamespace;
+
 namespace Ui {
 class OnlineStatus;
 }
@@ -27,7 +29,7 @@ public slots:
     void handleHttpError(int code,QString message);
 
 signals:
-    void changeState(OnlineStatusNamespace::State);
+    void changeState(State);
 
 private:
     Ui::OnlineStatus *ui;
@@ -35,7 +37,7 @@ private:
     QTimer refreshTimer;
     HttpAPIClient *httpApiClient;
     QSize iconSize;
-    OnlineStatusNamespace::State state=OnlineStatusNamespace::OFFLINE;
+    State state=OFFLINE;
 };
 
 #endif // ONLINESTATUS_H

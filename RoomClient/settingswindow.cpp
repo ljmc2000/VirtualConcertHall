@@ -27,7 +27,6 @@ SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
 
     connect(ui->midiOutputSelector, SIGNAL(currentIndexChanged(int)),
             this, SLOT(setMidiOutPort()));
-
 }
 
 SettingsWindow::~SettingsWindow()
