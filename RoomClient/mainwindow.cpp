@@ -66,8 +66,22 @@ void MainWindow::openWidget(Mode mode)
     connect(activeWidget, SIGNAL(switchScreen(Mode)),
             this, SLOT(openWidget(Mode)));
 
+    activeWidget->setParent(ui->frame);
+    activeWidget->resize(ui->frame->size());
     activeWidget->show();
     ui->onlineStatus->update();
+}
+
+void MainWindow::showEvent(QShowEvent *ev)
+{
+    QMainWindow::showEvent(ev);
+    activeWidget->resize(ui->frame->size());
+}
+
+void MainWindow::resizeEvent(QResizeEvent *ev)
+{
+    QMainWindow::resizeEvent(ev);
+    activeWidget->resize(ui->frame->size());
 }
 
 void MainWindow::handleError(QString error)

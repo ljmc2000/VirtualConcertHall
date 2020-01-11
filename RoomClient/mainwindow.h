@@ -19,6 +19,10 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+protected:
+    void showEvent(QShowEvent *ev);
+    void resizeEvent(QResizeEvent *ev);
+
 public slots:
     void openWidget(Mode mode);
 
