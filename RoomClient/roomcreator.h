@@ -18,6 +18,9 @@ public:
     explicit RoomCreator(HttpAPIClient *httpApiClient, QWidget *parent = nullptr);
     ~RoomCreator();
 
+public slots:
+    void createRoom();
+
 signals:
     void switchScreen(Mode m);
 

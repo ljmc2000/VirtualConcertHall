@@ -87,7 +87,7 @@ QString HttpAPIClient::createRoom(QString name, QString description, QString pas
     requestParams.insert("description",description);
     requestParams.insert("password",password);
     requestParams.insert("private",isprivate);
-    QJsonObject json = postRequest("createRoom",requestParams);
+    QJsonObject json = postRequest("/createRoom",requestParams);
 
     return json["roomId"].toString();
 }

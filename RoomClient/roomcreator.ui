@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>422</width>
-    <height>343</height>
+    <width>459</width>
+    <height>406</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,61 +23,6 @@
    <property name="formAlignment">
     <set>Qt::AlignJustify|Qt::AlignTop</set>
    </property>
-   <item row="8" column="0">
-    <widget class="QLabel" name="roomNameLabel">
-     <property name="text">
-      <string>Room Name</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="1">
-    <widget class="QLineEdit" name="roomNameBox"/>
-   </item>
-   <item row="10" column="0">
-    <widget class="QLabel" name="roomDescriptionLabel">
-     <property name="text">
-      <string>Room Description</string>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="1">
-    <widget class="QPlainTextEdit" name="plainTextEdit"/>
-   </item>
-   <item row="13" column="0">
-    <widget class="QLabel" name="passwordLabel">
-     <property name="text">
-      <string>Password</string>
-     </property>
-    </widget>
-   </item>
-   <item row="13" column="1">
-    <widget class="QLineEdit" name="passwordBox">
-     <property name="echoMode">
-      <enum>QLineEdit::Password</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="14" column="0">
-    <widget class="QLabel" name="confirmPasswordLabel">
-     <property name="text">
-      <string>Confirm Password</string>
-     </property>
-    </widget>
-   </item>
-   <item row="14" column="1">
-    <widget class="QLineEdit" name="confirmPasswordBox">
-     <property name="echoMode">
-      <enum>QLineEdit::Password</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="15" column="1">
-    <widget class="QCheckBox" name="privateCheckBox">
-     <property name="text">
-      <string>Private</string>
-     </property>
-    </widget>
-   </item>
    <item row="3" column="0" colspan="2">
     <layout class="QHBoxLayout" name="t">
      <property name="sizeConstraint">
@@ -114,6 +59,68 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item row="10" column="0">
+    <widget class="QLabel" name="roomNameLabel">
+     <property name="text">
+      <string>Room Name</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="1">
+    <widget class="QLineEdit" name="roomNameBox"/>
+   </item>
+   <item row="12" column="0">
+    <widget class="QLabel" name="roomDescriptionLabel">
+     <property name="text">
+      <string>Room Description</string>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="1">
+    <widget class="QPlainTextEdit" name="descriptionBox"/>
+   </item>
+   <item row="15" column="0">
+    <widget class="QLabel" name="passwordLabel">
+     <property name="text">
+      <string>Password</string>
+     </property>
+    </widget>
+   </item>
+   <item row="15" column="1">
+    <widget class="QLineEdit" name="passwordBox">
+     <property name="echoMode">
+      <enum>QLineEdit::Password</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="16" column="0">
+    <widget class="QLabel" name="confirmPasswordLabel">
+     <property name="text">
+      <string>Confirm Password</string>
+     </property>
+    </widget>
+   </item>
+   <item row="16" column="1">
+    <widget class="QLineEdit" name="confirmPasswordBox">
+     <property name="echoMode">
+      <enum>QLineEdit::Password</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="17" column="1">
+    <widget class="QCheckBox" name="privateCheckBox">
+     <property name="text">
+      <string>Private</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="errorLabel">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
