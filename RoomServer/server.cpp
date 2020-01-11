@@ -119,22 +119,32 @@ quint32 Server::addClient(QNetworkDatagram joinRequest)
 {
     QByteArray joinRequestData = joinRequest.data();
     ConnectPacket *connectPacket=(ConnectPacket*) joinRequestData.constData();
-    Client c;
-    c.clientId=hapicli.getClientId(connectPacket->secretId);
-    c.address=joinRequest.senderAddress();
-    c.port=joinRequest.senderPort();
-    clients[connectPacket->secretId]=c;
+    quint32 clientId=hapicli.getClientId(connectPacket->secretId);
 
-    InitPacket initPacket;
-    initPacket.clientId=c.clientId;
-    initPacket.timestamp=GETTIME();
+    if(clientId!=0)
+    {
+        Client c;
+        c.clientId=clientId;
+        c.address=joinRequest.senderAddress();
+        c.port=joinRequest.senderPort();
+        clients[connectPacket->secretId]=c;
 
-    QByteArray data((char*)&initPacket,sizeof(InitPacket));
-    QNetworkDatagram datagram(data, c.address, c.port);
-    qSocket.writeDatagram(datagram);
-    qDebug() << "Client Connecting" << c.address << c.port;
+        InitPacket initPacket;
+        initPacket.clientId=c.clientId;
+        initPacket.timestamp=GETTIME();
 
-    return c.clientId;
+        QByteArray data((char*)&initPacket,sizeof(InitPacket));
+        QNetworkDatagram datagram(data, c.address, c.port);
+        qSocket.writeDatagram(datagram);
+        qDebug() << "Client Connecting" << c.address << c.port;
+    }
+
+    else
+    {
+        qDebug() << "A connection attempt was made by a client with an invalid clientId";
+    }
+
+    return clientId;
 }
 
 void Server::disableClient(quint32 secretId)

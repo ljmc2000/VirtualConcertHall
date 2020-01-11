@@ -162,7 +162,7 @@ def getCurrentRoom():
 				'status':'success',
 				'roomIp':player.room.ipaddress.ip,
 				'roomPort':player.room.ipaddress.port,
-				'secretId':player.secretId
+				'secretId':str(player.secretId)
 		})
 
 	except Exception as e:
@@ -234,8 +234,9 @@ def getClientId():
 		r=request.get_json()
 		checkIfServerToken(r['token'])
 		room=Room.objects.get(token=r['token'])
+		player=Player.objects.get(secretId=int(r['secretId']),room=room)
 
-		return jsonify({"status":"success","clientId":str(Player.objects.get(secretId=int(r['secretId']),room=room).clientId)})
+		return jsonify({"status":"success","clientId":str(player.clientId)})
 
 	except Exception as e:
 		return jsonify(handleException(app,e,'/getClientId'))
@@ -253,6 +254,7 @@ def timeoutRoom():
 
 		Player.objects(room=room).delete()
 		room.delete()
+		LoginToken.objects.deleteOne(token=r['token'])
 
 		return jsonify({"status":"success"})
 

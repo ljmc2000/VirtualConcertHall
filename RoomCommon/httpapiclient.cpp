@@ -120,7 +120,7 @@ RoomConnectionInfo HttpAPIClient::getCurrentRoom()
     RoomConnectionInfo r;
     r.roomIp=json["roomIp"].toString();
     r.roomPort=json["roomPort"].toInt();
-    r.secretId=json["secretId"].toInt();
+    r.secretId=json["secretId"].toString().toUInt();
 
     return r;
 }
@@ -155,7 +155,10 @@ quint32 HttpAPIClient::getClientId(quint32 secretId)
     requestParams.insert("secretId",QString::number(secretId));
     QJsonObject json = postRequest("/getClientId",requestParams);
 
-    return json["clientId"].toString().toUInt();
+    if(json["status"].toString()=="success")
+        return json["clientId"].toString().toUInt();
+    else
+        return 0;
 }
 
 void HttpAPIClient::timeoutRoom()
