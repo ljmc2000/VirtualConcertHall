@@ -27,7 +27,11 @@ Server::Server(int port)
     );
     pruneTimer.start();
 
-    idleTimeoutTimer.singleShot(IDLETIMEOUT,this,SLOT(finish()));
+    idleTimeoutTimer.setSingleShot(true);
+    idleTimeoutTimer.setInterval(IDLETIMEOUT);
+    connect(&idleTimeoutTimer, SIGNAL(timeout()),
+            this, SLOT(finish()));
+    idleTimeoutTimer.start();
 }
 
 Server::~Server()
@@ -37,7 +41,7 @@ Server::~Server()
 
 void Server::readPendingDatagrams()
 {
-    idleTimeoutTimer.singleShot(IDLETIMEOUT,this,SLOT(finish()));
+    idleTimeoutTimer.setInterval(IDLETIMEOUT);
     QNetworkDatagram datagram = qSocket.receiveDatagram();
     QByteArray data = datagram.data();
 
