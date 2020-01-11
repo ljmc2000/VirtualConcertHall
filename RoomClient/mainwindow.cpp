@@ -6,6 +6,7 @@
 #include "settingswindow.h"
 #include "loginwindow.h"
 #include "roombrowser.h"
+#include "roomcreator.h"
 #include "onlinestatusnamespace.h"
 
 using namespace OnlineStatusNamespace;
@@ -54,6 +55,12 @@ void MainWindow::openWidget(Mode mode)
         break;
     case SETTINGS:
         activeWidget=new SettingsWindow(&httpApiClient,this);
+        break;
+    case ROOMBROWSER:
+        activeWidget=new RoomBrowser(&httpApiClient,this);
+        break;
+    case ROOMCREATOR:
+        activeWidget=new RoomCreator(&httpApiClient,this);
         break;
     case PLAYSCREEN:
         if (ui->onlineStatus->getState()==INROOM)

@@ -80,10 +80,13 @@ QString HttpAPIClient::getUsername()
     return json["status"].toString() == "success" ? json["username"].toString():"";
 }
 
-QString HttpAPIClient::createRoom(QString name)
+QString HttpAPIClient::createRoom(QString name, QString description, QString password, bool isprivate)
 {
     QJsonObject requestParams;
     requestParams.insert("roomname",name);
+    requestParams.insert("description",description);
+    requestParams.insert("password",password);
+    requestParams.insert("private",isprivate);
     QJsonObject json = postRequest("createRoom",requestParams);
 
     return json["roomId"].toString();

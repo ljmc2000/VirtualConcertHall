@@ -41,7 +41,7 @@ public slots:   //client
     bool signin(QString username,QString password);
     void signout();
     QString getUsername();
-    QString createRoom(QString name);
+    QString createRoom(QString name, QString description=nullptr, QString password=nullptr, bool isprivate=false);
     QList<RoomInfo> listRooms();
     RoomConnectionInfo getCurrentRoom();
     void joinRoom(QString roomId);

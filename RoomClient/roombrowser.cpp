@@ -15,6 +15,9 @@ RoomBrowser::RoomBrowser(HttpAPIClient *httpApiClient, QWidget *parent) :
 
     connect(ui->refreshButton, SIGNAL(clicked()),
             this, SLOT(refreshRooms()));
+
+    connect(ui->createButton, &QPushButton::clicked,
+            [=](){emit switchScreen(ROOMCREATOR);});
 }
 
 RoomBrowser::~RoomBrowser()
