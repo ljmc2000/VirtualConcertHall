@@ -32,7 +32,17 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->onlineStatus, &OnlineStatus::changeState,
             [=](State s){emit changeOnlineState(s);});
 
-    openWidget(httpApiClient.test() ? MAINMENU:LOGIN);
+    switch(ui->onlineStatus->getState())
+    {
+    case NOLOGIN:
+        openWidget(LOGIN);
+        break;
+    case INROOM:
+        openWidget(PLAYSCREEN);
+        break;
+    default:
+        openWidget(MAINMENU);
+    }
 }
 
 MainWindow::~MainWindow()

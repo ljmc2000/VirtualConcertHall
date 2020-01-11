@@ -11,7 +11,7 @@ RoomCreator::RoomCreator(HttpAPIClient *httpApiClient,QWidget *parent) :
     this->httpApiClient=httpApiClient;
 
     connect(ui->backButton, &QPushButton::clicked,
-            [=](){emit switchScreen(ROOMBROWSER);});
+            [=](){emit switchScreen(MAINMENU);});
 
     connect(ui->confirmButton, SIGNAL(clicked()),
             this, SLOT(createRoom()));
@@ -43,6 +43,8 @@ void RoomCreator::createRoom()
                                   description.length()!=0 ? description:nullptr,
                                   password.length()!=0 ? password:nullptr,
                                   isprivate);
-        emit switchScreen(PLAYSCREEN);
+
+        connect(httpApiClient, &HttpAPIClient::roomReady,
+        [=](){emit switchScreen(PLAYSCREEN);});
     }
 }

@@ -9,8 +9,11 @@ MainMenu::MainMenu(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(ui->playButton, &QPushButton::clicked,
-            [=](){ emit switchScreen(PLAYSCREEN) ;});
+    connect(ui->joinButton, &QPushButton::clicked,
+            [=](){ emit switchScreen(ROOMBROWSER) ;});
+
+    connect(ui->createButton, &QPushButton::clicked,
+           [=](){ emit switchScreen(ROOMCREATOR) ;});
 
     connect(ui->settingsButton, &QPushButton::clicked,
             [=](){ emit switchScreen(SETTINGS) ;});

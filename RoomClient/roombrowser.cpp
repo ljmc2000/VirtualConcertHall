@@ -52,3 +52,17 @@ void RoomBrowser::refreshRooms()
 
     ui->roomList->resizeColumnsToContents();
 }
+
+void RoomBrowser::connectToRoom()
+{
+    int room=ui->roomList->currentRow();
+    QString roomId=servers[room][0].text();
+
+    if(roomId.size()!=0)
+    {
+        httpApiClient->joinRoom(roomId);
+
+        connect(httpApiClient, &HttpAPIClient::roomReady,
+                [=](){emit switchScreen(PLAYSCREEN);});
+    }
+}

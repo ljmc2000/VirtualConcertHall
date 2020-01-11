@@ -22,6 +22,7 @@ public:
 
 public slots:
     void refreshRooms();
+    void connectToRoom();
 
 signals:
     void switchScreen(Mode mode);

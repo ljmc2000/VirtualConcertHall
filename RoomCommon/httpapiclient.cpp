@@ -86,7 +86,16 @@ QString HttpAPIClient::createRoom(QString name, QString description, QString pas
     requestParams.insert("private",isprivate);
     QJsonObject json = postRequest("/createRoom",requestParams);
 
-    return json["roomId"].toString();
+    if(json["status"].toString()=="success")
+    {
+        emit roomReady();
+        return json["roomId"].toString();
+    }
+
+    else
+    {
+        return nullptr;
+    }
 }
 
 QList<RoomInfo> HttpAPIClient::listRooms(int page, int perPage)
@@ -130,7 +139,9 @@ void HttpAPIClient::joinRoom(QString roomId)
 {
     QJsonObject request;
     request.insert("roomId",roomId);
-    postRequest("joinRoom",request);
+    QJsonObject json=postRequest("joinRoom",request);
+
+    if(json["status"].toString()=="success") emit roomReady();
 }
 
 void HttpAPIClient::leaveRoom()

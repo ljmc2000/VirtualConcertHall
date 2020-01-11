@@ -49,6 +49,9 @@ public slots:   //client
     void joinRoom(QString roomId);
     void leaveRoom();
     void closeRoom();
+
+signals:
+    void roomReady();
 #else
 public slots:   //server
     quint32 getClientId(quint32 secretId);

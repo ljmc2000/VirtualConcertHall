@@ -57,7 +57,7 @@ def getUserStatus():
 		else:
 			return jsonify({"status":"success","userStatus":"ONLINE"})
 
-	except (DoesNotExist,ExpiredLoginToken) as e:
+	except (DoesNotExist,ExpiredLoginToken,KeyError) as e:
 		return jsonify({"status":"success","userStatus":"NOLOGIN"})
 
 	except Exception as e:
