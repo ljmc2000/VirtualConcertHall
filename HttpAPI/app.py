@@ -135,13 +135,15 @@ def createRoom():
 def listRooms():
 	try:
 		r=request.get_json()
+		perPage=r['perPage']
+		page=r['page']
 		rooms=Room.objects()
 
 		returnme=[]
-		for room in rooms:
+		for room in rooms.skip(page*perPage).limit(perPage):
 			returnme.append({"roomId":str(room.id),"roomname":room.roomname, "owner": room.owner.username,"description":room.description})
 
-		return jsonify({'status':'success','results':returnme})
+		return jsonify({'status':'success','results':returnme,'more':(perPage*(page+1)<rooms.count())})
 
 	except Exception as e:
 		return jsonify(handleException(app,e,'/listRooms'))

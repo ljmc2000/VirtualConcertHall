@@ -10,6 +10,7 @@
 #include <QJsonArray>
 
 #define ROOMINFOATTRCOUNT 4
+
 struct RoomInfo
 {
     QString roomId;
@@ -43,7 +44,7 @@ public slots:   //client
     void signout();
     QString getUsername();
     QString createRoom(QString name, QString description=nullptr, QString password=nullptr, bool isprivate=false);
-    QList<RoomInfo> listRooms();
+    QList<RoomInfo> listRooms(int page,int perPage);
     RoomConnectionInfo getCurrentRoom();
     void joinRoom(QString roomId);
     void leaveRoom();
@@ -55,6 +56,7 @@ public slots:   //server
 #endif
 
 signals:
+    void more(bool more);
     void tokenChange();
     void apiError(QString message);
     void httpError(int code,QString message);

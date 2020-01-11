@@ -10,20 +10,26 @@ RoomBrowser::RoomBrowser(HttpAPIClient *httpApiClient, QWidget *parent) :
     ui->setupUi(this);
     this->httpApiClient = httpApiClient;
 
+    connect(httpApiClient, &HttpAPIClient::more,
+            [=](bool more){this->more=more;});
+
     connect(ui->backButton, &QPushButton::clicked,
             [=](){emit switchScreen(MAINMENU);});
 
     connect(ui->refreshButton, SIGNAL(clicked()),
             this, SLOT(refreshRooms()));
 
-    connect(ui->createButton, &QPushButton::clicked,
-            [=](){emit switchScreen(ROOMCREATOR);});
+    connect(ui->backButton, &QPushButton::clicked,
+            [=](){if(page>0){page--; refreshRooms();}});
+    connect(ui->nextButton, &QPushButton::clicked,
+            [=](){if(more){page++; refreshRooms();}});
 
 
     for(int i=0; i<10; i++) for(int j=0; j<4; j++)
     {
         ui->roomList->setItem(i,j,&servers[i][j]);
     }
+    refreshRooms();
 }
 
 RoomBrowser::~RoomBrowser()
@@ -33,7 +39,7 @@ RoomBrowser::~RoomBrowser()
 
 void RoomBrowser::refreshRooms()
 {
-    QList<RoomInfo> rooms = httpApiClient->listRooms();
+    QList<RoomInfo> rooms = httpApiClient->listRooms(page,PERPAGE);
 
     for(int i=0; i<rooms.count(); i++)
     {

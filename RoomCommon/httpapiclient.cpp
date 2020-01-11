@@ -89,11 +89,13 @@ QString HttpAPIClient::createRoom(QString name, QString description, QString pas
     return json["roomId"].toString();
 }
 
-QList<RoomInfo> HttpAPIClient::listRooms()
+QList<RoomInfo> HttpAPIClient::listRooms(int page, int perPage)
 {
     QJsonObject request;
-    QJsonObject json = postRequest("/listRooms",request);
+    request.insert("page",page);
+    request.insert("perPage",perPage);
 
+    QJsonObject json = postRequest("/listRooms",request);
     QList<RoomInfo> returnme;
     foreach(QJsonValue j, json["results"].toArray())
     {
@@ -106,6 +108,7 @@ QList<RoomInfo> HttpAPIClient::listRooms()
 
         returnme.append(r);
     }
+    emit more(json["more"].toBool());
 
     return returnme;
 }

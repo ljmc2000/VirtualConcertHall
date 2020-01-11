@@ -6,6 +6,8 @@
 #include "httpapiclient.h"
 #include "basescreen.h"
 
+#define PERPAGE 10
+
 namespace Ui {
 class RoomBrowser;
 }
@@ -27,7 +29,10 @@ signals:
 private:
     Ui::RoomBrowser *ui;
     HttpAPIClient *httpApiClient;
-    QTableWidgetItem servers[10][4];
+    QTableWidgetItem servers[PERPAGE][ROOMINFOATTRCOUNT];
+
+    int page=0;
+    bool more=true;
 };
 
 #endif // ROOMBROWSER_H
