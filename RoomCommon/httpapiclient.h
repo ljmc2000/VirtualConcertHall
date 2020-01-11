@@ -50,6 +50,7 @@ public slots:   //client
 #else
 public slots:   //server
     quint32 getClientId(quint32 secretId);
+    void timeoutRoom();
 #endif
 
 signals:

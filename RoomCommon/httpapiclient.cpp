@@ -157,6 +157,12 @@ quint32 HttpAPIClient::getClientId(quint32 secretId)
 
     return json["clientId"].toString().toUInt();
 }
+
+void HttpAPIClient::timeoutRoom()
+{
+    QJsonObject requestParams;
+    QJsonObject json = postRequest("/timeoutRoom",requestParams);
+}
 #endif
 
 QJsonObject HttpAPIClient::getRequest(QString endpoint)

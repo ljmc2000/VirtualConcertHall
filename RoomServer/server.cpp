@@ -101,6 +101,7 @@ void Server::pruneClients()
 void Server::finish()
 {
     qDebug() << "server is shutting down";
+    hapicli.timeoutRoom();
     QCoreApplication::quit();
 }
 

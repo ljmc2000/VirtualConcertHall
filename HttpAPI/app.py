@@ -240,5 +240,24 @@ def getClientId():
 	except Exception as e:
 		return jsonify(handleException(app,e,'/getClientId'))
 
+@app.route("/timeoutRoom",methods=['POST'])
+def timeoutRoom():
+	try:
+		r=request.get_json()
+		checkIfServerToken(r['token'])
+		room=Room.objects.get(token=r['token'])
+
+		closedRoom=ClosedRoom()
+		closedRoom.fromRoom(room)
+		closedRoom.save()
+
+		Player.objects(room=room).delete()
+		room.delete()
+
+		return jsonify({"status":"success"})
+
+	except Exception as e:
+		return jsonify(handleException(app,e,'/timeoutRoom'))
+
 if __name__ == "__main__":
 	app.run(debug=True)
