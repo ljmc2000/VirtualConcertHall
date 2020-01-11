@@ -121,7 +121,7 @@ def createRoom():
 			room.setpwd(r['password'])
 
 
-		roomContainer=dockerProvider.startRoomContainer(token)
+		roomContainer=dockerProvider.startRoomContainer(token.id)
 		room.ipaddress=IpAddress(ip=roomContainer['ip'],port=roomContainer['port'])
 		room.containerid=roomContainer['id']
 		room.save()
@@ -254,7 +254,7 @@ def timeoutRoom():
 
 		Player.objects(room=room).delete()
 		room.delete()
-		LoginToken.objects.deleteOne(token=r['token'])
+		LoginToken.objects.get(token=r['token']).delete()
 
 		return jsonify({"status":"success"})
 
