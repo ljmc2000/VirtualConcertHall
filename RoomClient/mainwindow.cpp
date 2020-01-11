@@ -123,9 +123,10 @@ void MainWindow::handleChangeOnlineState(State state)
         openWidget(LOGIN);
         break;
     default:
-        emit changeOnlineState(state);
         break;
     }
+
+    emit changeOnlineState(state);
 }
 
 void MainWindow::handleError(QString error)
