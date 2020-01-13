@@ -51,8 +51,11 @@ public slots:   //client
     void leaveRoom();
     void closeRoom();
 
+public:
+    void refreshPlayerState();
+
 signals:
-    void roomReady();
+    void playerStateChange();
 #else
 public slots:   //server
     quint32 getClientId(quint32 secretId);
@@ -61,7 +64,6 @@ public slots:   //server
 
 signals:
     void more(bool more);
-    void tokenChange();
     void apiError(QString message);
     void httpError(int code,QString message);
 

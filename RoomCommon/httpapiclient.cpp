@@ -54,7 +54,7 @@ bool HttpAPIClient::signin(QString username,QString password)
         QString t = json["token"].toString();
         prefs.setValue("loginToken",t);
         this->token=t;
-        emit tokenChange();
+        emit playerStateChange();
         return true;
     }
 
@@ -68,7 +68,7 @@ void HttpAPIClient::signout()
 {
     QJsonObject json = getRequest("/logout");
     token="";
-    emit tokenChange();
+    emit playerStateChange();
 }
 
 QString HttpAPIClient::getUsername()
@@ -88,7 +88,7 @@ QString HttpAPIClient::createRoom(QString name, QString description, QString pas
 
     if(json["status"].toString()=="success")
     {
-        emit roomReady();
+        emit playerStateChange();
         return json["roomId"].toString();
     }
 
@@ -142,19 +142,26 @@ void HttpAPIClient::joinRoom(QString roomId)
     request.insert("roomId",roomId);
     QJsonObject json=postRequest("/joinRoom",request);
 
-    if(json["status"].toString()=="success") emit roomReady();
+    if(json["status"].toString()=="success") emit playerStateChange();
 }
 
 void HttpAPIClient::leaveRoom()
 {
     QJsonObject request;
-    postRequest("/leaveRoom",request);
+    QJsonObject json=postRequest("/leaveRoom",request);
+    if(json["status"].toString()=="success") emit playerStateChange();
 }
 
 void HttpAPIClient::closeRoom()
 {
     QJsonObject requestParams;
-    postRequest("/closeRoom",requestParams);
+    QJsonObject json=postRequest("/closeRoom",requestParams);
+    if(json["status"].toString()=="success") emit playerStateChange();
+}
+
+void HttpAPIClient::refreshPlayerState()
+{
+    emit playerStateChange();
 }
 #else   //server
 HttpAPIClient::HttpAPIClient()

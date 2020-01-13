@@ -29,7 +29,7 @@ public slots:
     void setMidiInPort();
     void setMidiOutPort();
     void logout();
-    void refreshUsername(State state);
+    void refreshUsername();
 
 signals:
     void switchScreen(Mode mode);

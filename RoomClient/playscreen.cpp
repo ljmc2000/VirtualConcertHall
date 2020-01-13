@@ -59,6 +59,7 @@ void PlayScreen::quitPlaying()
     {
         httpApiClient->closeRoom();
     }
+
     emit switchScreen(MAINMENU);
 }
 

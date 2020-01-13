@@ -29,7 +29,7 @@ public slots:
     void handleHttpError(int code,QString message);
 
 signals:
-    void changeState(State);
+    void changeState(State old,State current);
 
 private:
     Ui::OnlineStatus *ui;

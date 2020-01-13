@@ -63,9 +63,6 @@ void RoomBrowser::connectToRoom()
 
     if(roomId.size()!=0)
     {
-        connect(httpApiClient, &HttpAPIClient::roomReady,
-                [=](){emit switchScreen(PLAYSCREEN);});
-
         httpApiClient->joinRoom(roomId);
     }
 }

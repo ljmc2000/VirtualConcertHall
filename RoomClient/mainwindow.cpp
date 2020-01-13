@@ -37,11 +37,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&httpApiClient,SIGNAL(httpError(int,QString)),
             this,SLOT(handleError(int,QString)));
 
-    connect(&httpApiClient,SIGNAL(tokenChange()),
-            ui->onlineStatus,SLOT(update()));
-
-    connect(ui->onlineStatus, SIGNAL(changeState(State)),
-            this, SLOT(handleChangeOnlineState(State)));
+    connect(ui->onlineStatus, SIGNAL(changeState(State,State)),
+            this, SLOT(handleChangeOnlineState(State,State)));
 }
 
 MainWindow::~MainWindow()
@@ -84,8 +81,6 @@ void MainWindow::openWidget(Mode mode)
     ui->frame->setMinimumSize(activeWidget->size());
     activeWidget->resize(ui->frame->size());
     activeWidget->show();
-    ui->onlineStatus->update();
-    emit changeOnlineState(ui->onlineStatus->getState());
 }
 
 void MainWindow::showEvent(QShowEvent *ev)
@@ -100,21 +95,33 @@ void MainWindow::resizeEvent(QResizeEvent *ev)
     activeWidget->resize(ui->frame->size());
 }
 
-void MainWindow::handleChangeOnlineState(State state)
+void MainWindow::handleChangeOnlineState(State old, State current)
 {
-    switch (state)
+    if(old!=current)
     {
-    case INROOM:
-        openWidget(PLAYSCREEN);
-        break;
-    case NOLOGIN:
-        openWidget(LOGIN);
-        break;
-    default:
-        break;
+        switch (old)
+        {
+        case NOLOGIN:
+            openWidget(MAINMENU);
+            break;
+        default:
+            break;
+        }
+
+        switch(current)
+        {
+        case INROOM:
+            openWidget(PLAYSCREEN);
+            break;
+        case NOLOGIN:
+            openWidget(LOGIN);
+            break;
+        default:
+            break;
+        }
     }
 
-    emit changeOnlineState(state);
+    //emit changeOnlineState(current);
 }
 
 void MainWindow::handleError(QString error)

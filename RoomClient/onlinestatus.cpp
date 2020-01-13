@@ -23,6 +23,9 @@ void OnlineStatus::setHttpApiClient(HttpAPIClient *httpApiClient)
     connect(httpApiClient, SIGNAL(httpError(int,QString)),
             this, SLOT(handleHttpError(int,QString)));
 
+    connect(httpApiClient, SIGNAL(playerStateChange()),
+            this, SLOT(update()));
+
     refreshTimer.setInterval(REFRESHINTERVAL);
     connect(&refreshTimer, SIGNAL(timeout()),
             this, SLOT(update()));
@@ -35,10 +38,10 @@ void OnlineStatus::update()
 {
     int state = httpApiClient->getUserStatus();
 
-    if(state != -1 && this->state!=state)
+    if(state != -1)
     {
+        emit changeState(this->state,(State)state);
         this->state=(State)state;
-        emit changeState((State)state);
         ui->statusLabel->setText(messages[state]);
         ui->statusIcon->setPixmap(icons[state].pixmap(iconSize));
     }

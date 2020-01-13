@@ -29,7 +29,7 @@ public slots:
     void openWidget(Mode mode);
 
 private slots:
-    void handleChangeOnlineState(State state);
+    void handleChangeOnlineState(State old, State current);
     void handleError(QString);
     void handleError(int,QString);
 

@@ -15,9 +15,7 @@ SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
     this->httpApiClient=httpApiClient;
 
     setMidiPortsList();
-
-    connect(parent, SIGNAL(changeOnlineState(State)),
-            this, SLOT(refreshUsername(State)));
+    refreshUsername();
 
     connect(ui->backButton, &QPushButton::clicked,
             [=](){emit switchScreen(MAINMENU);});
@@ -77,42 +75,26 @@ void SettingsWindow::setMidiOutPort()
 
 void SettingsWindow::logout()
 {
-    MainWindow *m=(MainWindow*)parent();
     prefs.remove("loginToken");
     httpApiClient->signout();
 }
 
-void SettingsWindow::refreshUsername(State state)
+void SettingsWindow::refreshUsername()
 {
-    switch(state)
+    QString username = httpApiClient->getUsername();
+    if(username.size()!=0)
     {
-        case ONLINE:
-        case INROOM:
-        {
-            QString username = httpApiClient->getUsername();
-            ui->signinLabel->setText("signed in as "+username);
-            ui->signinButton->setText("sign out");
-            connect(ui->signinButton, SIGNAL(clicked()),
-                    this, SLOT(logout()));
-            break;
-        }
+        ui->signinLabel->setText("signed in as "+username);
+        ui->signinButton->setText("sign out");
+        connect(ui->signinButton, SIGNAL(clicked()),
+                this, SLOT(logout()));
+    }
 
-        case NOLOGIN:
-        {
-            ui->signinLabel->setText("signed out");
-            ui->signinButton->setText("sign in");
-            connect(ui->signinButton, &QPushButton::clicked,
-                    [=](){emit switchScreen(LOGIN);});
-            break;
-        }
-
-        default:
-        {
-            ui->signinLabel->setText("Error in httpapi");
-            ui->signinButton->setText("");
-            disconnect(ui->signinButton);
-            break;
-        }
+    else
+    {
+        ui->signinLabel->setText("Error in httpapi");
+        ui->signinButton->setText("");
+        disconnect(ui->signinButton);
     }
 }
 
