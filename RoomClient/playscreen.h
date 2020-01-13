@@ -2,6 +2,7 @@
 #define PLAYSCREEN_H
 
 #include "basescreen.h"
+#include "httpapiclient.h"
 #include <QWidget>
 #include <QUdpSocket>
 #include <QTimer>
@@ -19,10 +20,14 @@ class PlayScreen : public QWidget
     Q_OBJECT
 
 public:
-    explicit PlayScreen(quint32 secretId,QString ipaddress,quint16 port, QWidget *parent = nullptr);
+    explicit PlayScreen(RoomConnectionInfo r, HttpAPIClient *httpApiClient, QWidget *parent = nullptr);
     ~PlayScreen();
 
     void showEvent(QShowEvent *e);
+
+private slots:
+    void askQuit();
+    void quitPlaying();
 
 signals:
     void switchScreen(Mode mode);
@@ -34,6 +39,9 @@ private:
     QGraphicsScene scene;
 
     MidiHandler midiHandler;
+    HttpAPIClient *httpApiClient;
+
+    bool owner;
 };
 
 #endif // PLAYSCREEN_H

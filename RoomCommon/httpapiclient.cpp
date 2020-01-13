@@ -131,6 +131,7 @@ RoomConnectionInfo HttpAPIClient::getCurrentRoom()
     r.roomIp=json["roomIp"].toString();
     r.roomPort=json["roomPort"].toInt();
     r.secretId=json["secretId"].toString().toUInt();
+    r.owner=json["owner"].toBool();
 
     return r;
 }
@@ -147,7 +148,7 @@ void HttpAPIClient::joinRoom(QString roomId)
 void HttpAPIClient::leaveRoom()
 {
     QJsonObject request;
-    postRequest("leaveRoom",request);
+    postRequest("/leaveRoom",request);
 }
 
 void HttpAPIClient::closeRoom()

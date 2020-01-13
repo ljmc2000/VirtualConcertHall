@@ -1,5 +1,4 @@
 #include "midihandler.h"
-#include "roomcommon.h"
 
 using namespace RoomCommon;
 
@@ -139,14 +138,23 @@ void MidiHandler::handleMidiFromServer(quint32 clientId, qint64 timestamp, quint
 
 void MidiHandler::attemptConnect()
 {
-    qDebug() << "attempting connection to server";
-    ConnectPacket connectPacket;
-    connectPacket.secretId=secretId;
+    if(reconnectAttempts!=0)
+    {
+        reconnectAttempts--;
+        qDebug() << "attempting connection to server";
+        ConnectPacket connectPacket;
+        connectPacket.secretId=secretId;
 
-    QByteArray data((char*)&connectPacket,sizeof(ConnectPacket));
-    qSocket.disconnectFromHost();
-    qSocket.connectToHost(serverHost,serverPort);
-    qSocket.writeDatagram(QNetworkDatagram(data,serverHost,serverPort));
+        QByteArray data((char*)&connectPacket,sizeof(ConnectPacket));
+        qSocket.disconnectFromHost();
+        qSocket.connectToHost(serverHost,serverPort);
+        qSocket.writeDatagram(QNetworkDatagram(data,serverHost,serverPort));
+    }
+    else
+    {
+        qDebug() << "Exiting after " << MAXCONNECTATTEMPTS << " tries";
+        emit disconnectedFromServer();
+    }
 }
 
 void MidiHandler::iterateServertime()

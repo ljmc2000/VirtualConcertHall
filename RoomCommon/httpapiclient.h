@@ -24,6 +24,7 @@ struct RoomConnectionInfo
     QString roomIp;
     quint16 roomPort;
     quint32 secretId;
+    bool owner=false;
 };
 
 class HttpAPIClient: public QObject

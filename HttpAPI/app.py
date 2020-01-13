@@ -158,7 +158,8 @@ def getCurrentRoom():
 				'status':'success',
 				'roomIp':player.room.ipaddress.ip,
 				'roomPort':player.room.ipaddress.port,
-				'secretId':str(player.secretId)
+				'secretId':str(player.secretId),
+				'owner':player.user==player.room.owner,
 		})
 
 	except Exception as e:

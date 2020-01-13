@@ -72,16 +72,8 @@ void MainWindow::openWidget(Mode mode)
         activeWidget=new RoomCreator(&httpApiClient,this);
         break;
     case PLAYSCREEN:
-        if (ui->onlineStatus->getState()==INROOM)
-        {
-            RoomConnectionInfo r=httpApiClient.getCurrentRoom();
-            activeWidget=new PlayScreen(r.secretId,r.roomIp,r.roomPort,this);
-        }
-        else
-        {
-            activeWidget=new RoomBrowser(&httpApiClient,this);
-        }
-
+        RoomConnectionInfo r = httpApiClient.getCurrentRoom();
+        activeWidget=new PlayScreen(r,&httpApiClient,this);
         break;
     }
 

@@ -8,6 +8,7 @@
 #include <QNetworkDatagram>
 
 #include <QSettings>
+#include "roomcommon.h"
 
 class MidiHandler: public QObject
 {
@@ -21,6 +22,9 @@ private slots:
     void handleDataFromServer();
     void attemptConnect();
     void iterateServertime();
+
+signals:
+    void disconnectedFromServer();
 
 private:
     RtMidiIn midiin;
@@ -37,6 +41,7 @@ private:
     void handleMidiFromServer(quint32 clientId,qint64 timestamp, quint8* midiMessage);
 
     quint32 clientId=-1,secretId;
+    quint8 reconnectAttempts=MAXCONNECTATTEMPTS;
 };
 
 #endif // MIDIHANDLER_H
