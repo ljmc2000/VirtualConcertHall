@@ -2,7 +2,7 @@
 #include "onlinestatusnamespace.h"
 #include <QCoreApplication>
 
-#define httpAPIurl "http://127.0.0.1:5000"
+#define httpAPIurl "http://virtualconcerthall.urown.cloud:5000"
 #define REQUEST    while(!reply->isFinished()) qApp->processEvents();\
     QJsonObject json = QJsonDocument::fromJson(reply->readAll()).object();\
     if (reply->error() != QNetworkReply::NoError) emit httpError(reply->error(),reply->errorString()); \
@@ -125,7 +125,7 @@ QList<RoomInfo> HttpAPIClient::listRooms(int page, int perPage)
 RoomConnectionInfo HttpAPIClient::getCurrentRoom()
 {
     QJsonObject request;
-    QJsonObject json = postRequest("/getCurrentRoom",request);
+    QJsonObject json = getRequest("/getCurrentRoom");
 
     RoomConnectionInfo r;
     r.roomIp=json["roomIp"].toString();

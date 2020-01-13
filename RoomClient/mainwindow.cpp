@@ -27,7 +27,6 @@ MainWindow::MainWindow(QWidget *parent) :
         openWidget(LOGIN);
         break;
     default:
-        currentMode=LOGIN;
         openWidget(MAINMENU);
         break;
     }
@@ -53,51 +52,48 @@ MainWindow::~MainWindow()
 
 void MainWindow::openWidget(Mode mode)
 {
-    if(currentMode!=mode)
+    delete activeWidget;
+
+    switch(mode)
     {
-        currentMode=mode;
-        delete activeWidget;
-
-        switch(mode)
+    case LOGIN:
+        activeWidget=new LoginWindow(&httpApiClient,this);
+        break;
+    case MAINMENU:
+        activeWidget=new MainMenu(this);
+        break;
+    case SETTINGS:
+        activeWidget=new SettingsWindow(&httpApiClient,this);
+        break;
+    case ROOMBROWSER:
+        activeWidget=new RoomBrowser(&httpApiClient,this);
+        break;
+    case ROOMCREATOR:
+        activeWidget=new RoomCreator(&httpApiClient,this);
+        break;
+    case PLAYSCREEN:
+        if (ui->onlineStatus->getState()==INROOM)
         {
-        case LOGIN:
-            activeWidget=new LoginWindow(&httpApiClient,this);
-            break;
-        case MAINMENU:
-            activeWidget=new MainMenu(this);
-            break;
-        case SETTINGS:
-            activeWidget=new SettingsWindow(&httpApiClient,this);
-            break;
-        case ROOMBROWSER:
+            RoomConnectionInfo r=httpApiClient.getCurrentRoom();
+            activeWidget=new PlayScreen(r.secretId,r.roomIp,r.roomPort,this);
+        }
+        else
+        {
             activeWidget=new RoomBrowser(&httpApiClient,this);
-            break;
-        case ROOMCREATOR:
-            activeWidget=new RoomCreator(&httpApiClient,this);
-            break;
-        case PLAYSCREEN:
-            if (ui->onlineStatus->getState()==INROOM)
-            {
-                RoomConnectionInfo r=httpApiClient.getCurrentRoom();
-                activeWidget=new PlayScreen(r.secretId,r.roomIp,r.roomPort,this);
-            }
-            else
-            {
-                activeWidget=new RoomBrowser(&httpApiClient,this);
-            }
-
-            break;
         }
 
-        connect(activeWidget, SIGNAL(switchScreen(Mode)),
-                this, SLOT(openWidget(Mode)));
-
-        activeWidget->setParent(ui->frame);
-        ui->frame->setMinimumSize(activeWidget->size());
-        activeWidget->resize(ui->frame->size());
-        activeWidget->show();
-        ui->onlineStatus->update();
+        break;
     }
+
+    connect(activeWidget, SIGNAL(switchScreen(Mode)),
+            this, SLOT(openWidget(Mode)));
+
+    activeWidget->setParent(ui->frame);
+    ui->frame->setMinimumSize(activeWidget->size());
+    activeWidget->resize(ui->frame->size());
+    activeWidget->show();
+    ui->onlineStatus->update();
+    emit changeOnlineState(ui->onlineStatus->getState());
 }
 
 void MainWindow::showEvent(QShowEvent *ev)

@@ -21,8 +21,6 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    Mode currentMode=MAINMENU;
-
 protected:
     void showEvent(QShowEvent *ev);
     void resizeEvent(QResizeEvent *ev);

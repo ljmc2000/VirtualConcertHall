@@ -35,7 +35,7 @@ void OnlineStatus::update()
 {
     int state = httpApiClient->getUserStatus();
 
-    if(state != -1)
+    if(state != -1 && this->state!=state)
     {
         this->state=(State)state;
         emit changeState((State)state);
