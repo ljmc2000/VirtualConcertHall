@@ -19,6 +19,9 @@ RoomBrowser::RoomBrowser(HttpAPIClient *httpApiClient, QWidget *parent) :
     connect(ui->refreshButton, SIGNAL(clicked()),
             this, SLOT(refreshRooms()));
 
+    connect(ui->connectButton, SIGNAL(clicked()),
+            this, SLOT(connectToRoom()));
+
     connect(ui->backButton, &QPushButton::clicked,
             [=](){if(page>0){page--; refreshRooms();}});
     connect(ui->nextButton, &QPushButton::clicked,

@@ -139,7 +139,7 @@ void HttpAPIClient::joinRoom(QString roomId)
 {
     QJsonObject request;
     request.insert("roomId",roomId);
-    QJsonObject json=postRequest("joinRoom",request);
+    QJsonObject json=postRequest("/joinRoom",request);
 
     if(json["status"].toString()=="success") emit roomReady();
 }
