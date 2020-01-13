@@ -23,7 +23,6 @@ MidiHandler::MidiHandler(quint32 secretId, QString address, quint16 port)
                 this, SLOT(iterateServertime())
             );
 
-    qSocket.connectToHost(serverHost,serverPort);
     connect(
                 &qSocket, SIGNAL(readyRead()),
                 this, SLOT(handleDataFromServer())
@@ -60,61 +59,64 @@ void MidiHandler::handleMidi( double timeStamp, std::vector<unsigned char> *mess
 
 void MidiHandler::handleDataFromServer()
 {
-    //deal with server stuff here
-    QNetworkDatagram datagram = qSocket.receiveDatagram();
-    QByteArray data = datagram.data();
-
-    switch(data.at(0))
+    while (qSocket.hasPendingDatagrams())
     {
-    case INIT:
-        {
-            InitPacket *initPacket=(InitPacket*) data.constData();
-            clientId=initPacket->clientId;
-            timestamp=initPacket->timestamp;
-            reconnectClock.stop();
-            serverTimeIterator.start();
-            midiin.setCallback(handleMidi, this);
-            break;
-        }
+        //deal with server stuff here
+        QNetworkDatagram datagram = qSocket.receiveDatagram();
+        QByteArray data = datagram.data();
 
-    case HEARTBEAT:
+        switch(data.at(0))
         {
-            HeartbeatPacket *heartbeatPacket=(HeartbeatPacket*) data.constData();
-            timestamp=heartbeatPacket->timestamp;
-            heartbeatPacket->secretId=secretId;
-            QNetworkDatagram rsvp(data,serverHost,serverPort);
-            qSocket.writeDatagram(rsvp);
-            break;
-        }
+        case INIT:
+            {
+                InitPacket *initPacket=(InitPacket*) data.constData();
+                clientId=initPacket->clientId;
+                timestamp=initPacket->timestamp;
+                reconnectClock.stop();
+                serverTimeIterator.start();
+                midiin.setCallback(handleMidi, this);
+                break;
+            }
 
-    case MIDI:
-        {
-            MidiPacket *midiPacket=(MidiPacket*) data.constData();
-            handleMidiFromServer(midiPacket->clientId,midiPacket->timestamp,midiPacket->message);
-            break;
-        }
+        case HEARTBEAT:
+            {
+                HeartbeatPacket *heartbeatPacket=(HeartbeatPacket*) data.constData();
+                timestamp=heartbeatPacket->timestamp;
+                heartbeatPacket->secretId=secretId;
+                QNetworkDatagram rsvp(data,serverHost,serverPort);
+                qSocket.writeDatagram(rsvp);
+                break;
+            }
 
-    case DISABLE:
-        {
-            DisablePacket *disablePacket=(DisablePacket*) data.constData();
-            qDebug() << "player" << disablePacket->clientId << "has gone dormant";
-            break;
-        }
+        case MIDI:
+            {
+                MidiPacket *midiPacket=(MidiPacket*) data.constData();
+                handleMidiFromServer(midiPacket->clientId,midiPacket->timestamp,midiPacket->message);
+                break;
+            }
 
-    case ENABLE:    //TODO add behaviour for un greying out players who have gone dormant
-        {
-            EnablePacket *enablePacket=(EnablePacket*) data.constData();
-            qDebug() << "player" << enablePacket->clientId << "has awoken";
-            break;
-        }
+        case DISABLE:
+            {
+                DisablePacket *disablePacket=(DisablePacket*) data.constData();
+                qDebug() << "player" << disablePacket->clientId << "has gone dormant";
+                break;
+            }
 
-    case DISCONNECT:
-        {
-            clientId=-1;
-            serverTimeIterator.stop();
-            reconnectClock.start();
-            midiin.cancelCallback();
-            break;
+        case ENABLE:    //TODO add behaviour for un greying out players who have gone dormant
+            {
+                EnablePacket *enablePacket=(EnablePacket*) data.constData();
+                qDebug() << "player" << enablePacket->clientId << "has awoken";
+                break;
+            }
+
+        case DISCONNECT:
+            {
+                clientId=-1;
+                serverTimeIterator.stop();
+                reconnectClock.start();
+                midiin.cancelCallback();
+                break;
+            }
         }
     }
 }
@@ -142,6 +144,8 @@ void MidiHandler::attemptConnect()
     connectPacket.secretId=secretId;
 
     QByteArray data((char*)&connectPacket,sizeof(ConnectPacket));
+    qSocket.disconnectFromHost();
+    qSocket.connectToHost(serverHost,serverPort);
     qSocket.writeDatagram(QNetworkDatagram(data,serverHost,serverPort));
 }
 

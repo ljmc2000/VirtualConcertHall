@@ -41,42 +41,45 @@ Server::~Server()
 
 void Server::readPendingDatagrams()
 {
-    idleTimeoutTimer.setInterval(IDLETIMEOUT);
-    QNetworkDatagram datagram = qSocket.receiveDatagram();
-    QByteArray data = datagram.data();
-
-    switch(data.at(0))
+    while (qSocket.hasPendingDatagrams())
     {
-    case CONNECT:
-        {
-            ConnectPacket *connectPacket=(ConnectPacket*) data.constData();
-            if(!clients.keys().contains(connectPacket->secretId))
-                addClient(datagram);
-            else
-                enableClient(datagram);
-            break;
-        }
+        idleTimeoutTimer.setInterval(IDLETIMEOUT);
+        QNetworkDatagram datagram = qSocket.receiveDatagram();
+        QByteArray data = datagram.data();
 
-    case HEARTBEAT:
+        switch(data.at(0))
         {
-            HeartbeatPacket *heartbeatPacket=(HeartbeatPacket*) data.constData();
-            clients[heartbeatPacket->secretId].lastMessage=heartbeatPacket->timestamp;
-        }        
-        break;
+        case CONNECT:
+            {
+                ConnectPacket *connectPacket=(ConnectPacket*) data.constData();
+                if(!clients.keys().contains(connectPacket->secretId))
+                    addClient(datagram);
+                else
+                    enableClient(datagram);
+                break;
+            }
 
-    case MIDI:
-        {
-            MidiPacket *midiPacket=(MidiPacket*) data.constData();
-            midiPacket->clientId=clients[midiPacket->clientId].clientId;
-            sendToAll(data);
+        case HEARTBEAT:
+            {
+                HeartbeatPacket *heartbeatPacket=(HeartbeatPacket*) data.constData();
+                clients[heartbeatPacket->secretId].lastMessage=heartbeatPacket->timestamp;
+            }
             break;
+
+        case MIDI:
+            {
+                MidiPacket *midiPacket=(MidiPacket*) data.constData();
+                midiPacket->clientId=clients[midiPacket->clientId].clientId;
+                sendToAll(data);
+                break;
+            }
         }
     }
 }
 
 void Server::heartBeat()
 {
-    foreach(Client c,clients)
+    foreach(Client c,clients) if(c.awake)
     {
         HeartbeatPacket heartbeatPacket;
         heartbeatPacket.timestamp=GETTIME();
