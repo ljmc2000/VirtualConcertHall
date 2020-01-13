@@ -39,12 +39,12 @@ void RoomCreator::createRoom()
     }
     else
     {
+        connect(httpApiClient, &HttpAPIClient::roomReady,
+        [=](){emit switchScreen(PLAYSCREEN);});
+
         httpApiClient->createRoom(roomname,
                                   description.length()!=0 ? description:nullptr,
                                   password.length()!=0 ? password:nullptr,
                                   isprivate);
-
-        connect(httpApiClient, &HttpAPIClient::roomReady,
-        [=](){emit switchScreen(PLAYSCREEN);});
     }
 }
