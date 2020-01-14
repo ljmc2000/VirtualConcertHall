@@ -33,7 +33,6 @@ private:
     QTableWidgetItem servers[PERPAGE][ROOMINFOATTRCOUNT];
 
     int page=0;
-    bool more=true;
 };
 
 #endif // ROOMBROWSER_H

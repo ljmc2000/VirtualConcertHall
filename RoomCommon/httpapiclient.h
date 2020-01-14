@@ -13,10 +13,16 @@
 
 struct RoomInfo
 {
-    QString roomId;
-    QString roomName;
-    QString owner;
-    QString description;
+    QString roomId="";
+    QString roomName="";
+    QString owner="";
+    QString description="";
+};
+
+struct RoomList
+{
+    QList<RoomInfo> results;
+    bool more;
 };
 
 struct RoomConnectionInfo
@@ -45,7 +51,7 @@ public slots:   //client
     void signout();
     QString getUsername();
     QString createRoom(QString name, QString description=nullptr, QString password=nullptr, bool isprivate=false);
-    QList<RoomInfo> listRooms(int page,int perPage);
+    RoomList listRooms(int page,int perPage);
     RoomConnectionInfo getCurrentRoom();
     void joinRoom(QString roomId);
     void leaveRoom();
@@ -63,7 +69,6 @@ public slots:   //server
 #endif
 
 signals:
-    void more(bool more);
     void apiError(QString message);
     void httpError(int code,QString message);
 

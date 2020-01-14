@@ -10,9 +10,6 @@ RoomBrowser::RoomBrowser(HttpAPIClient *httpApiClient, QWidget *parent) :
     ui->setupUi(this);
     this->httpApiClient = httpApiClient;
 
-    connect(httpApiClient, &HttpAPIClient::more,
-            [=](bool more){this->more=more;});
-
     connect(ui->backButton, &QPushButton::clicked,
             [=](){emit switchScreen(MAINMENU);});
 
@@ -23,30 +20,33 @@ RoomBrowser::RoomBrowser(HttpAPIClient *httpApiClient, QWidget *parent) :
             this, SLOT(connectToRoom()));
 
     connect(ui->backButton, &QPushButton::clicked,
-            [=](){if(page>0){page--; refreshRooms();}});
+            [=](){page--; refreshRooms();});
     connect(ui->nextButton, &QPushButton::clicked,
-            [=](){if(more){page++; refreshRooms();}});
+            [=](){page++; refreshRooms();});
 
-
-    for(int i=0; i<10; i++) for(int j=0; j<4; j++)
+    ui->roomList->setRowCount(PERPAGE);
+    for(int i=0; i<PERPAGE; i++) for(int j=0; j<ROOMINFOATTRCOUNT; j++)
     {
         ui->roomList->setItem(i,j,&servers[i][j]);
     }
+
     refreshRooms();
 }
 
 RoomBrowser::~RoomBrowser()
 {
+    ui->roomList->deleteLater();
     delete ui;
 }
 
 void RoomBrowser::refreshRooms()
 {
-    QList<RoomInfo> rooms = httpApiClient->listRooms(page,PERPAGE);
+    RoomList rooms = httpApiClient->listRooms(page,PERPAGE);
 
-    for(int i=0; i<rooms.count(); i++)
+    int i;
+    for(i=0; i<rooms.results.count(); i++)
     {
-        RoomInfo r=rooms[i];
+        RoomInfo r= i<PERPAGE? rooms.results[i]:RoomInfo();
         servers[i][0].setText(r.roomId);
         servers[i][1].setText(r.roomName);
         servers[i][2].setText(r.description);
@@ -54,6 +54,8 @@ void RoomBrowser::refreshRooms()
     }
 
     ui->roomList->resizeColumnsToContents();
+    ui->lastButton->setEnabled(page!=0);
+    ui->nextButton->setEnabled(rooms.more);
 }
 
 void RoomBrowser::connectToRoom()
