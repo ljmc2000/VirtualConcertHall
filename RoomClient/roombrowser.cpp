@@ -11,8 +11,8 @@ RoomBrowser::RoomBrowser(HttpAPIClient *httpApiClient, QWidget *parent) :
     ui->setupUi(this);
     this->httpApiClient = httpApiClient;
 
-    connect(httpApiClient, &HttpAPIClient::apiError,
-            [=](QString error){ui->errorBox->setText(error);});
+    connect(httpApiClient, SIGNAL(apiError(QString)),
+            this, SLOT(showError(QString)));
 
     connect(ui->backButton, &QPushButton::clicked,
             [=](){emit switchScreen(MAINMENU);});
@@ -78,4 +78,9 @@ void RoomBrowser::connectToRoom()
 
         httpApiClient->joinRoom(room.roomId,password);
     }
+}
+
+void RoomBrowser::showError(QString error)
+{
+    ui->errorBox->setText(error);
 }

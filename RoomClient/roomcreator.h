@@ -20,6 +20,7 @@ public:
 
 public slots:
     void createRoom();
+    void showError(QString error);
 
 signals:
     void switchScreen(Mode m);

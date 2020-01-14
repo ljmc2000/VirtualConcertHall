@@ -23,6 +23,7 @@ public:
 public slots:
     void refreshRooms();
     void connectToRoom();
+    void showError(QString error);
 
 signals:
     void switchScreen(Mode mode);

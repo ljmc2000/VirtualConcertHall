@@ -10,6 +10,9 @@ RoomCreator::RoomCreator(HttpAPIClient *httpApiClient,QWidget *parent) :
     ui->setupUi(this);
     this->httpApiClient=httpApiClient;
 
+    connect(httpApiClient, SIGNAL(apiError(QString)),
+            this, SLOT(showError(QString)));
+
     connect(ui->backButton, &QPushButton::clicked,
             [=](){emit switchScreen(MAINMENU);});
 
@@ -44,4 +47,9 @@ void RoomCreator::createRoom()
                                   password.length()!=0 ? password:nullptr,
                                   isprivate);
     }
+}
+
+void RoomCreator::showError(QString error)
+{
+    ui->errorLabel->setText(error);
 }
