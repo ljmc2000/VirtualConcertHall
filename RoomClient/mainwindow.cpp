@@ -99,15 +99,6 @@ void MainWindow::handleChangeOnlineState(State old, State current)
 {
     if(old!=current)
     {
-        switch (old)
-        {
-        case NOLOGIN:
-            openWidget(MAINMENU);
-            break;
-        default:
-            break;
-        }
-
         switch(current)
         {
         case INROOM:
