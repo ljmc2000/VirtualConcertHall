@@ -31,6 +31,7 @@ private:
     Ui::RoomBrowser *ui;
     HttpAPIClient *httpApiClient;
     QTableWidgetItem servers[PERPAGE][ROOMINFOATTRCOUNT];
+    RoomList rooms;
 
     int page=0;
 };

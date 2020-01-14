@@ -38,8 +38,8 @@ PlayScreen::~PlayScreen()
 void PlayScreen::askQuit()
 {
     QMessageBox::StandardButton reply=QMessageBox::question(this, "Leave?", owner ?
-                                                                "Are you sure you wish to leave the room?":
-                                                                "Are you sure you wish to close the room?",
+                                                                "Are you sure you wish to close the room?":
+                                                                "Are you sure you wish to leave the room?",
                                                             QMessageBox::Yes|QMessageBox::No);
     switch (reply)
     {

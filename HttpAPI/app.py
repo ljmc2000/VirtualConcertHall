@@ -141,7 +141,7 @@ def listRooms():
 
 		returnme=[]
 		for room in rooms.skip(page*perPage).limit(perPage):
-			returnme.append({"roomId":str(room.id),"roomname":room.roomname, "owner": room.owner.username,"description":room.description})
+			returnme.append({"roomId":str(room.id),"roomname":room.roomname, "owner": room.owner.username,"description":room.description,"password":bool(room.passhash)})
 
 		return jsonify({'status':'success','results':returnme,'more':(perPage*(page+1)<rooms.count())})
 
@@ -170,7 +170,11 @@ def joinRoom():
 	try:
 		r=request.get_json()
 		user=getUserByToken(request.headers['loginToken'])
+
 		room=Room.objects.get(id=r['roomId'])
+		if room.passhash and not room.checkpwd(r['password']):
+			return jsonify({'status':'failure', 'reason':'Incorrect password'})
+
 		room.players.append(user)
 		room.save()
 		p=Player(user=user,room=room)

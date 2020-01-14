@@ -115,6 +115,7 @@ RoomList HttpAPIClient::listRooms(int page, int perPage)
         r.roomId=o["roomId"].toString();
         r.owner=o["owner"].toString();
         r.description=o["description"].toString();
+        r.password=o["password"].toBool();
 
         results.append(r);
     }
@@ -139,10 +140,11 @@ RoomConnectionInfo HttpAPIClient::getCurrentRoom()
     return r;
 }
 
-void HttpAPIClient::joinRoom(QString roomId)
+void HttpAPIClient::joinRoom(QString roomId,QString password)
 {
     QJsonObject request;
     request.insert("roomId",roomId);
+    if(password!=nullptr) request.insert("password",password);
     QJsonObject json=postRequest("/joinRoom",request);
 
     if(json["status"].toString()=="success") emit playerStateChange();

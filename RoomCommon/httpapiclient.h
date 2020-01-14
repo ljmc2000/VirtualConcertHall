@@ -9,7 +9,9 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-#define ROOMINFOATTRCOUNT 4
+#define ROOMINFOATTRCOUNT 5
+
+enum RoomInfoAttrs {roomId,roomName,owner,description,password};
 
 struct RoomInfo
 {
@@ -17,6 +19,7 @@ struct RoomInfo
     QString roomName="";
     QString owner="";
     QString description="";
+    bool password=false;
 };
 
 struct RoomList
@@ -53,7 +56,7 @@ public slots:   //client
     QString createRoom(QString name, QString description=nullptr, QString password=nullptr, bool isprivate=false);
     RoomList listRooms(int page,int perPage);
     RoomConnectionInfo getCurrentRoom();
-    void joinRoom(QString roomId);
+    void joinRoom(QString roomId, QString password=nullptr);
     void leaveRoom();
     void closeRoom();
 

@@ -2,6 +2,7 @@
 #include "ui_roombrowser.h"
 
 #include <QPushButton>
+#include <QInputDialog>
 
 RoomBrowser::RoomBrowser(HttpAPIClient *httpApiClient, QWidget *parent) :
     QWidget(parent),
@@ -9,6 +10,9 @@ RoomBrowser::RoomBrowser(HttpAPIClient *httpApiClient, QWidget *parent) :
 {
     ui->setupUi(this);
     this->httpApiClient = httpApiClient;
+
+    connect(httpApiClient, &HttpAPIClient::apiError,
+            [=](QString error){ui->errorBox->setText(error);});
 
     connect(ui->backButton, &QPushButton::clicked,
             [=](){emit switchScreen(MAINMENU);});
@@ -41,16 +45,17 @@ RoomBrowser::~RoomBrowser()
 
 void RoomBrowser::refreshRooms()
 {
-    RoomList rooms = httpApiClient->listRooms(page,PERPAGE);
+    rooms = httpApiClient->listRooms(page,PERPAGE);
 
     int i;
     for(i=0; i<rooms.results.count(); i++)
     {
         RoomInfo r= i<PERPAGE? rooms.results[i]:RoomInfo();
-        servers[i][0].setText(r.roomId);
-        servers[i][1].setText(r.roomName);
-        servers[i][2].setText(r.description);
-        servers[i][3].setText(r.owner);
+        servers[i][roomId].setText(r.roomId);
+        servers[i][roomName].setText(r.roomName);
+        servers[i][description].setText(r.description);
+        servers[i][owner].setText(r.owner);
+        servers[i][password].setText(r.password? "Required":"");
     }
 
     ui->roomList->resizeColumnsToContents();
@@ -60,11 +65,17 @@ void RoomBrowser::refreshRooms()
 
 void RoomBrowser::connectToRoom()
 {
-    int room=ui->roomList->currentRow();
-    QString roomId=servers[room][0].text();
-
-    if(roomId.size()!=0)
+    int index=ui->roomList->currentRow();
+    if(index<rooms.results.count())
     {
-        httpApiClient->joinRoom(roomId);
+        RoomInfo room=rooms.results[index];
+        QString password=nullptr;
+
+        if(room.password)
+        {
+            password=QInputDialog::getText(this,"Enter password for room","Password",QLineEdit::Password);
+        }
+
+        httpApiClient->joinRoom(room.roomId,password);
     }
 }
