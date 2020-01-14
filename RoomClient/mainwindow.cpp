@@ -111,8 +111,6 @@ void MainWindow::handleChangeOnlineState(State old, State current)
             break;
         }
     }
-
-    //emit changeOnlineState(current);
 }
 
 void MainWindow::handleError(QString error)

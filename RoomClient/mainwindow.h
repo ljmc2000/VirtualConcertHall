@@ -33,9 +33,6 @@ private slots:
     void handleError(QString);
     void handleError(int,QString);
 
-signals:
-    void changeOnlineState(State state);
-
 private:
     Ui::MainWindow *ui;
 
