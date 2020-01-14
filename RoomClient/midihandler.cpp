@@ -2,7 +2,8 @@
 
 using namespace RoomCommon;
 
-MidiHandler::MidiHandler(quint32 secretId, QString address, quint16 port)
+MidiHandler::MidiHandler(quint32 secretId, QString address, quint16 port, QObject *parent):
+    QObject(parent)
 {
     QSettings prefs;
     serverHost = QHostAddress(address);
@@ -39,6 +40,8 @@ MidiHandler::MidiHandler(quint32 secretId, QString address, quint16 port)
 
 MidiHandler::~MidiHandler()
 {
+    qSocket.disconnectFromHost();
+    reconnectClock.stop();
     midiin.closePort();
     midiout.closePort();
 }

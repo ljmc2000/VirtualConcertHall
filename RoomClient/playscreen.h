@@ -24,6 +24,7 @@ public:
     ~PlayScreen();
 
     void showEvent(QShowEvent *e);
+    void resizeEvent(QResizeEvent *event);
 
 private slots:
     void askQuit();
@@ -35,7 +36,7 @@ signals:
 private:
     Ui::PlayScreen *ui;
 
-    QGraphicsSvgItem instramentVisual;
+    QGraphicsSvgItem *instramentVisual;
     QGraphicsScene scene;
 
     MidiHandler midiHandler;

@@ -9,8 +9,7 @@ using namespace RoomCommon;
 PlayScreen::PlayScreen(RoomConnectionInfo r,HttpAPIClient *httpApiClient,QWidget *parent) :
     QWidget(parent),
     ui(new Ui::PlayScreen),
-    instramentVisual("piano.svg"),
-    midiHandler(r.secretId,r.roomIp,r.roomPort)
+    midiHandler(r.secretId,r.roomIp,r.roomPort,parent)
 {
     ui->setupUi(this);
     this->httpApiClient=httpApiClient;
@@ -22,7 +21,9 @@ PlayScreen::PlayScreen(RoomConnectionInfo r,HttpAPIClient *httpApiClient,QWidget
     connect(ui->exitButton, SIGNAL(clicked()),
             this, SLOT(askQuit()));
 
-    scene.addItem(&instramentVisual);
+
+    instramentVisual=new QGraphicsSvgItem("piano.svg");
+    scene.addItem(instramentVisual);
     ui->instrament->setScene(&scene);
     ui->instrament->setSceneRect(scene.sceneRect());
     ui->instrament->show();
@@ -30,6 +31,7 @@ PlayScreen::PlayScreen(RoomConnectionInfo r,HttpAPIClient *httpApiClient,QWidget
 
 PlayScreen::~PlayScreen()
 {
+    delete instramentVisual;
     delete ui;
 }
 
@@ -64,6 +66,11 @@ void PlayScreen::quitPlaying()
 }
 
 void PlayScreen::showEvent(QShowEvent *event)
+{
+    ui->instrament->fitInView(scene.sceneRect(), Qt::KeepAspectRatio);
+}
+
+void PlayScreen::resizeEvent(QResizeEvent *event)
 {
     ui->instrament->fitInView(scene.sceneRect(), Qt::KeepAspectRatio);
 }
