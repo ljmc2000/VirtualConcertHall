@@ -1,6 +1,8 @@
 #ifndef ROOMCOMMON_H
 #define ROOMCOMMON_H
 
+#include <QMetaEnum>
+
 #define HEARTBEATINTERVAL 40        //how often to send heartbeat messages
 #define SERVERHEARTBEATTIMEOUT 50   //maximum accepted latency for a packet
 #define SERVERTIMEOUT 3000          //how long to wait since last packet before marking as dorment
@@ -13,12 +15,14 @@
 
 namespace RoomCommon
 {
+    Q_NAMESPACE
+
     enum PacketType {CONNECT,           //sent to request connection
                      INIT,              //sent upon connection
                      HEARTBEAT,         //sent constantly to ensure continued connection
                      MIDI,              //a packet which contains midi data
                      DISABLE,ENABLE,    //notification of a client being enabled or disabled
-                     DISCONNECT         //sent to inform a player they have been disconnected
+                     DISCONNECT,        //sent to inform a player they have been disconnected
                     };
 
     struct ConnectPacket
@@ -66,6 +70,25 @@ namespace RoomCommon
         PacketType packetType=DISCONNECT;
     };
     static DisconnectPacket disconnectPacket;
+
+    static QHash<PacketType,quint8> packetSize
+    {
+        {CONNECT, sizeof (ConnectPacket)},
+        {INIT, sizeof (InitPacket)},
+        {HEARTBEAT, sizeof (HeartbeatPacket)},
+        {MIDI, sizeof (MidiPacket)},
+        {DISABLE, sizeof (DisablePacket)},
+        {ENABLE, sizeof (EnablePacket)},
+        {DISCONNECT, sizeof (DisconnectPacket)},
+    };
+
+    static bool verifyPacketSize(PacketType packetType,quint8 size) //a guard against buffer underflow attacks
+    {
+        if(!packetSize.contains(packetType))
+            return false;
+        else
+            return packetSize[packetType] == size;
+    }
 
     static QList<quint8> noisyMessages(  //messages that if delivered late would be distracting
     {

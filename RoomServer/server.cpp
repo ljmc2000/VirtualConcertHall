@@ -47,7 +47,7 @@ void Server::readPendingDatagrams()
         QNetworkDatagram datagram = qSocket.receiveDatagram();
         QByteArray data = datagram.data();
 
-        switch(data.at(0))
+        if(verifyPacketSize((PacketType) data.at(0),data.size())) switch(data.at(0))
         {
         case CONNECT:
             {
@@ -73,6 +73,11 @@ void Server::readPendingDatagrams()
                 sendToAll(data);
                 break;
             }
+        }
+
+        else
+        {
+            qDebug() << "WARNING: Improperly sized packet";
         }
     }
 }
