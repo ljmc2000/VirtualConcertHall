@@ -137,8 +137,7 @@ void Server::finish()
 
 void Server::sendToAll(QByteArray data)
 {
-    qint64 timestamp=GETTIME();
-    foreach(Client c, clients) if(timestamp<c.lastMessage+SERVERTIMEOUT)
+    foreach(Client c, clients) if(c.awake)
     {
         QNetworkDatagram datagram(data, c.address, c.port);
         qSocket.writeDatagram(datagram);
@@ -205,8 +204,7 @@ void Server::enableClient(QNetworkDatagram joinRequest)
     enablePacket.clientId=c.clientId;
 
     QByteArray data1((char*)&enablePacket,sizeof(EnablePacket));
-    QNetworkDatagram datagram1(data1, c.address, c.port);
-    qSocket.writeDatagram(datagram1);
+    sendToAll(data1);
 
 
 
