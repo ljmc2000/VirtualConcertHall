@@ -59,10 +59,12 @@ void PlayScreen::quitPlaying()
     }
     else
     {
-        httpApiClient->closeRoom();
+        midiHandler.closeServer();
     }
 
+    qDebug() << "Disconnected from server";
     emit switchScreen(MAINMENU);
+    httpApiClient->refreshPlayerState();
 }
 
 void PlayScreen::showEvent(QShowEvent *event)

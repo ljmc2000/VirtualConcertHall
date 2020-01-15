@@ -52,6 +52,15 @@ MidiHandler::~MidiHandler()
     midiout.closePort();
 }
 
+void MidiHandler::closeServer()
+{
+    CloseServerPacket closeServerPacket;
+    closeServerPacket.secretId=secretId;
+    QByteArray data((char *)&closeServerPacket, sizeof (DisconnectPacket));
+    QNetworkDatagram datagram(data,serverHost,serverPort);
+    qSocket.writeDatagram(datagram);
+}
+
 void MidiHandler::handleMidi( double timeStamp, std::vector<unsigned char> *message, void *userData )
 {
     MidiHandler* self = static_cast<MidiHandler*>(userData);
@@ -122,6 +131,7 @@ void MidiHandler::handleDataFromServer()
                 clientId=-1;
                 midiin.cancelCallback();
                 emit disconnectedFromServer();
+                qDebug() << "Disconnected from server";
                 break;
             }
         }

@@ -18,6 +18,8 @@ public:
     MidiHandler(quint32 secretId,QString ipaddress="127.0.0.1",quint16 port=1998, QObject *parent=nullptr);
     ~MidiHandler();
 
+    void closeServer();
+
 private slots:
     void handleDataFromServer();
     void attemptConnect();

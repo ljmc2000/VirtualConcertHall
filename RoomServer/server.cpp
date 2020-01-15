@@ -32,6 +32,8 @@ Server::Server(int port)
     connect(&idleTimeoutTimer, SIGNAL(timeout()),
             this, SLOT(finish()));
     idleTimeoutTimer.start();
+
+    owner=qgetenv("OWNER").toUInt();
 }
 
 Server::~Server()
@@ -63,6 +65,12 @@ void Server::readPendingDatagrams()
             {
                 DisconnectPacket *disconnectPacket=(DisconnectPacket*) data.constData();
                 disableClient(disconnectPacket->secretId);
+                break;
+            }
+
+        case CLOSESERVER:
+            {
+                finish();
                 break;
             }
 
@@ -118,6 +126,11 @@ void Server::pruneClients()
 void Server::finish()
 {
     qDebug() << "server is shutting down";
+
+    DisablePacket disconnectPacket;
+    QByteArray data((char *)&disconnectPacket,sizeof (DisconnectPacket));
+    sendToAll(data);
+
     hapicli.timeoutRoom();
     QCoreApplication::quit();
 }

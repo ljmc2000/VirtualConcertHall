@@ -118,12 +118,12 @@ def createRoom():
 			room.setpwd(r['password'])
 
 
-		roomContainer=dockerProvider.startRoomContainer(token.id)
+		p=Player(user=owner,room=room)
+		roomContainer=dockerProvider.startRoomContainer(room,p)
 		room.ipaddress=IpAddress(ip=roomContainer['ip'],port=roomContainer['port'])
 		room.containerid=roomContainer['id']
 		room.save()
 
-		p=Player(user=owner,room=room)
 		p.save()
 
 		return jsonify({'status':'success','roomId':str(room.id)})

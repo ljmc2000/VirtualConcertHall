@@ -42,6 +42,7 @@ private:
     QTimer pruneTimer;
     QTimer idleTimeoutTimer;
     QHash<quint32,Client> clients;
+    quint32 owner;
 
     void sendToAll(QByteArray data);
     quint32 addClient(QNetworkDatagram joinRequest);

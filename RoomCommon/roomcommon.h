@@ -23,6 +23,7 @@ namespace RoomCommon
                      MIDI,              //a packet which contains midi data
                      DISABLE,ENABLE,    //notification of a client being enabled or disabled
                      DISCONNECT,        //sent to inform a player they have been disconnected
+                     CLOSESERVER,       //can be sent by the owner to close the server
                     };
 
     struct ConnectPacket
@@ -70,7 +71,12 @@ namespace RoomCommon
         PacketType packetType=DISCONNECT;
         quint32 secretId;
     };
-    static DisconnectPacket disconnectPacket;
+
+    struct CloseServerPacket
+    {
+        PacketType packetType=CLOSESERVER;
+        quint32 secretId;
+    };
 
     static QHash<PacketType,quint8> packetSize
     {
@@ -81,6 +87,7 @@ namespace RoomCommon
         {DISABLE, sizeof (DisablePacket)},
         {ENABLE, sizeof (EnablePacket)},
         {DISCONNECT, sizeof (DisconnectPacket)},
+        {CLOSESERVER, sizeof (CloseServerPacket)},
     };
 
     static bool verifyPacketSize(PacketType packetType,quint8 size) //a guard against buffer underflow attacks
