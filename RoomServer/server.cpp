@@ -59,12 +59,19 @@ void Server::readPendingDatagrams()
                 break;
             }
 
+        case DISCONNECT:
+            {
+                DisconnectPacket *disconnectPacket=(DisconnectPacket*) data.constData();
+                disableClient(disconnectPacket->secretId);
+                break;
+            }
+
         case HEARTBEAT:
             {
                 HeartbeatPacket *heartbeatPacket=(HeartbeatPacket*) data.constData();
                 clients[heartbeatPacket->secretId].lastMessage=heartbeatPacket->timestamp;
+                break;
             }
-            break;
 
         case MIDI:
             {
@@ -73,6 +80,8 @@ void Server::readPendingDatagrams()
                 sendToAll(data);
                 break;
             }
+        default:
+            qDebug() << "unimplemented packet type recieved";
         }
 
         else

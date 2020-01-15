@@ -68,6 +68,7 @@ namespace RoomCommon
     struct DisconnectPacket
     {
         PacketType packetType=DISCONNECT;
+        quint32 secretId;
     };
     static DisconnectPacket disconnectPacket;
 

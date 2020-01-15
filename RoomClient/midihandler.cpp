@@ -40,7 +40,13 @@ MidiHandler::MidiHandler(quint32 secretId, QString address, quint16 port, QObjec
 
 MidiHandler::~MidiHandler()
 {
+    DisconnectPacket disconnectPacket;
+    disconnectPacket.secretId=secretId;
+    QByteArray data((char *)&disconnectPacket, sizeof (DisconnectPacket));
+    QNetworkDatagram datagram(data,serverHost,serverPort);
+    qSocket.writeDatagram(datagram);
     qSocket.disconnectFromHost();
+
     reconnectClock.stop();
     midiin.closePort();
     midiout.closePort();
@@ -114,9 +120,8 @@ void MidiHandler::handleDataFromServer()
         case DISCONNECT:
             {
                 clientId=-1;
-                serverTimeIterator.stop();
-                reconnectClock.start();
                 midiin.cancelCallback();
+                emit disconnectedFromServer();
                 break;
             }
         }
