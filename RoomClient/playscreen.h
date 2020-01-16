@@ -39,7 +39,7 @@ private:
     QGraphicsSvgItem *instramentVisual;
     QGraphicsScene scene;
 
-    MidiHandler midiHandler;
+    MidiHandler *midiHandler;
     HttpAPIClient *httpApiClient;
 
     bool owner;

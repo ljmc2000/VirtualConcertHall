@@ -40,12 +40,7 @@ MidiHandler::MidiHandler(quint32 secretId, QString address, quint16 port, QObjec
 
 MidiHandler::~MidiHandler()
 {
-    DisconnectPacket disconnectPacket;
-    disconnectPacket.secretId=secretId;
-    QByteArray data((char *)&disconnectPacket, sizeof (DisconnectPacket));
-    QNetworkDatagram datagram(data,serverHost,serverPort);
-    qSocket.writeDatagram(datagram);
-    qSocket.disconnectFromHost();
+    disconnectFromServer();
 
     reconnectClock.stop();
     midiin.closePort();
@@ -59,6 +54,20 @@ void MidiHandler::closeServer()
     QByteArray data((char *)&closeServerPacket, sizeof (DisconnectPacket));
     QNetworkDatagram datagram(data,serverHost,serverPort);
     qSocket.writeDatagram(datagram);
+    disconnectFromServer();
+}
+
+void MidiHandler::disconnectFromServer()
+{
+    if(qSocket.isOpen())
+    {
+        DisconnectPacket disconnectPacket;
+        disconnectPacket.secretId=secretId;
+        QByteArray data((char *)&disconnectPacket, sizeof (DisconnectPacket));
+        QNetworkDatagram datagram(data,serverHost,serverPort);
+        qSocket.writeDatagram(datagram);
+        qSocket.disconnectFromHost();
+    }
 }
 
 void MidiHandler::handleMidi( double timeStamp, std::vector<unsigned char> *message, void *userData )
@@ -128,10 +137,7 @@ void MidiHandler::handleDataFromServer()
 
         case DISCONNECT:
             {
-                clientId=-1;
-                midiin.cancelCallback();
-                emit disconnectedFromServer();
-                qDebug() << "Disconnected from server";
+                deleteLater();
                 break;
             }
         }
@@ -176,7 +182,7 @@ void MidiHandler::attemptConnect()
     else
     {
         qDebug() << "Exiting after " << MAXCONNECTATTEMPTS << " tries";
-        emit disconnectedFromServer();
+        deleteLater();
     }
 }
 

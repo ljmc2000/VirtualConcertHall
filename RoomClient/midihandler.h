@@ -25,9 +25,6 @@ private slots:
     void attemptConnect();
     void iterateServertime();
 
-signals:
-    void disconnectedFromServer();
-
 private:
     RtMidiIn midiin;
     RtMidiOut midiout;
@@ -41,6 +38,7 @@ private:
 
     static void handleMidi( double timeStamp, std::vector<unsigned char> *message, void *userData );
     void handleMidiFromServer(quint32 clientId,qint64 timestamp, quint8* midiMessage);
+    void disconnectFromServer();
 
     quint32 clientId=-1,secretId;
     quint8 reconnectAttempts=MAXCONNECTATTEMPTS;

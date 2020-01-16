@@ -8,14 +8,14 @@ using namespace RoomCommon;
 
 PlayScreen::PlayScreen(RoomConnectionInfo r,HttpAPIClient *httpApiClient,QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::PlayScreen),
-    midiHandler(r.secretId,r.roomIp,r.roomPort,parent)
+    ui(new Ui::PlayScreen)
 {
     ui->setupUi(this);
     this->httpApiClient=httpApiClient;
     this->owner=r.owner;
 
-    connect(&midiHandler, SIGNAL(disconnectedFromServer()),
+    this->midiHandler=new MidiHandler(r.secretId,r.roomIp,r.roomPort,parent);
+    connect(midiHandler, SIGNAL(destroyed()),
             this, SLOT(quitPlaying()));
 
     connect(ui->exitButton, SIGNAL(clicked()),
@@ -31,6 +31,7 @@ PlayScreen::PlayScreen(RoomConnectionInfo r,HttpAPIClient *httpApiClient,QWidget
 
 PlayScreen::~PlayScreen()
 {
+    midiHandler->deleteLater();
     delete instramentVisual;
     delete ui;
 }
@@ -59,12 +60,12 @@ void PlayScreen::quitPlaying()
     }
     else
     {
-        midiHandler.closeServer();
+        midiHandler->closeServer();
     }
 
     qDebug() << "Disconnected from server";
-    emit switchScreen(MAINMENU);
     httpApiClient->refreshPlayerState();
+    emit switchScreen(MAINMENU);
 }
 
 void PlayScreen::showEvent(QShowEvent *event)
