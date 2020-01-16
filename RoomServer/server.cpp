@@ -127,7 +127,7 @@ void Server::finish()
 {
     qDebug() << "server is shutting down";
 
-    DisablePacket disconnectPacket;
+    DisconnectPacket disconnectPacket;
     QByteArray data((char *)&disconnectPacket,sizeof (DisconnectPacket));
     sendToAll(data);
 
