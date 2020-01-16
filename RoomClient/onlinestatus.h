@@ -36,7 +36,6 @@ private:
 
     QTimer refreshTimer;
     HttpAPIClient *httpApiClient;
-    QSize iconSize;
     State state=OFFLINE;
 };
 

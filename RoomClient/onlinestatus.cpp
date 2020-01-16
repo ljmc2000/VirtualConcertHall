@@ -1,14 +1,13 @@
 #include "onlinestatus.h"
 #include "ui_onlinestatus.h"
 
-#define REFRESHINTERVAL (15*60*1000)
+#define REFRESHINTERVAL (30*1000)
 
 OnlineStatus::OnlineStatus(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::OnlineStatus)
 {
     ui->setupUi(this);
-    this->iconSize=ui->statusIcon->size();
 }
 
 OnlineStatus::~OnlineStatus()
@@ -24,6 +23,9 @@ void OnlineStatus::setHttpApiClient(HttpAPIClient *httpApiClient)
             this, SLOT(handleHttpError(int,QString)));
 
     connect(httpApiClient, SIGNAL(playerStateChange()),
+            this, SLOT(update()));
+
+    connect(ui->pushButton, SIGNAL(clicked()),
             this, SLOT(update()));
 
     refreshTimer.setInterval(REFRESHINTERVAL);
@@ -42,8 +44,8 @@ void OnlineStatus::update()
     {
         emit changeState(this->state,(State)state);
         this->state=(State)state;
-        ui->statusLabel->setText(messages[state]);
-        ui->statusIcon->setPixmap(icons[state].pixmap(iconSize));
+        ui->pushButton->setText(messages[state]);
+        ui->pushButton->setIcon(icons[state]);
     }
 }
 
@@ -56,6 +58,6 @@ void OnlineStatus::handleHttpError(int code,QString message)
 {
     qDebug() << code << message;
 
-    ui->statusLabel->setText(messages[OFFLINE]);
-    ui->statusIcon->setPixmap(icons[OFFLINE].pixmap(iconSize));
+    ui->pushButton->setText(messages[OFFLINE]);
+    ui->pushButton->setIcon(icons[OFFLINE]);
 }
