@@ -1,10 +1,10 @@
 #ifndef SETTINGSWINDOW_H
 #define SETTINGSWINDOW_H
 
-#include <QWidget>
 #include <QSettings>
 
 #include <RtMidi.h>
+#include "instrumentview.h"
 #include "httpapiclient.h"
 #include "basescreen.h"
 #include "onlinestatusnamespace.h"
@@ -15,7 +15,7 @@ namespace Ui {
 class SettingsWindow;
 }
 
-class SettingsWindow : public QWidget
+class SettingsWindow : public InstrumentView
 {
     Q_OBJECT
 
@@ -28,6 +28,7 @@ public:
 public slots:
     void setMidiInPort();
     void setMidiOutPort();
+    void setInstrumentType();
     void logout();
     void refreshUsername();
 
@@ -43,11 +44,13 @@ private:
     RtMidiOut midiout;
 
     int maxNote=0, minNote=127;
+    InstrumentType instrumentType;
 
     HttpAPIClient *httpApiClient;
 
 private: //methods
     void setMidiPortsList();
+    void renderInstrument();
 };
 
 #endif // SETTINGSWINDOW_H

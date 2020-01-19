@@ -1,6 +1,5 @@
 #include "settingswindow.h"
 #include "ui_settingswindow.h"
-#include "mainwindow.h"
 #include <iostream>
 #include <QObject>
 #include <QPushButton>
@@ -8,11 +7,14 @@
 using namespace OnlineStatusNamespace;
 
 SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
-    QWidget(parent),
+    InstrumentView(parent),
     ui(new Ui::SettingsWindow)
 {
     ui->setupUi(this);
     this->httpApiClient=httpApiClient;
+
+    instrumentType=(InstrumentType)prefs.value("instrumentType").toInt();
+    renderInstrument();
 
     setMidiPortsList();
     refreshUsername();
@@ -53,8 +55,26 @@ void SettingsWindow::setMidiPortsList()
         ui->midiOutputSelector->addItem(midiout.getPortName(i).c_str());
     }
 
+    QMetaEnum e = QMetaEnum::fromType<InstrumentType>();
+    for(int i=0; i<e.keyCount(); i++)
+    {
+        ui->instrumentTypeBox->addItem(e.valueToKey(i));
+    }
+
     ui->midiInputSelector->setCurrentIndex(prefs.value("midiInPort").toInt());
     ui->midiOutputSelector->setCurrentIndex(prefs.value("midiOutPort").toInt());
+    ui->instrumentTypeBox->setCurrentIndex(prefs.value("instrumentType").toInt());
+}
+
+void SettingsWindow::renderInstrument()
+{
+    quint8 min=prefs.value("minNote").toInt(),max=prefs.value("maxNote").toInt();
+    if(min<max && max-min>0) switch(instrumentType)
+    {
+    case PIANO:
+        fromPiano(min,max);
+        break;
+    }
 }
 
 void SettingsWindow::setMidiInPort()
@@ -71,6 +91,13 @@ void SettingsWindow::setMidiOutPort()
     prefs.setValue("midiOutPort",port);
     midiout.closePort();
     midiout.openPort(port);
+}
+
+void SettingsWindow::setInstrumentType()
+{
+    int instrument=ui->instrumentTypeBox->currentIndex();
+    prefs.setValue("instrumentType",instrument);
+    this->instrumentType=(InstrumentType)instrument;
 }
 
 void SettingsWindow::logout()
@@ -118,4 +145,6 @@ void SettingsWindow::midiHandler(double timeStamp, std::vector<unsigned char> *m
             }
             break;
     }
+
+    self->renderInstrument();
 }
