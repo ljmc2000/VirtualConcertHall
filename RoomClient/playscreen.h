@@ -31,7 +31,7 @@ private slots:
     void quitPlaying();
 
     void addInstrumentView(quint32 clientId, InstrumentType instrament, quint64 args);
-    void removeInstrumentView();
+    void removeInstrumentView(quint32 clientId);
 
 signals:
     void switchScreen(Mode mode);

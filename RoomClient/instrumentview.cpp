@@ -27,7 +27,7 @@ void InstrumentView::fromPiano(quint8 minNote, quint8 maxNote)
     QString whiteNotes="",whiteNote=note.arg("fill=\"white\" stroke=\"black\" stroke-width=\"1\"").arg(width).arg(height).arg(VIEWHEIGHT-height);
 
     double prog=0;
-    for(quint8 i=minNote; i<maxNote; i++)
+    for(quint8 i=minNote; i<=maxNote; i++)
     {
         switch(i%12)
         {

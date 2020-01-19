@@ -21,6 +21,9 @@ PlayScreen::PlayScreen(RoomConnectionInfo r,HttpAPIClient *httpApiClient,QWidget
     connect(midiHandler, &MidiHandler::playerJoin,
             this, &PlayScreen::addInstrumentView);
 
+    connect(midiHandler, &MidiHandler::playerLeave,
+            this, &PlayScreen::removeInstrumentView);
+
     connect(ui->exitButton, SIGNAL(clicked()),
             this, SLOT(askQuit()));
 }
@@ -73,22 +76,26 @@ void PlayScreen::addInstrumentView(quint32 clientId, InstrumentType instrament, 
 
     if(!instrumentViews.contains(clientId)) {
         v=new InstrumentView(ui->playArea);
+        ui->gridLayout_2->addWidget(v);
+
+        switch (instrament)
+        {
+        case PIANO:
+            v->fromPiano(args[0],args[1]);
+            break;
+        }
+
+        instrumentViews.insert(clientId,v);
     } else {
         v=instrumentViews[clientId];
     }
 
-    switch (instrament)
-    {
-    case PIANO:
-        v->fromPiano(args[0],args[1]);
-        break;
-    }
-
-    instrumentViews.insert(clientId,v);
-    v->show();
+    if(v!=nullptr) v->show();
 }
 
-void PlayScreen::removeInstrumentView()
+void PlayScreen::removeInstrumentView(quint32 clientId)
 {
-
+    InstrumentView *v = instrumentViews[clientId];
+    if(v!=nullptr) v->hide();
+    instrumentViews.remove(clientId);
 }
