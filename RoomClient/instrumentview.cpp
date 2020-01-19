@@ -19,7 +19,7 @@ void InstrumentView::fromPiano(quint8 minNote, quint8 maxNote)
 {
     QString svg="<svg width=\"%1\" height=\"%2\"> %3 %4 </svg>";
     quint8 range=maxNote-minNote;
-    double height=(VIEWHEIGHT/3),width=VIEWWIDTH/(7*(range/12));
+    double height=(VIEWHEIGHT/3),width=(range==0)? 1:VIEWWIDTH/(7*(range/12));
     double boffset=width*.75*.5;
     svg=svg.arg(VIEWWIDTH).arg(VIEWHEIGHT);
 
