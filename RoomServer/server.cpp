@@ -203,6 +203,17 @@ void Server::enableClient(QNetworkDatagram joinRequest)
     qSocket.writeDatagram(datagram);
     qDebug() << "Client Connecting" << c.address << c.port;
 
+    for(Client c: clients) if(c.awake)
+    {
+        EnablePacket enablePacket;
+        enablePacket.clientId=c.clientId;
+        enablePacket.instrument=c.instrument;
+        enablePacket.instrumentArgs=c.instrumentArgs;
+        QByteArray data((char*)&enablePacket,sizeof(EnablePacket));
+        QNetworkDatagram datagram(data, joinRequest.senderAddress(), joinRequest.senderPort());
+        qSocket.writeDatagram(datagram);
+    }
+
     EnablePacket enablePacket;
     enablePacket.clientId=c.clientId;
     enablePacket.instrument=c.instrument;
