@@ -18,21 +18,19 @@ PlayScreen::PlayScreen(RoomConnectionInfo r,HttpAPIClient *httpApiClient,QWidget
     connect(midiHandler, SIGNAL(destroyed()),
             this, SLOT(quitPlaying()));
 
+    connect(midiHandler, &MidiHandler::playerJoin,
+            this, &PlayScreen::addInstrumentView);
+
     connect(ui->exitButton, SIGNAL(clicked()),
             this, SLOT(askQuit()));
-
-
-    instramentVisual=new QGraphicsSvgItem("piano.svg");
-    scene.addItem(instramentVisual);
-    ui->instrament->setScene(&scene);
-    ui->instrament->setSceneRect(scene.sceneRect());
-    ui->instrament->show();
 }
 
 PlayScreen::~PlayScreen()
 {
+    for(InstrumentView *v: instrumentViews)
+        delete v;
+
     midiHandler->deleteLater();
-    delete instramentVisual;
     delete ui;
 }
 
@@ -68,12 +66,29 @@ void PlayScreen::quitPlaying()
     emit switchScreen(MAINMENU);
 }
 
-void PlayScreen::showEvent(QShowEvent *event)
+void PlayScreen::addInstrumentView(quint32 clientId, InstrumentType instrament, quint64 instrumentArgs)
 {
-    ui->instrament->fitInView(scene.sceneRect(), Qt::KeepAspectRatio);
+    InstrumentView *v;
+    quint8 *args=(quint8*)&instrumentArgs;
+
+    if(!instrumentViews.contains(clientId)) {
+        v=new InstrumentView(ui->playArea);
+    } else {
+        v=instrumentViews[clientId];
+    }
+
+    switch (instrament)
+    {
+    case PIANO:
+        v->fromPiano(args[0],args[1]);
+        break;
+    }
+
+    instrumentViews.insert(clientId,v);
+    v->show();
 }
 
-void PlayScreen::resizeEvent(QResizeEvent *event)
+void PlayScreen::removeInstrumentView()
 {
-    ui->instrament->fitInView(scene.sceneRect(), Qt::KeepAspectRatio);
+
 }

@@ -3,8 +3,6 @@
 
 #define GETTIME() QDateTime::currentDateTime().toMSecsSinceEpoch()
 
-#include <httpapiclient.h>
-
 #include <QObject>
 #include <QUdpSocket>
 #include <QNetworkDatagram>
@@ -12,11 +10,18 @@
 #include <QDateTime>
 #include <QCoreApplication>
 
+#include "roomcommon.h"
+#include "httpapiclient.h"
+
+using namespace RoomCommon;
+
 struct Client
 {
     QHostAddress address;
     quint16 port;
     quint32 clientId;
+    InstrumentType instrument;
+    quint64 instrumentArgs;
     qint64 lastMessage=GETTIME();
     bool awake=true;
 };
@@ -45,7 +50,7 @@ private:
     quint32 owner;
 
     void sendToAll(QByteArray data);
-    quint32 addClient(QNetworkDatagram joinRequest);
+    bool addClient(QNetworkDatagram joinRequest);
     void disableClient(quint32 secretId);
     void enableClient(QNetworkDatagram joinRequest);
 };

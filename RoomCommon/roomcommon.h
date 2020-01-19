@@ -26,10 +26,16 @@ namespace RoomCommon
                      CLOSESERVER,       //can be sent by the owner to close the server
                     };
 
+    enum InstrumentType {PIANO,
+                     };
+    Q_ENUM_NS(InstrumentType);
+
     struct ConnectPacket
     {
         PacketType packetType=CONNECT;
         quint32 secretId;
+        InstrumentType instrument;
+        quint64 instrumentArgs;
     };
 
     struct InitPacket
@@ -64,6 +70,10 @@ namespace RoomCommon
     {
         PacketType packetType=ENABLE;
         quint32 clientId;
+        InstrumentType instrument;
+        quint64 instrumentArgs=0;      //use of fields will vary by instrament.
+                                       //for example 0 and 1 will be min and max note for piano,
+                                       //or each could represent a single guitar string's min note.
     };
 
     struct DisconnectPacket

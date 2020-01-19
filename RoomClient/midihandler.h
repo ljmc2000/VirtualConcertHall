@@ -10,6 +10,8 @@
 #include <QSettings>
 #include "roomcommon.h"
 
+using namespace RoomCommon;
+
 class MidiHandler: public QObject
 {
     Q_OBJECT
@@ -19,6 +21,10 @@ public:
     ~MidiHandler();
 
     void closeServer();
+
+signals:
+    void playerJoin(quint32 clientId, InstrumentType type, quint64 args);
+    void playerLeave(quint32 clientId);
 
 private slots:
     void handleDataFromServer();
@@ -39,9 +45,12 @@ private:
     static void handleMidi( double timeStamp, std::vector<unsigned char> *message, void *userData );
     void handleMidiFromServer(quint32 clientId,qint64 timestamp, quint8* midiMessage);
     void disconnectFromServer();
+    void loadInstrumentConfig(QSettings *prefs);
 
     quint32 clientId=-1,secretId;
     quint8 reconnectAttempts=MAXCONNECTATTEMPTS;
+    InstrumentType insturmentType;
+    quint64 instrumentArgs=0;
 };
 
 #endif // MIDIHANDLER_H

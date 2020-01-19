@@ -1,15 +1,18 @@
 #ifndef PLAYSCREEN_H
 #define PLAYSCREEN_H
 
-#include "basescreen.h"
-#include "httpapiclient.h"
 #include <QWidget>
 #include <QUdpSocket>
 #include <QTimer>
-
 #include <QGraphicsSvgItem>
-#include <QGraphicsScene>
-#include <midihandler.h>
+
+#include "basescreen.h"
+#include "httpapiclient.h"
+#include "roomcommon.h"
+#include "instrumentview.h"
+#include "midihandler.h"
+
+using namespace RoomCommon;
 
 namespace Ui {
 class PlayScreen;
@@ -23,12 +26,12 @@ public:
     explicit PlayScreen(RoomConnectionInfo r, HttpAPIClient *httpApiClient, QWidget *parent = nullptr);
     ~PlayScreen();
 
-    void showEvent(QShowEvent *e);
-    void resizeEvent(QResizeEvent *event);
-
 private slots:
     void askQuit();
     void quitPlaying();
+
+    void addInstrumentView(quint32 clientId, InstrumentType instrament, quint64 args);
+    void removeInstrumentView();
 
 signals:
     void switchScreen(Mode mode);
@@ -36,8 +39,7 @@ signals:
 private:
     Ui::PlayScreen *ui;
 
-    QGraphicsSvgItem *instramentVisual;
-    QGraphicsScene scene;
+    QHash<quint32,InstrumentView*> instrumentViews;
 
     MidiHandler *midiHandler;
     HttpAPIClient *httpApiClient;

@@ -17,6 +17,8 @@ MidiHandler::MidiHandler(quint32 secretId, QString address, quint16 port, QObjec
     midiout.openPort(midiOutPort<midiout.getPortCount() ? midiOutPort:0);
     midiout.setClientName("VirtualConcertHallClient");
 
+    loadInstrumentConfig(&prefs);
+
     serverTimeIterator.setInterval(SERVERTIMEUPDATEINTERVAL);
     connect(
                 &serverTimeIterator, SIGNAL(timeout()),
@@ -67,6 +69,19 @@ void MidiHandler::disconnectFromServer()
         QNetworkDatagram datagram(data,serverHost,serverPort);
         qSocket.writeDatagram(datagram);
         qSocket.disconnectFromHost();
+    }
+}
+
+void MidiHandler::loadInstrumentConfig(QSettings *prefs)
+{
+    insturmentType=(InstrumentType) prefs->value("instrumentType").toInt();
+    quint8 *args=(quint8*) &instrumentArgs;
+
+    switch (insturmentType)
+    {
+    case PIANO:
+        args[0]=(quint8)prefs->value("minNote").toUInt();
+        args[1]=(quint8)prefs->value("maxNote").toUInt();
     }
 }
 
@@ -125,6 +140,7 @@ void MidiHandler::handleDataFromServer()
             {
                 DisablePacket *disablePacket=(DisablePacket*) data.constData();
                 qDebug() << "player" << disablePacket->clientId << "has gone dormant";
+                emit playerLeave(disablePacket->clientId);
                 break;
             }
 
@@ -132,6 +148,7 @@ void MidiHandler::handleDataFromServer()
             {
                 EnablePacket *enablePacket=(EnablePacket*) data.constData();
                 qDebug() << "player" << enablePacket->clientId << "has awoken";
+                emit playerJoin(enablePacket->clientId, enablePacket->instrument, enablePacket->instrumentArgs);
                 break;
             }
 
@@ -173,6 +190,8 @@ void MidiHandler::attemptConnect()
         qDebug() << "attempting connection to server";
         ConnectPacket connectPacket;
         connectPacket.secretId=secretId;
+        connectPacket.instrument=insturmentType;
+        connectPacket.instrumentArgs=instrumentArgs;
 
         QByteArray data((char*)&connectPacket,sizeof(ConnectPacket));
         qSocket.disconnectFromHost();

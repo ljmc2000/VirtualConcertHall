@@ -1,5 +1,4 @@
 #include "server.h"
-#include "roomcommon.h"
 
 using namespace RoomCommon;
 
@@ -54,10 +53,12 @@ void Server::readPendingDatagrams()
         case CONNECT:
             {
                 ConnectPacket *connectPacket=(ConnectPacket*) data.constData();
-                if(!clients.keys().contains(connectPacket->secretId))
-                    addClient(datagram);
-                else
+                if(!clients.keys().contains(connectPacket->secretId)) {
+                    if(addClient(datagram))
+                            enableClient(datagram);
+                } else {
                     enableClient(datagram);
+                }
                 break;
             }
 
@@ -144,7 +145,7 @@ void Server::sendToAll(QByteArray data)
     }
 }
 
-quint32 Server::addClient(QNetworkDatagram joinRequest)
+bool Server::addClient(QNetworkDatagram joinRequest)
 {
     QByteArray joinRequestData = joinRequest.data();
     ConnectPacket *connectPacket=(ConnectPacket*) joinRequestData.constData();
@@ -154,26 +155,16 @@ quint32 Server::addClient(QNetworkDatagram joinRequest)
     {
         Client c;
         c.clientId=clientId;
-        c.address=joinRequest.senderAddress();
-        c.port=joinRequest.senderPort();
         clients[connectPacket->secretId]=c;
-
-        InitPacket initPacket;
-        initPacket.clientId=c.clientId;
-        initPacket.timestamp=GETTIME();
-
-        QByteArray data((char*)&initPacket,sizeof(InitPacket));
-        QNetworkDatagram datagram(data, c.address, c.port);
-        qSocket.writeDatagram(datagram);
-        qDebug() << "Client Connecting" << c.address << c.port;
+        qDebug() << clientId << "joined the server";
+        return true;
     }
 
     else
     {
         qDebug() << "A connection attempt was made by a client with an invalid clientId";
+        return false;
     }
-
-    return clientId;
 }
 
 void Server::disableClient(quint32 secretId)
@@ -193,27 +184,30 @@ void Server::enableClient(QNetworkDatagram joinRequest)
     QByteArray joinRequestData = joinRequest.data();
     ConnectPacket *connectPacket=(ConnectPacket*) joinRequestData.constData();
     quint32 secretId=connectPacket->secretId;
+
     Client c = clients[secretId];
     c.address=joinRequest.senderAddress();
     c.port=joinRequest.senderPort();
+    c.instrument=connectPacket->instrument;
+    c.instrumentArgs=connectPacket->instrumentArgs;
     c.lastMessage=GETTIME();
     c.awake=true;
     clients[secretId]=c;
 
+    InitPacket initPacket;
+    initPacket.clientId=c.clientId;
+    initPacket.timestamp=GETTIME();
+
+    QByteArray data((char*)&initPacket,sizeof(InitPacket));
+    QNetworkDatagram datagram(data, c.address, c.port);
+    qSocket.writeDatagram(datagram);
+    qDebug() << "Client Connecting" << c.address << c.port;
+
     EnablePacket enablePacket;
     enablePacket.clientId=c.clientId;
+    enablePacket.instrument=c.instrument;
+    enablePacket.instrumentArgs=c.instrumentArgs;
 
     QByteArray data1((char*)&enablePacket,sizeof(EnablePacket));
     sendToAll(data1);
-
-
-
-    InitPacket initPacket;
-    initPacket.timestamp = GETTIME();
-    initPacket.clientId=c.clientId;
-
-    QByteArray data2((char*)&initPacket,sizeof(InitPacket));
-    QNetworkDatagram datagram2(data2, c.address, c.port);
-    qSocket.writeDatagram(datagram2);
-    qDebug() << "Client Awoken" << c.address << c.port;
 }
