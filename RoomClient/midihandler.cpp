@@ -133,6 +133,7 @@ void MidiHandler::handleDataFromServer()
             {
                 MidiPacket *midiPacket=(MidiPacket*) data.constData();
                 handleMidiFromServer(midiPacket->clientId,midiPacket->timestamp,midiPacket->message);
+                emit midiMessage(midiPacket->clientId,midiPacket->message);
                 break;
             }
 

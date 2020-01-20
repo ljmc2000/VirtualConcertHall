@@ -25,6 +25,7 @@ public:
 signals:
     void playerJoin(quint32 clientId, InstrumentType type, quint64 args);
     void playerLeave(quint32 clientId);
+    void midiMessage(quint32 clientId, quint8* message);
 
 private slots:
     void handleDataFromServer();

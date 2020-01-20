@@ -24,6 +24,9 @@ PlayScreen::PlayScreen(RoomConnectionInfo r,HttpAPIClient *httpApiClient,QWidget
     connect(midiHandler, &MidiHandler::playerLeave,
             this, &PlayScreen::removeInstrumentView);
 
+    connect(midiHandler, &MidiHandler::midiMessage,
+            this, &PlayScreen::handleMidiPacket);
+
     connect(ui->exitButton, SIGNAL(clicked()),
             this, SLOT(askQuit()));
 }
@@ -98,4 +101,13 @@ void PlayScreen::removeInstrumentView(quint32 clientId)
     InstrumentView *v = instrumentViews[clientId];
     if(v!=nullptr) v->hide();
     instrumentViews.remove(clientId);
+}
+
+void PlayScreen::handleMidiPacket(quint32 clientId, quint8* message)
+{
+    switch(message[0])
+    {
+    case 144:
+        instrumentViews[clientId]->playNote(message[1]);
+    }
 }

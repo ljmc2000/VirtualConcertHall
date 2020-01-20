@@ -17,11 +17,6 @@ namespace Ui {
 class InstrumentView;
 }
 
-struct Position
-{
-    double x,y;
-};
-
 class InstrumentView : public QOpenGLWidget
 {
     Q_OBJECT
@@ -37,15 +32,16 @@ public slots:
 
 protected:
     void paintEvent(QPaintEvent *e);
+    void initializeGL();
 
 private:
     Ui::InstrumentView *ui;
-    static QString note;
-    QIcon quaver;
     QPainter painter;
-    QSvgRenderer renderer;
+    QSvgRenderer instrumentRenderer,noteRenderer;
 
-    QHash<quint8,Position> noteSource;
+    QHash<quint8,QPointF> noteSource;
+    QList<QPointF> notes;
+    QSizeF noteSize;
 };
 
 #endif // INSTRUMENTVIEW_H
