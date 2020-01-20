@@ -7,7 +7,7 @@
 using namespace OnlineStatusNamespace;
 
 SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
-    InstrumentView(parent),
+    QWidget(parent),
     ui(new Ui::SettingsWindow)
 {
     ui->setupUi(this);
@@ -72,7 +72,7 @@ void SettingsWindow::renderInstrument()
     if(min<max && max-min>0) switch(instrumentType)
     {
     case PIANO:
-        fromPiano(min,max);
+        ui->instrumentView->fromPiano(min,max);
         break;
     }
 }

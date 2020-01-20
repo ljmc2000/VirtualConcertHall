@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>SettingsWindow</class>
- <widget class="InstrumentView" name="SettingsWindow">
+ <widget class="QWidget" name="SettingsWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>397</width>
-    <height>477</height>
+    <width>752</width>
+    <height>528</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
     <widget class="QWidget" name="centralWidget" native="true">
      <widget class="QComboBox" name="midiInputSelector">
       <property name="geometry">
@@ -126,35 +126,17 @@
      </widget>
     </widget>
    </item>
+   <item>
+    <widget class="InstrumentView" name="instrumentView"/>
+   </item>
   </layout>
-  <widget class="QToolBar" name="mainToolBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>4</width>
-     <height>14</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QStatusBar" name="statusBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>3</width>
-     <height>30</height>
-    </rect>
-   </property>
-  </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
    <class>InstrumentView</class>
-   <extends>QWidget</extends>
+   <extends>QOpenGLWidget</extends>
    <header>instrumentview.h</header>
-   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -1,11 +1,12 @@
 #ifndef SETTINGSWINDOW_H
 #define SETTINGSWINDOW_H
 
+#include <QWidget>
 #include <QSettings>
 
 #include <RtMidi.h>
-#include "instrumentview.h"
 #include "httpapiclient.h"
+#include "instrumentview.h"
 #include "basescreen.h"
 #include "onlinestatusnamespace.h"
 
@@ -15,7 +16,7 @@ namespace Ui {
 class SettingsWindow;
 }
 
-class SettingsWindow : public InstrumentView
+class SettingsWindow : public QWidget
 {
     Q_OBJECT
 

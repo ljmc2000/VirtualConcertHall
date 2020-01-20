@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->onlineStatus->setHttpApiClient(&httpApiClient);
+    setAutoFillBackground(false);
 
     switch (ui->onlineStatus->getState())
     {
