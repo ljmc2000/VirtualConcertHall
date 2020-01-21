@@ -79,7 +79,7 @@ void InstrumentView::fromPiano()
 
 void InstrumentView::playNote(quint8 note)
 {
-    if(note<maxNote && note>=minNote)
+    if(note<=maxNote && note>=minNote)
     {
         Note n;
         n.note=note;
