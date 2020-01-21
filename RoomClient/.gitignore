@@ -7,3 +7,5 @@ Client.pro.user
 moc_predefs.h
 moc_*.cpp
 ui_*.h
+
+rtmidi[WL]*

@@ -74,8 +74,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH +=$$PWD/../RoomCommon
 
 #rtmidi
-win32: LIBS += -L$$PWD/../rtmidiWindows/ -lrtmidi
-else:unix: LIBS += -L$$PWD/../rtmidiLinux/ -lrtmidi
+win32: LIBS += -L$$PWD/rtmidiWindows/ -lrtmidi
+else:unix: LIBS += -L$$PWD/rtmidiLinux/ -lrtmidi
 
-INCLUDEPATH += $$PWD/../rtmidi
-DEPENDPATH += $$PWD/../rtmidi
+INCLUDEPATH += $$PWD/rtmidi
+DEPENDPATH += $$PWD/rtmidi
