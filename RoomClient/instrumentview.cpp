@@ -111,7 +111,7 @@ void InstrumentView::paintGL()
     {
         Note *n=&notes[i];
         QRectF dimensions=keys[n->note].dim;
-        QPointF h(dimensions.x(),dimensions.y()+(size().height())*(-n->age/(float)TIMEOUT));
+        QPointF h(dimensions.x(),dimensions.y()+(size().height()*.666666666f)*(-n->age/(float)TIMEOUT));
         dimensions.moveTo(h);
 
         noteRenderer.render(&painter,dimensions);
