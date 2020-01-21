@@ -2,13 +2,24 @@
 #define MIDIHANDLER_H
 
 #include <RtMidi.h>
+#include <fluidsynth.h>
 
+#include <QtGlobal>
 #include <QUdpSocket>
 #include <QTimer>
 #include <QNetworkDatagram>
 
 #include <QSettings>
 #include "roomcommon.h"
+
+#ifdef Q_OS_WIN
+#define AUDIODRIVER "dsound"
+#endif
+
+#ifdef Q_OS_LINUX
+#define AUDIODRIVER "pulseaudio"
+#endif
+
 
 using namespace RoomCommon;
 
@@ -32,22 +43,27 @@ private slots:
     void attemptConnect();
     void iterateServertime();
 
-private:
-    RtMidiIn midiin;
-    RtMidiOut midiout;
-
-    QUdpSocket qSocket;
-    QHostAddress serverHost;
-    quint16 serverPort;
-    QTimer reconnectClock;
-    QTimer serverTimeIterator;
-    qint64 timestamp;
-
+private:    //methods
     static void handleMidi( double timeStamp, std::vector<unsigned char> *message, void *userData );
     void handleMidiFromServer(quint32 clientId,qint64 timestamp, quint8* midiMessage);
     void disconnectFromServer();
     void loadInstrumentConfig(QSettings *prefs);
 
+    void addSynth(quint32 clientId),delSynth(quint32 clientId);
+
+private:
+    RtMidiIn midiin;
+    QHash<quint32,fluid_synth_t*> midiout;
+    QHash<quint32,fluid_audio_driver_t*> soundout;
+
+    QUdpSocket qSocket;
+    QTimer reconnectClock;
+    QTimer serverTimeIterator;
+
+    QHostAddress serverHost;
+    quint16 serverPort;
+    QString soundfont;
+    qint64 timestamp;
     quint32 clientId=-1,secretId;
     quint8 reconnectAttempts=MAXCONNECTATTEMPTS;
     InstrumentType insturmentType;

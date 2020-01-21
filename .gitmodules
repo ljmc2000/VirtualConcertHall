@@ -4,3 +4,6 @@
 [submodule "Client/rtmidi-src"]
 	path = RoomClient/rtmidi
 	url = git@github.com:thestk/rtmidi.git
+[submodule "RoomClient/fluidsynth"]
+	path = RoomClient/fluidsynth
+	url = https://github.com/FluidSynth/fluidsynth

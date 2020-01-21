@@ -13,9 +13,7 @@ MidiHandler::MidiHandler(quint32 secretId, QString address, quint16 port, QObjec
     midiin.openPort(midiInPort<midiin.getPortCount() ? midiInPort:0);
     midiin.setClientName("VirtualConcertHallClient");
 
-    unsigned int midiOutPort = prefs.value("midiOutPort").toUInt();
-    midiout.openPort(midiOutPort<midiout.getPortCount() ? midiOutPort:0);
-    midiout.setClientName("VirtualConcertHallClient");
+    soundfont=prefs.value("soundfont").toString();
 
     loadInstrumentConfig(&prefs);
 
@@ -44,9 +42,13 @@ MidiHandler::~MidiHandler()
 {
     disconnectFromServer();
 
+    for(quint32 clientId: midiout.keys())
+    {
+        delSynth(clientId);
+    }
+
     reconnectClock.stop();
     midiin.closePort();
-    midiout.closePort();
 }
 
 void MidiHandler::closeServer()
@@ -141,6 +143,7 @@ void MidiHandler::handleDataFromServer()
             {
                 DisablePacket *disablePacket=(DisablePacket*) data.constData();
                 qDebug() << "player" << disablePacket->clientId << "has gone dormant";
+                addSynth(disablePacket->clientId);
                 emit playerLeave(disablePacket->clientId);
                 break;
             }
@@ -149,6 +152,7 @@ void MidiHandler::handleDataFromServer()
             {
                 EnablePacket *enablePacket=(EnablePacket*) data.constData();
                 qDebug() << "player" << enablePacket->clientId << "has awoken";
+                addSynth(enablePacket->clientId);
                 emit playerJoin(enablePacket->clientId, enablePacket->instrument, enablePacket->instrumentArgs);
                 break;
             }
@@ -169,14 +173,51 @@ void MidiHandler::handleDataFromServer()
 
 void MidiHandler::handleMidiFromServer(quint32 clientId, qint64 timestamp, quint8 *midiMessage)
 {
-    if(timestamp+SERVERHEARTBEATTIMEOUT<this->timestamp)
-    if(midiMessage[2]!=0)
-    if(noisyMessages.contains(midiMessage[0]))
+    fluid_synth_t* synth=midiout[clientId];
+    quint8 channel=midiMessage[0]%16;
+
+    if(synth != nullptr) switch(midiMessage[0]>>4)
     {
-        qDebug() << "Midi packet dropped from" << clientId;
-        return;
+    case 0b1000:    //note off event
+        fluid_synth_noteoff(synth,channel,midiMessage[1]);
+        break;
+
+    case 0b1001:    //note on event
+        if(midiMessage[2]==0) {
+            fluid_synth_noteoff(synth,channel,midiMessage[1]);
+        } else if(timestamp+SERVERHEARTBEATTIMEOUT<this->timestamp) {
+            qDebug() << "Midi packet dropped from" << clientId;
+        } else {
+            fluid_synth_noteon(synth,channel,midiMessage[1],midiMessage[2]);
+        }
+        break;
+
+    case 0b1010:    //Polyphonic Key Pressure
+        fluid_synth_key_pressure(synth,channel,midiMessage[1],midiMessage[2]);
+        break;
+
+    case 0b1011:    //Control Change
+        fluid_synth_cc(synth,channel,midiMessage[1],midiMessage[2]);
+        break;
+
+    case 0b1100:    //Program Change
+        fluid_synth_program_change(synth,channel,midiMessage[1]);
+        break;
+
+    case 0b1101:    //Channel Pressure
+        fluid_synth_channel_pressure(synth,channel,midiMessage[1]);
+        break;
+
+    case 0b1110:    //Pitch Bend Change
+        int value=midiMessage[1]+(midiMessage[2]<<7);
+        fluid_synth_pitch_bend(synth,channel,value);
+        break;
     }
-    midiout.sendMessage(midiMessage,MIDIMESSAGESIZE);
+
+    else
+    {
+        qDebug() << "synthesiser error";
+    }
 
     QString m;
     for(unsigned int i=0; i<MIDIMESSAGESIZE; i++) m.append(QString::number(midiMessage[i])+":");
@@ -209,4 +250,24 @@ void MidiHandler::attemptConnect()
 void MidiHandler::iterateServertime()
 {
     timestamp+=SERVERTIMEUPDATEINTERVAL;
+}
+
+void MidiHandler::addSynth(quint32 clientId)
+{
+    fluid_settings_t* fluidSettings=new_fluid_settings();
+    fluid_settings_setstr(fluidSettings,"audio.driver",AUDIODRIVER);
+    midiout[clientId]=new_fluid_synth(fluidSettings);
+    fluid_synth_sfload(midiout[clientId],soundfont.toUtf8().constData(),true);
+    soundout[clientId]=new_fluid_audio_driver(fluidSettings,midiout[clientId]);
+}
+
+void MidiHandler::delSynth(quint32 clientId)
+{
+    fluid_settings_t* fluidSettings=fluid_synth_get_settings(midiout[clientId]);
+    delete_fluid_audio_driver(soundout[clientId]);
+    delete_fluid_settings(fluidSettings);
+    delete_fluid_synth(midiout[clientId]);
+
+    soundout.remove(clientId);
+    midiout.remove(clientId);
 }

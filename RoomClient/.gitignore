@@ -9,3 +9,4 @@ moc_*.cpp
 ui_*.h
 
 rtmidi[WL]*
+fluidsynth[WL]*
