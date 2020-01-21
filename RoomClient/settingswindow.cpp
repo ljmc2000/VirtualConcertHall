@@ -3,6 +3,7 @@
 #include <iostream>
 #include <QObject>
 #include <QPushButton>
+#include <QFileDialog>
 
 using namespace OnlineStatusNamespace;
 
@@ -25,8 +26,8 @@ SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
     connect(ui->midiInputSelector, SIGNAL(currentIndexChanged(int)),
             this, SLOT(setMidiInPort()));
 
-    connect(ui->midiOutputSelector, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(setMidiOutPort()));
+    connect(ui->pickSfButton, SIGNAL(clicked()),
+            this, SLOT(setSoundFont()));
 }
 
 SettingsWindow::~SettingsWindow()
@@ -37,7 +38,6 @@ SettingsWindow::~SettingsWindow()
 void SettingsWindow::setMidiPortsList()
 {
     ui->midiInputSelector->clear();
-    ui->midiOutputSelector->clear();
 
     int inport=prefs.value("midiInPort").toInt(),outport=prefs.value("midiOutPort").toInt();
 
@@ -50,11 +50,6 @@ void SettingsWindow::setMidiPortsList()
         ui->midiInputSelector->addItem(midiin.getPortName(i).c_str());
     }
 
-    for(unsigned int i=0; i<midiout.getPortCount(); i++)
-    {
-        ui->midiOutputSelector->addItem(midiout.getPortName(i).c_str());
-    }
-
     QMetaEnum e = QMetaEnum::fromType<InstrumentType>();
     for(int i=0; i<e.keyCount(); i++)
     {
@@ -62,7 +57,6 @@ void SettingsWindow::setMidiPortsList()
     }
 
     ui->midiInputSelector->setCurrentIndex(prefs.value("midiInPort").toInt());
-    ui->midiOutputSelector->setCurrentIndex(prefs.value("midiOutPort").toInt());
     ui->instrumentTypeBox->setCurrentIndex(prefs.value("instrumentType").toInt());
 }
 
@@ -85,12 +79,10 @@ void SettingsWindow::setMidiInPort()
     midiin.openPort(port);
 }
 
-void SettingsWindow::setMidiOutPort()
+void SettingsWindow::setSoundFont()
 {
-    int port=ui->midiOutputSelector->currentIndex();
-    prefs.setValue("midiOutPort",port);
-    midiout.closePort();
-    midiout.openPort(port);
+    QString filename = QFileDialog::getOpenFileName(this, "Select Sound Font", "", "Sound font 2 files (*.sf2)");
+    prefs.setValue("soundfont",filename);
 }
 
 void SettingsWindow::setInstrumentType()

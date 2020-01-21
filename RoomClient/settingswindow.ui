@@ -39,16 +39,6 @@
        <string>Back</string>
       </property>
      </widget>
-     <widget class="QComboBox" name="midiOutputSelector">
-      <property name="geometry">
-       <rect>
-        <x>220</x>
-        <y>90</y>
-        <width>136</width>
-        <height>41</height>
-       </rect>
-      </property>
-     </widget>
      <widget class="QLabel" name="midiInputLabel">
       <property name="geometry">
        <rect>
@@ -60,19 +50,6 @@
       </property>
       <property name="text">
        <string>Midi Input</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="midiOutputLabel">
-      <property name="geometry">
-       <rect>
-        <x>50</x>
-        <y>90</y>
-        <width>171</width>
-        <height>41</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Midi Output</string>
       </property>
      </widget>
      <widget class="QLabel" name="signinLabel">
@@ -105,7 +82,7 @@
       <property name="geometry">
        <rect>
         <x>40</x>
-        <y>140</y>
+        <y>100</y>
         <width>161</width>
         <height>25</height>
        </rect>
@@ -118,10 +95,36 @@
       <property name="geometry">
        <rect>
         <x>220</x>
-        <y>130</y>
+        <y>90</y>
         <width>131</width>
         <height>43</height>
        </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="soundFontLabel">
+      <property name="geometry">
+       <rect>
+        <x>50</x>
+        <y>140</y>
+        <width>131</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Sound Font</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pickSfButton">
+      <property name="geometry">
+       <rect>
+        <x>220</x>
+        <y>140</y>
+        <width>133</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Select</string>
       </property>
      </widget>
     </widget>

@@ -28,7 +28,7 @@ public:
 
 public slots:
     void setMidiInPort();
-    void setMidiOutPort();
+    void setSoundFont();
     void setInstrumentType();
     void logout();
     void refreshUsername();
