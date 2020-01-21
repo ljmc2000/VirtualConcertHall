@@ -81,13 +81,5 @@ INCLUDEPATH += $$PWD/rtmidi
 DEPENDPATH += $$PWD/rtmidi
 
 #fluidsynth
-win32:LIBS += -L$$PWD/fluidsynthWindows/ -lfluidsynth -ldsound
-else:unix: LIBS += -L$$PWD/fluidsynthLinux/ -lfluidsynth
-
-
-win32:INCLUDEPATH += $$PWD/fluidsynthWindows/include/
-else:unix:INCLUDEPATH += $$PWD/fluidsynthLinux/include/
-win32:DEPENDPATH += $$PWD/fluidsynthWindows/include/
-else:unix:DEPENDPATH += $$PWD/fluidsynthLinux/include/
-INCLUDEPATH += $$PWD/fluidsynth/include
-DEPENDPATH += $$PWD/fluidsynth/include
+win32:LIBS += -L$$MXE_PREFIX/include/ -lfluidsynth -ldsound
+else:unix: LIBS += -lfluidsynth

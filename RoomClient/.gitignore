@@ -1,7 +1,8 @@
 Client
-Makefile
+Makefile*
 .qmake.stash
 Client.pro.user
+client_plugin_import.cpp
 
 *.o
 moc_predefs.h
@@ -9,4 +10,6 @@ moc_*.cpp
 ui_*.h
 
 rtmidi[WL]*
-fluidsynth[WL]*
+
+release
+dsound.dll

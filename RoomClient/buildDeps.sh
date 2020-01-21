@@ -2,7 +2,7 @@ unset CFLAGS CXXFLAGS
 PATH=$PATH:$HOME/.local/share/mxe/usr/bin/:$HOME/.local/share/mxe/usr/x86_64-w64-mingw32.static/bin/
 mkdir rtmidiWindows rtmidiLinux fluidsynthWindows fluidsynthLinux
 
-for module in 'rtmidi' 'fluidsynth'
+for module in 'rtmidi'
 do
 	cd $module'Windows'
 	~/.local/share/mxe/usr/bin/x86_64-w64-mingw32.static-cmake ../$module

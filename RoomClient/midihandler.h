@@ -2,7 +2,7 @@
 #define MIDIHANDLER_H
 
 #include <RtMidi.h>
-#include <fluidsynthWindows/include/fluidsynth.h>
+#include <fluidsynth.h>
 
 #include <QtGlobal>
 #include <QUdpSocket>
@@ -14,7 +14,6 @@
 
 #ifdef Q_OS_WIN
 #define AUDIODRIVER "dsound"
-#include <dsound.h>
 #endif
 
 #ifdef Q_OS_LINUX
