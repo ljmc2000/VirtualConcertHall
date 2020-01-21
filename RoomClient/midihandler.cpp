@@ -254,11 +254,14 @@ void MidiHandler::iterateServertime()
 
 void MidiHandler::addSynth(quint32 clientId)
 {
-    fluid_settings_t* fluidSettings=new_fluid_settings();
-    fluid_settings_setstr(fluidSettings,"audio.driver",AUDIODRIVER);
-    midiout[clientId]=new_fluid_synth(fluidSettings);
-    fluid_synth_sfload(midiout[clientId],soundfont.toUtf8().constData(),true);
-    soundout[clientId]=new_fluid_audio_driver(fluidSettings,midiout[clientId]);
+    if(!midiout.contains(clientId))
+    {
+        fluid_settings_t* fluidSettings=new_fluid_settings();
+        fluid_settings_setstr(fluidSettings,"audio.driver",AUDIODRIVER);
+        midiout[clientId]=new_fluid_synth(fluidSettings);
+        fluid_synth_sfload(midiout[clientId],soundfont.toUtf8().constData(),true);
+        soundout[clientId]=new_fluid_audio_driver(fluidSettings,midiout[clientId]);
+    }
 }
 
 void MidiHandler::delSynth(quint32 clientId)
