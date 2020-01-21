@@ -105,9 +105,9 @@ void PlayScreen::removeInstrumentView(quint32 clientId)
 
 void PlayScreen::handleMidiPacket(quint32 clientId, quint8* message)
 {
-    switch(message[0])
+    if(message[2]!=0) switch(message[0]>>4)
     {
-    case 144:
+    case 0b1001:
         instrumentViews[clientId]->playNote(message[1]);
     }
 }

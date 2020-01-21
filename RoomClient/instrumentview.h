@@ -6,16 +6,29 @@
 #include <QSvgRenderer>
 #include <QPainter>
 #include <QIcon>
+#include <QTimer>
 #include "roomcommon.h"
 
-#define VIEWWIDTH 250
-#define VIEWHEIGHT 300
+#define TIMEOUT 4000
+
 
 using namespace RoomCommon;
 
 namespace Ui {
 class InstrumentView;
 }
+
+struct PianoKey
+{
+    QRectF dim;
+    QColor color;
+};
+
+struct Note
+{
+    quint16 age=0;
+    quint8 note;
+};
 
 class InstrumentView : public QOpenGLWidget
 {
@@ -25,23 +38,25 @@ public:
     explicit InstrumentView(QWidget *parent = nullptr);
     ~InstrumentView();
 
-    void fromPiano(quint8 minNote, quint8 maxNote);
+    void fromPiano(quint8 minNote, quint8 maxNote),fromPiano();
 
 public slots:
     void playNote(quint8 note);
 
 protected:
-    void paintEvent(QPaintEvent *e);
+    void paintGL();
     void initializeGL();
+    void resizeGL(int w, int h);
 
 private:
     Ui::InstrumentView *ui;
     QPainter painter;
-    QSvgRenderer instrumentRenderer,noteRenderer;
+    QSvgRenderer noteRenderer;
+    QHash<quint8,PianoKey> keys;
+    QTimer screenUpdateTimer;
 
-    QHash<quint8,QPointF> noteSource;
-    QList<QPointF> notes;
-    QSizeF noteSize;
+    QList<Note> notes;
+    quint8 minNote,maxNote;
 };
 
 #endif // INSTRUMENTVIEW_H
