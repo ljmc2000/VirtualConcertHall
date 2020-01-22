@@ -14,6 +14,7 @@ MidiHandler::MidiHandler(quint32 secretId, QString address, quint16 port, QObjec
     midiin.setClientName("VirtualConcertHallClient");
 
     soundfont=prefs.value("soundfont").toString();
+    audioDriver=prefs.value("audioDriver").toString();
 
     loadInstrumentConfig(&prefs);
 
@@ -257,7 +258,7 @@ void MidiHandler::addSynth(quint32 clientId)
     if(!midiout.contains(clientId))
     {
         fluid_settings_t* fluidSettings=new_fluid_settings();
-        fluid_settings_setstr(fluidSettings,"audio.driver",AUDIODRIVER);
+        fluid_settings_setstr(fluidSettings,"audio.driver",audioDriver.toUtf8().constData());
         midiout[clientId]=new_fluid_synth(fluidSettings);
         fluid_synth_sfload(midiout[clientId],soundfont.toUtf8().constData(),true);
         soundout[clientId]=new_fluid_audio_driver(fluidSettings,midiout[clientId]);

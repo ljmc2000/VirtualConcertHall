@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QPushButton>
 #include <QFileDialog>
+#include "fluidsynth.h"
 
 using namespace OnlineStatusNamespace;
 
@@ -18,6 +19,11 @@ SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
     renderInstrument();
 
     setMidiPortsList();
+
+    fluid_settings_t *settings=new_fluid_settings();
+    fluid_settings_foreach_option(settings,"audio.driver",this,&SettingsWindow::setDriverList);
+    delete_fluid_settings(settings);
+
     refreshUsername();
 
     connect(ui->backButton, &QPushButton::clicked,
@@ -28,6 +34,9 @@ SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
 
     connect(ui->pickSfButton, SIGNAL(clicked()),
             this, SLOT(setSoundFont()));
+
+    connect(ui->audioDriverBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(setAudioDriver()));
 }
 
 SettingsWindow::~SettingsWindow()
@@ -92,6 +101,11 @@ void SettingsWindow::setInstrumentType()
     this->instrumentType=(InstrumentType)instrument;
 }
 
+void SettingsWindow::setAudioDriver()
+{
+    prefs.setValue("audioDriver",ui->audioDriverBox->currentText());
+}
+
 void SettingsWindow::logout()
 {
     prefs.remove("loginToken");
@@ -139,4 +153,10 @@ void SettingsWindow::midiHandler(double timeStamp, std::vector<unsigned char> *m
     }
 
     self->renderInstrument();
+}
+
+void SettingsWindow::setDriverList(void *data, const char *name, const char* type)
+{
+    SettingsWindow *self=(SettingsWindow*)data;
+    self->ui->audioDriverBox->addItem(type);
 }

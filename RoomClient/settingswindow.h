@@ -29,6 +29,7 @@ public:
 public slots:
     void setMidiInPort();
     void setSoundFont();
+    void setAudioDriver();
     void setInstrumentType();
     void logout();
     void refreshUsername();
@@ -52,6 +53,7 @@ private:
 private: //methods
     void setMidiPortsList();
     void renderInstrument();
+    static void setDriverList(void *data, const char *name, const char* type);
 };
 
 #endif // SETTINGSWINDOW_H

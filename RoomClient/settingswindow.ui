@@ -56,7 +56,7 @@
       <property name="geometry">
        <rect>
         <x>50</x>
-        <y>220</y>
+        <y>280</y>
         <width>161</width>
         <height>25</height>
        </rect>
@@ -69,7 +69,7 @@
       <property name="geometry">
        <rect>
         <x>241</x>
-        <y>210</y>
+        <y>270</y>
         <width>90</width>
         <height>40</height>
        </rect>
@@ -125,6 +125,29 @@
       </property>
       <property name="text">
        <string>Select</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="audioDriverLabel">
+      <property name="geometry">
+       <rect>
+        <x>39</x>
+        <y>190</y>
+        <width>131</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Audio Driver</string>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="audioDriverBox">
+      <property name="geometry">
+       <rect>
+        <x>220</x>
+        <y>180</y>
+        <width>131</width>
+        <height>43</height>
+       </rect>
       </property>
      </widget>
     </widget>

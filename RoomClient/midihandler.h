@@ -12,14 +12,6 @@
 #include <QSettings>
 #include "roomcommon.h"
 
-#ifdef Q_OS_WIN
-#define AUDIODRIVER "dsound"
-#endif
-
-#ifdef Q_OS_LINUX
-#define AUDIODRIVER "pulseaudio"
-#endif
-
 
 using namespace RoomCommon;
 
@@ -63,6 +55,8 @@ private:
     QHostAddress serverHost;
     quint16 serverPort;
     QString soundfont;
+    QString audioDriver;
+
     qint64 timestamp;
     quint32 clientId=-1,secretId;
     quint8 reconnectAttempts=MAXCONNECTATTEMPTS;
