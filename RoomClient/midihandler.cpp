@@ -17,6 +17,7 @@ MidiHandler::MidiHandler(quint32 secretId, QString address, quint16 port, QObjec
     audioDriver=prefs.value("audioDriver").toString();
 
     loadInstrumentConfig(&prefs);
+    addSynth();
 
     serverTimeIterator.setInterval(SERVERTIMEUPDATEINTERVAL);
     connect(
@@ -43,10 +44,8 @@ MidiHandler::~MidiHandler()
 {
     disconnectFromServer();
 
-    for(quint32 clientId: midiout.keys())
-    {
-        delSynth(clientId);
-    }
+
+    deleteAllSynth();
 
     reconnectClock.stop();
     midiin.closePort();
@@ -144,7 +143,7 @@ void MidiHandler::handleDataFromServer()
             {
                 DisablePacket *disablePacket=(DisablePacket*) data.constData();
                 qDebug() << "player" << disablePacket->clientId << "has gone dormant";
-                addSynth(disablePacket->clientId);
+                delChannel(disablePacket->clientId);
                 emit playerLeave(disablePacket->clientId);
                 break;
             }
@@ -153,7 +152,7 @@ void MidiHandler::handleDataFromServer()
             {
                 EnablePacket *enablePacket=(EnablePacket*) data.constData();
                 qDebug() << "player" << enablePacket->clientId << "has awoken";
-                addSynth(enablePacket->clientId);
+                addChannel(enablePacket->clientId);
                 emit playerJoin(enablePacket->clientId, enablePacket->instrument, enablePacket->instrumentArgs);
                 break;
             }
@@ -174,10 +173,12 @@ void MidiHandler::handleDataFromServer()
 
 void MidiHandler::handleMidiFromServer(quint32 clientId, qint64 timestamp, quint8 *midiMessage)
 {
-    fluid_synth_t* synth=midiout[clientId];
-    quint8 channel=midiMessage[0]%16;
+    quint8 channelMapping=channelMap[clientId];
+    fluid_synth_t *synth=midiout[channelMapping>>4];
+    quint16 channel=((channelMapping%16)<<4)+midiMessage[0]%16;
+    qDebug() << channel;
 
-    if(synth != nullptr) switch(midiMessage[0]>>4)
+    switch(midiMessage[0]>>4)
     {
     case 0b1000:    //note off event
         fluid_synth_noteoff(synth,channel,midiMessage[1]);
@@ -215,10 +216,6 @@ void MidiHandler::handleMidiFromServer(quint32 clientId, qint64 timestamp, quint
         break;
     }
 
-    else
-    {
-        qDebug() << "synthesiser error";
-    }
 
     QString m;
     for(unsigned int i=0; i<MIDIMESSAGESIZE; i++) m.append(QString::number(midiMessage[i])+":");
@@ -253,25 +250,95 @@ void MidiHandler::iterateServertime()
     timestamp+=SERVERTIMEUPDATEINTERVAL;
 }
 
-void MidiHandler::addSynth(quint32 clientId)
+void MidiHandler::addSynth()
 {
-    if(!midiout.contains(clientId))
+    fluid_audio_driver_t* driver;
+    fluid_synth_t* synth;
+    fluid_settings_t* fluidSettings=new_fluid_settings();
+
+    fluid_settings_setstr(fluidSettings,"audio.driver",audioDriver.toUtf8().constData());
+    fluid_settings_setint(fluidSettings,"synth.midi-channels",256);
+    synth=new_fluid_synth(fluidSettings);
+    driver=new_fluid_audio_driver(fluidSettings,synth);
+    fluid_synth_sfload(synth,soundfont.toUtf8().constData(),true);
+
+    midiout.append(synth);
+    soundout.append(driver);
+}
+
+void MidiHandler::deleteSynth()
+{
+    int synthIndex=midiout.size()-1;
+    fluid_audio_driver_t* driver=soundout.last();
+    fluid_synth_t* synth=midiout.last();
+    fluid_settings_t* fluidSettings=fluid_synth_get_settings(synth);
+
+    int SIZE=16*midiout.size();
+    QHash<quint8,quint8> freeChannels; for(int i=0; i<SIZE; i++) freeChannels[i]=i;
+    QList<quint32> orpheans;
+    for(QHash<quint32,quint8>::iterator it=channelMap.begin(); it!=channelMap.end(); it++)
     {
-        fluid_settings_t* fluidSettings=new_fluid_settings();
-        fluid_settings_setstr(fluidSettings,"audio.driver",audioDriver.toUtf8().constData());
-        midiout[clientId]=new_fluid_synth(fluidSettings);
-        fluid_synth_sfload(midiout[clientId],soundfont.toUtf8().constData(),true);
-        soundout[clientId]=new_fluid_audio_driver(fluidSettings,midiout[clientId]);
+        if(it.value()>=SIZE)
+            orpheans.append(it.key());
+        else
+            freeChannels.remove(it.value());
+    }
+
+    if(orpheans.size()>freeChannels.size())
+    {
+        qDebug() << "Cannot shrink synth pool: too many orpheans created";
+    }
+
+    else
+    {
+        int i=0;
+        for(quint8 channel: freeChannels)
+        {
+            channelMap[orpheans[i]]=channel;
+            i++;
+        }
+
+        delete_fluid_audio_driver(driver);
+        delete_fluid_synth(synth);
+        delete_fluid_settings(fluidSettings);
     }
 }
 
-void MidiHandler::delSynth(quint32 clientId)
+void MidiHandler::deleteAllSynth()
 {
-    fluid_settings_t* fluidSettings=fluid_synth_get_settings(midiout[clientId]);
-    delete_fluid_audio_driver(soundout[clientId]);
-    delete_fluid_settings(fluidSettings);
-    delete_fluid_synth(midiout[clientId]);
+    for(fluid_audio_driver_t* driver: soundout)
+        delete_fluid_audio_driver(driver);
+    for(fluid_synth_t* synth: midiout)
+    {
+        fluid_settings_t* settings=fluid_synth_get_settings(synth);
+        delete_fluid_synth(synth);
+        delete_fluid_settings(settings);
+    }
+}
 
-    soundout.remove(clientId);
-    midiout.remove(clientId);
+void MidiHandler::addChannel(quint32 clientId)
+{
+    if(!channelMap.contains(clientId))
+    {
+        int SIZE=16*midiout.size();
+        QHash<quint8,quint8> freeChannels; for(int i=0; i<SIZE; i++) freeChannels[i]=i;
+        for(quint8 channel: channelMap)
+            freeChannels.remove(channel);
+
+        if(freeChannels.size()==0)
+        {
+            addSynth();
+            channelMap[clientId]=SIZE;
+        }
+
+        else
+        {
+            channelMap[clientId]=freeChannels.begin().key();
+        }
+    }
+}
+
+void MidiHandler::delChannel(quint32 clientId)
+{
+    channelMap.remove(clientId);
 }

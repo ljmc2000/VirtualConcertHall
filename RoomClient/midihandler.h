@@ -41,12 +41,14 @@ private:    //methods
     void disconnectFromServer();
     void loadInstrumentConfig(QSettings *prefs);
 
-    void addSynth(quint32 clientId),delSynth(quint32 clientId);
+    void addSynth(), deleteSynth(), deleteAllSynth();
+    void addChannel(quint32 clientId),delChannel(quint32 clientId);
 
 private:
     RtMidiIn midiin;
-    QHash<quint32,fluid_synth_t*> midiout;
-    QHash<quint32,fluid_audio_driver_t*> soundout;
+    QList<fluid_synth_t*> midiout;
+    QList<fluid_audio_driver_t*> soundout;
+    QHash<quint32,quint8> channelMap;
 
     QUdpSocket qSocket;
     QTimer reconnectClock;
