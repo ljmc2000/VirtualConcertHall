@@ -174,9 +174,8 @@ void MidiHandler::handleDataFromServer()
 void MidiHandler::handleMidiFromServer(quint32 clientId, qint64 timestamp, quint8 *midiMessage)
 {
     quint8 channelMapping=channelMap[clientId];
+    quint8 channel=((channelMapping%16)<<4)+midiMessage[0]%16;
     fluid_synth_t *synth=midiout[channelMapping>>4];
-    quint16 channel=((channelMapping%16)<<4)+midiMessage[0]%16;
-    qDebug() << channel;
 
     switch(midiMessage[0]>>4)
     {
@@ -219,7 +218,7 @@ void MidiHandler::handleMidiFromServer(quint32 clientId, qint64 timestamp, quint
 
     QString m;
     for(unsigned int i=0; i<MIDIMESSAGESIZE; i++) m.append(QString::number(midiMessage[i])+":");
-    qDebug() << clientId << m << this->timestamp-timestamp<<"ms";
+    qDebug() << clientId << m << channel << this->timestamp-timestamp<<"ms";
 }
 
 void MidiHandler::attemptConnect()
@@ -274,34 +273,31 @@ void MidiHandler::deleteSynth()
     fluid_settings_t* fluidSettings=fluid_synth_get_settings(synth);
 
     int SIZE=16*midiout.size();
-    QHash<quint8,quint8> freeChannels; for(int i=0; i<SIZE; i++) freeChannels[i]=i;
-    QList<quint32> orpheans;
-    for(QHash<quint32,quint8>::iterator it=channelMap.begin(); it!=channelMap.end(); it++)
+    for(int i=SIZE; i<16; i++)
     {
-        if(it.value()>=SIZE)
-            orpheans.append(it.key());
-        else
-            freeChannels.remove(it.value());
-    }
-
-    if(orpheans.size()>freeChannels.size())
-    {
-        qDebug() << "Cannot shrink synth pool: too many orpheans created";
-    }
-
-    else
-    {
-        int i=0;
-        for(quint8 channel: freeChannels)
+        if(reverseChannelMap.contains(i))
         {
-            channelMap[orpheans[i]]=channel;
-            i++;
-        }
+            for(int j=0; i<SIZE; i++)
+            {
+                if(!reverseChannelMap.contains(j))
+                {
+                    reverseChannelMap[j]=reverseChannelMap[i];
+                    channelMap[reverseChannelMap[j]]=channelMap[reverseChannelMap[i]];
+                    reverseChannelMap.remove(i);
+                    channelMap.remove(i);
 
-        delete_fluid_audio_driver(driver);
-        delete_fluid_synth(synth);
-        delete_fluid_settings(fluidSettings);
+                    break;
+                }
+            }
+
+            qDebug() << "Cannot shrink synth pool: too many orpheans created";
+            return;
+        }
     }
+
+    delete_fluid_audio_driver(driver);
+    delete_fluid_synth(synth);
+    delete_fluid_settings(fluidSettings);
 }
 
 void MidiHandler::deleteAllSynth()
@@ -321,24 +317,26 @@ void MidiHandler::addChannel(quint32 clientId)
     if(!channelMap.contains(clientId))
     {
         int SIZE=16*midiout.size();
-        QHash<quint8,quint8> freeChannels; for(int i=0; i<SIZE; i++) freeChannels[i]=i;
-        for(quint8 channel: channelMap)
-            freeChannels.remove(channel);
 
-        if(freeChannels.size()==0)
+        for(int i=0; i<SIZE; i++)
         {
-            addSynth();
-            channelMap[clientId]=SIZE;
+            if(!reverseChannelMap.contains(i))
+            {
+                channelMap[clientId]=i;
+                reverseChannelMap[i]=clientId;
+
+                return;
+            }
         }
 
-        else
-        {
-            channelMap[clientId]=freeChannels.begin().key();
-        }
+        addSynth();
+        channelMap[clientId]=SIZE;
+        reverseChannelMap[SIZE]=clientId;
     }
 }
 
 void MidiHandler::delChannel(quint32 clientId)
 {
+    reverseChannelMap.remove(channelMap[clientId]);
     channelMap.remove(clientId);
 }

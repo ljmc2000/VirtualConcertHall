@@ -49,6 +49,7 @@ private:
     QList<fluid_synth_t*> midiout;
     QList<fluid_audio_driver_t*> soundout;
     QHash<quint32,quint8> channelMap;
+    QHash<quint8,quint32> reverseChannelMap;
 
     QUdpSocket qSocket;
     QTimer reconnectClock;
