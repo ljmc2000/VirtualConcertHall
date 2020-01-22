@@ -25,7 +25,7 @@ void LoginWindow::login()
     QString username = ui->usernameBox->text();
     QString password = ui->passwordBox->text();
 
-    if(httpApiClient->signin(username,password)) emit switchScreen(MAINMENU);
+    if(httpApiClient->signin(username,password)) emit switchScreen(SETTINGS);
 }
 
 void LoginWindow::handleError(QString error)

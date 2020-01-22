@@ -25,6 +25,7 @@ public:
     ~SettingsWindow();
 
     static void midiHandler( double timeStamp, std::vector<unsigned char> *message, void *userData );
+    void setDefaults();
 
 public slots:
     void setMidiInPort();

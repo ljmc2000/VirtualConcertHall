@@ -14,6 +14,7 @@ SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
 {
     ui->setupUi(this);
     this->httpApiClient=httpApiClient;
+    if(prefs.value("midiInPort").isNull()) setDefaults();
 
     instrumentType=(InstrumentType)prefs.value("instrumentType").toInt();
     renderInstrument();
@@ -160,4 +161,17 @@ void SettingsWindow::setDriverList(void *data, const char *name, const char* typ
 {
     SettingsWindow *self=(SettingsWindow*)data;
     self->ui->audioDriverBox->addItem(type);
+}
+
+void SettingsWindow::setDefaults()
+{
+    ui->audioDriverBox->setCurrentIndex(0);
+    ui->instrumentTypeBox->setCurrentIndex(0);
+    ui->audioDriverBox->setCurrentIndex(0);
+
+    prefs.setValue("midiInPort", 0);
+    prefs.setValue("instrumentType",PIANO);
+    prefs.setValue("audioDriver",ui->audioDriverBox->currentText());
+    prefs.setValue("minNote",0);
+    prefs.setValue("maxNote",127);
 }
