@@ -23,6 +23,7 @@ SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
     fluid_settings_t *settings=new_fluid_settings();
     fluid_settings_foreach_option(settings,"audio.driver",this,&SettingsWindow::setDriverList);
     delete_fluid_settings(settings);
+    ui->audioDriverBox->setCurrentText(prefs.value("audioDriver").toString());
 
     refreshUsername();
 
