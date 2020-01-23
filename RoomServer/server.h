@@ -1,17 +1,17 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#define GETTIME() QDateTime::currentDateTime().toMSecsSinceEpoch()
-
-#include <QObject>
-#include <QUdpSocket>
-#include <QNetworkDatagram>
-#include <QTimer>
-#include <QDateTime>
 #include <QCoreApplication>
+#include <QDateTime>
+#include <QNetworkDatagram>
+#include <QObject>
+#include <QTimer>
+#include <QUdpSocket>
 
-#include "roomcommon.h"
 #include "httpapiclient.h"
+#include "roomcommon.h"
+
+#define GETTIME() QDateTime::currentDateTime().toMSecsSinceEpoch()
 
 using namespace RoomCommon;
 
