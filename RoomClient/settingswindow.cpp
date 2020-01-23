@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QPushButton>
 #include <QFileDialog>
-#include "fluidsynth.h"
 
 using namespace OnlineStatusNamespace;
 
@@ -26,6 +25,10 @@ SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
     delete_fluid_settings(settings);
     ui->audioDriverBox->setCurrentText(prefs.value("audioDriver").toString());
 
+    ui->pickSfButton->setText(prefs.value("soundfont").toString());
+
+    initSynth();
+
     refreshUsername();
 
     connect(ui->backButton, &QPushButton::clicked,
@@ -43,6 +46,7 @@ SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
 
 SettingsWindow::~SettingsWindow()
 {
+    closeSynth();
     delete ui;
 }
 
@@ -50,11 +54,10 @@ void SettingsWindow::setMidiPortsList()
 {
     ui->midiInputSelector->clear();
 
-    int inport=prefs.value("midiInPort").toInt(),outport=prefs.value("midiOutPort").toInt();
+    int inport=prefs.value("midiInPort").toInt();
 
     midiin.openPort(inport<midiin.getPortCount() ? inport:0);
     midiin.setCallback(midiHandler,this);
-    midiout.openPort(outport<midiin.getPortCount() ? outport:0);
 
     for(unsigned int i=0; i<midiin.getPortCount(); i++)
     {
@@ -93,7 +96,11 @@ void SettingsWindow::setMidiInPort()
 void SettingsWindow::setSoundFont()
 {
     QString filename = QFileDialog::getOpenFileName(this, "Select Sound Font", "", "Sound font 2 files (*.sf2)");
-    prefs.setValue("soundfont",filename);
+    if(filename.size()!=0)
+    {
+        prefs.setValue("soundfont",filename);
+        fluid_synth_sfload(midiout,filename.toUtf8().constData(),true);
+    }
 }
 
 void SettingsWindow::setInstrumentType()
@@ -106,6 +113,8 @@ void SettingsWindow::setInstrumentType()
 void SettingsWindow::setAudioDriver()
 {
     prefs.setValue("audioDriver",ui->audioDriverBox->currentText());
+    closeSynth();
+    initSynth();
 }
 
 void SettingsWindow::logout()
@@ -136,25 +145,55 @@ void SettingsWindow::refreshUsername()
 void SettingsWindow::midiHandler(double timeStamp, std::vector<unsigned char> *message, void *userData)
 {
     SettingsWindow *self = static_cast<SettingsWindow*>(userData);
+    bool change=false;
+    int note=message->at(1);
 
     switch(message->at(0))
     {
         case 144:
-            int note=message->at(1);
+        {
             if(note<self->minNote)
             {
+                change=true;
                 self->minNote=note;
                 self->prefs.setValue("minNote",note);
             }
             if(note>self->maxNote)
             {
+                change=true;
                 self->maxNote=note;
                 self->prefs.setValue("maxNote",note);
             }
+
+            if(message->at(2)!=0)self->ui->instrumentView->playNote(note);
+            fluid_synth_noteon(self->midiout,0,note,message->at(2));
+            break;
+        }
+
+        case 128:
+            fluid_synth_noteoff(self->midiout,0,note);
             break;
     }
 
-    self->renderInstrument();
+    if(change) self->renderInstrument();
+}
+
+void SettingsWindow::initSynth()
+{
+    QString filename=prefs.value("soundfont").toString();
+    fluid_settings_t *settings = new_fluid_settings();
+    fluid_settings_setstr(settings, "audio.driver", ui->audioDriverBox->currentText().toUtf8().constData());
+    midiout=new_fluid_synth(settings);
+    soundout=new_fluid_audio_driver(settings,midiout);
+    if(filename.size()!=0) fluid_synth_sfload(midiout,filename.toUtf8().constData(),true);
+}
+
+void SettingsWindow::closeSynth()
+{
+    fluid_settings_t *settings = fluid_synth_get_settings(midiout);
+    delete_fluid_audio_driver(soundout);
+    delete_fluid_synth(midiout);
+    delete_fluid_settings(settings);
 }
 
 void SettingsWindow::setDriverList(void *data, const char *name, const char* type)

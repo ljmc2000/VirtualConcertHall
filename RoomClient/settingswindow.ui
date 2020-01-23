@@ -62,7 +62,7 @@
        </rect>
       </property>
       <property name="text">
-       <string/>
+       <string>Signed in as</string>
       </property>
      </widget>
      <widget class="QPushButton" name="signinButton">
@@ -75,7 +75,7 @@
        </rect>
       </property>
       <property name="text">
-       <string/>
+       <string>Sign out</string>
       </property>
      </widget>
      <widget class="QLabel" name="instrumentTypeLabel">
@@ -105,7 +105,7 @@
       <property name="geometry">
        <rect>
         <x>50</x>
-        <y>140</y>
+        <y>180</y>
         <width>131</width>
         <height>41</height>
        </rect>
@@ -118,7 +118,7 @@
       <property name="geometry">
        <rect>
         <x>220</x>
-        <y>140</y>
+        <y>180</y>
         <width>133</width>
         <height>41</height>
        </rect>
@@ -131,7 +131,7 @@
       <property name="geometry">
        <rect>
         <x>39</x>
-        <y>190</y>
+        <y>140</y>
         <width>131</width>
         <height>25</height>
        </rect>
@@ -144,7 +144,7 @@
       <property name="geometry">
        <rect>
         <x>220</x>
-        <y>180</y>
+        <y>130</y>
         <width>131</width>
         <height>43</height>
        </rect>

@@ -1,10 +1,12 @@
 #ifndef SETTINGSWINDOW_H
 #define SETTINGSWINDOW_H
 
+#include <RtMidi.h>
+#include <fluidsynth.h>
+
 #include <QWidget>
 #include <QSettings>
 
-#include <RtMidi.h>
 #include "httpapiclient.h"
 #include "instrumentview.h"
 #include "basescreen.h"
@@ -24,9 +26,6 @@ public:
     explicit SettingsWindow(HttpAPIClient *httpApiClient,QWidget *parent = nullptr);
     ~SettingsWindow();
 
-    static void midiHandler( double timeStamp, std::vector<unsigned char> *message, void *userData );
-    void setDefaults();
-
 public slots:
     void setMidiInPort();
     void setSoundFont();
@@ -44,7 +43,8 @@ private:
     QSettings prefs;
 
     RtMidiIn midiin;
-    RtMidiOut midiout;
+    fluid_synth_t *midiout;
+    fluid_audio_driver_t *soundout;
 
     int maxNote=0, minNote=127;
     InstrumentType instrumentType;
@@ -52,9 +52,12 @@ private:
     HttpAPIClient *httpApiClient;
 
 private: //methods
+    void setDefaults();
     void setMidiPortsList();
     void renderInstrument();
+    void initSynth(), closeSynth();
     static void setDriverList(void *data, const char *name, const char* type);
+    static void midiHandler( double timeStamp, std::vector<unsigned char> *message, void *userData );
 };
 
 #endif // SETTINGSWINDOW_H
