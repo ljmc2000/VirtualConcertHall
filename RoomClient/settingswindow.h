@@ -1,15 +1,15 @@
 #ifndef SETTINGSWINDOW_H
 #define SETTINGSWINDOW_H
 
-#include <RtMidi.h>
-#include <fluidsynth.h>
-
 #include <QWidget>
 #include <QSettings>
 
+#include <RtMidi.h>
+#include <fluidsynth.h>
+
+#include "basescreen.h"
 #include "httpapiclient.h"
 #include "instrumentview.h"
-#include "basescreen.h"
 #include "onlinestatusnamespace.h"
 
 using namespace OnlineStatusNamespace;

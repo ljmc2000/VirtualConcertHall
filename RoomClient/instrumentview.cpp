@@ -1,5 +1,6 @@
 #include "instrumentview.h"
 #include "ui_instrumentview.h"
+
 #include <QDebug>
 #include <QOpenGLFunctions>
 

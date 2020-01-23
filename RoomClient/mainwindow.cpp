@@ -1,12 +1,13 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "loginwindow.h"
 #include "mainmenu.h"
 #include "playscreen.h"
-#include "settingswindow.h"
-#include "loginwindow.h"
 #include "roombrowser.h"
 #include "roomcreator.h"
+#include "settingswindow.h"
+
 #include "onlinestatusnamespace.h"
 
 using namespace OnlineStatusNamespace;

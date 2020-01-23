@@ -1,13 +1,13 @@
 #ifndef HTTPAPICLIENT_H
 #define HTTPAPICLIENT_H
 
-#include <QObject>
-#include <QSettings>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonArray>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QObject>
+#include <QSettings>
 
 #define ROOMINFOATTRCOUNT 5
 

@@ -1,12 +1,13 @@
 #ifndef INSTRUMENTVIEW_H
 #define INSTRUMENTVIEW_H
 
+#include <QIcon>
+#include <QPainter>
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 #include <QSvgRenderer>
-#include <QPainter>
-#include <QIcon>
 #include <QTimer>
+
 #include "roomcommon.h"
 
 #define TIMEOUT 4000

@@ -1,10 +1,11 @@
 #ifndef ROOMBROWSER_H
 #define ROOMBROWSER_H
 
-#include <QWidget>
 #include <QTableWidgetItem>
-#include "httpapiclient.h"
+#include <QWidget>
+
 #include "basescreen.h"
+#include "httpapiclient.h"
 
 #define PERPAGE 10
 

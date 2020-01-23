@@ -1,8 +1,8 @@
 #include "roombrowser.h"
 #include "ui_roombrowser.h"
 
-#include <QPushButton>
 #include <QInputDialog>
+#include <QPushButton>
 
 RoomBrowser::RoomBrowser(HttpAPIClient *httpApiClient, QWidget *parent) :
     QWidget(parent),

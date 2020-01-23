@@ -1,15 +1,15 @@
 #ifndef MIDIHANDLER_H
 #define MIDIHANDLER_H
 
+#include <QNetworkDatagram>
+#include <QSettings>
+#include <QtGlobal>
+#include <QTimer>
+#include <QUdpSocket>
+
 #include <RtMidi.h>
 #include <fluidsynth.h>
 
-#include <QtGlobal>
-#include <QUdpSocket>
-#include <QTimer>
-#include <QNetworkDatagram>
-
-#include <QSettings>
 #include "roomcommon.h"
 
 

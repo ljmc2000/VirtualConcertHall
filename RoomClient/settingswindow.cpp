@@ -1,9 +1,9 @@
 #include "settingswindow.h"
 #include "ui_settingswindow.h"
-#include <iostream>
+
+#include <QFileDialog>
 #include <QObject>
 #include <QPushButton>
-#include <QFileDialog>
 
 using namespace OnlineStatusNamespace;
 

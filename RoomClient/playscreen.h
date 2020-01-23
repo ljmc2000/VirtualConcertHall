@@ -1,16 +1,16 @@
 #ifndef PLAYSCREEN_H
 #define PLAYSCREEN_H
 
-#include <QWidget>
-#include <QUdpSocket>
-#include <QTimer>
 #include <QGraphicsSvgItem>
+#include <QTimer>
+#include <QUdpSocket>
+#include <QWidget>
 
 #include "basescreen.h"
 #include "httpapiclient.h"
-#include "roomcommon.h"
 #include "instrumentview.h"
 #include "midihandler.h"
+#include "roomcommon.h"
 
 using namespace RoomCommon;
 

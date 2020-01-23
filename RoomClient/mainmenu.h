@@ -1,8 +1,9 @@
 #ifndef MAINMENU_H
 #define MAINMENU_H
 
-#include "basescreen.h"
 #include <QWidget>
+
+#include "basescreen.h"
 
 namespace Ui {
 class MainMenu;

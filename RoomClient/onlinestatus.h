@@ -1,11 +1,12 @@
 #ifndef ONLINESTATUS_H
 #define ONLINESTATUS_H
 
-#include "httpapiclient.h"
-#include "onlinestatusnamespace.h"
 #include <QFrame>
 #include <QIcon>
 #include <QTimer>
+
+#include "httpapiclient.h"
+#include "onlinestatusnamespace.h"
 
 using namespace OnlineStatusNamespace;
 

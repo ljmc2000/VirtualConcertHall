@@ -1,5 +1,6 @@
 #include "httpapiclient.h"
 #include "onlinestatusnamespace.h"
+
 #include <QCoreApplication>
 
 #define httpAPIurl "http://virtualconcerthall.urown.cloud:5000"

@@ -1,8 +1,9 @@
 #include "playscreen.h"
 #include "ui_playscreen.h"
-#include "roomcommon.h"
 
 #include <QMessageBox>
+
+#include "roomcommon.h"
 
 using namespace RoomCommon;
 
