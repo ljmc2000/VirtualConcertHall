@@ -56,7 +56,7 @@ private: //methods
     void setMidiPortsList();
     void renderInstrument();
     void initSynth(), closeSynth();
-    static void setDriverList(void *data, const char *name, const char* type);
+    static void setDriverList(void *data, const char *name, const char* value);
     static void midiHandler( double timeStamp, std::vector<unsigned char> *message, void *userData );
 };
 

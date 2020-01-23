@@ -99,6 +99,7 @@ void SettingsWindow::setSoundFont()
     if(filename.size()!=0)
     {
         prefs.setValue("soundfont",filename);
+        ui->pickSfButton->setText(filename);
         fluid_synth_sfload(midiout,filename.toUtf8().constData(),true);
     }
 }
@@ -196,10 +197,11 @@ void SettingsWindow::closeSynth()
     delete_fluid_settings(settings);
 }
 
-void SettingsWindow::setDriverList(void *data, const char *name, const char* type)
+void SettingsWindow::setDriverList(void *data, const char *name, const char* value)
 {
     SettingsWindow *self=(SettingsWindow*)data;
-    self->ui->audioDriverBox->addItem(type);
+    QString file="file";
+    if(value != file)self->ui->audioDriverBox->addItem(value);
 }
 
 void SettingsWindow::setDefaults()
