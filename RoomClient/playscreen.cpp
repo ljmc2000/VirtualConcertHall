@@ -132,7 +132,7 @@ void PlayScreen::handleMidiIn( double timeStamp, std::vector<unsigned char> *mes
     MidiPacket midiPacket;
     midiPacket.clientId=self->secretId;
     midiPacket.timestamp=self->timestamp;
-    for(int i=0; i<MIDIMESSAGESIZE; i++)midiPacket.message[i]=message->at(i);
+    for(int i=0; i<message->size(); i++)midiPacket.message[i]=message->at(i);
 
     QByteArray data((char*)&midiPacket,sizeof(MidiPacket));
     QNetworkDatagram datagram(data,self->serverHost,self->serverPort);
