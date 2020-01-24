@@ -33,7 +33,6 @@ struct Note
 
 struct PianoArgs
 {
-    quint8 none1=0, none2=0, none3=0, none4=0, none5=0, none6=0;
     quint8 minNote=0;
     quint8 maxNote=0;
 };

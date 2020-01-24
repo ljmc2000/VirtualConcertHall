@@ -141,6 +141,11 @@ void SettingsWindow::refreshUsername()
     }
 }
 
+#define SETARG(ARGTYPE,ARG) \
+ARGTYPE* args=(ARGTYPE*)&instrumentArgs;\
+changeAttr=&args->ARG;\
+midiin.cancelCallback();\
+midiin.setCallback(&midiSetArg,this);
 void SettingsWindow::showInstrumentConfig()
 {
     clearInstrumentConfig();
@@ -152,8 +157,7 @@ void SettingsWindow::showInstrumentConfig()
             {
             QPushButton *button = new QPushButton("Set Minimum Note",this);
             connect(button, &QPushButton::clicked,[=](){
-                midiin.cancelCallback();
-                midiin.setCallback(&pianoSetMinNote,this);
+                SETARG(PianoArgs,minNote);
                 ui->instrumentDebugLabel->setText("Press the lowest key on your piano");
             });
             ui->instrumentConf->addWidget(button);
@@ -162,8 +166,7 @@ void SettingsWindow::showInstrumentConfig()
             {
             QPushButton *button = new QPushButton("Set Maximum Note",this);
             connect(button, &QPushButton::clicked,[=](){
-                midiin.cancelCallback();
-                midiin.setCallback(&pianoSetMaxNote,this);
+                SETARG(PianoArgs,maxNote);
                 ui->instrumentDebugLabel->setText("Press the highest key on your piano");
             });
             ui->instrumentConf->addWidget(button);
@@ -217,20 +220,18 @@ void SettingsWindow::setDefaults()
     prefs.setValue("audioDriver",ui->audioDriverBox->currentText());
 }
 
-#define PIANOSETNOTE(FN,NXE) void SettingsWindow::FN(double timeStamp, std::vector<unsigned char> *message, void *userData)\
-{\
-    SettingsWindow *self = (SettingsWindow*)userData;\
-    if(message->at(0)>>4 == 0b1001)\
-    {\
-        PianoArgs *args=(PianoArgs*)&self->instrumentArgs;\
-        args->NXE=message->at(1);\
-        self->prefs.setValue("instrumentArgs",QString::number(self->instrumentArgs,16));\
-        self->instrumentUpdate();\
-        self->ui->instrumentDebugLabel->setText("");\
-        self->midiin.cancelCallback();\
-        self->midiin.setCallback(&midiHandler,self);\
-    }\
-}
+void SettingsWindow::midiSetArg(double timeStamp, std::vector<unsigned char> *message, void *userData)
+{
+    SettingsWindow *self=(SettingsWindow*)userData;
 
-PIANOSETNOTE(pianoSetMinNote,minNote)
-PIANOSETNOTE(pianoSetMaxNote,maxNote)
+    if(message->at(0)>>4 == 0b1001)
+    {
+        *self->changeAttr=message->at(1);
+        self->changeAttr=0;
+        self->prefs.setValue("instrumentArgs",QString::number(self->instrumentArgs,16));
+        self->instrumentUpdate();
+        self->ui->instrumentDebugLabel->setText("");
+        self->midiin.cancelCallback();
+        self->midiin.setCallback(&midiHandler,self);
+    }
+}

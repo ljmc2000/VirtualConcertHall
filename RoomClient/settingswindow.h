@@ -46,10 +46,7 @@ private: //methods
     void clearInstrumentConfig();
     static void setDriverList(void *data, const char *name, const char* value);
     static void midiHandler( double timeStamp, std::vector<unsigned char> *message, void *userData );
-
-private: //piano specific methods
-    static void pianoSetMinNote(double timeStamp, std::vector<unsigned char> *message, void *userData);
-    static void pianoSetMaxNote(double timeStamp, std::vector<unsigned char> *message, void *userData);
+    static void midiSetArg(double timeStamp, std::vector<unsigned char> *message, void *userData);
 
 private:
     Ui::SettingsWindow *ui;
@@ -59,7 +56,7 @@ private:
     RtMidiIn midiin;
 
     InstrumentType instrumentType=PIANO;
-    quint64 instrumentArgs=0;
+    quint64 instrumentArgs=0; quint8* changeAttr=0;
     QString audioDriver,soundfont;
 
     HttpAPIClient *httpApiClient;
