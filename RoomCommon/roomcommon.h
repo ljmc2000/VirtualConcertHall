@@ -35,6 +35,7 @@ namespace RoomCommon
     {
         WRONGVERSION,       //if the server and client have different versions of roomcommon
         WRONGSIZEPACKET,    //if the user somehow sends a packet with the wrong size for it's header
+        PLAYERNOTFOUND,     //if the player trys to connect to a server but the server cannot identify them
     };
 
     enum InstrumentType

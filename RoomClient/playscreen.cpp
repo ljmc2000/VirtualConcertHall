@@ -129,6 +129,8 @@ void PlayScreen::handleDataFromServer()
                     case WRONGSIZEPACKET:
                         errorMessage="A malformed packet was sent to the server";
                         break;
+                    case PLAYERNOTFOUND:
+                        errorMessage="An attempt was made to join a server to which the user did not belong";
                 }
 
                 QMessageBox::warning(this,"An error has occured",errorMessage);

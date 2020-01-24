@@ -1,5 +1,11 @@
 #include "server.h"
 
+#define SENDERRORPACKET(REASON,DATAGRAM) ErrorPacket errorPacket;\
+errorPacket.reason=REASON;\
+QByteArray data((char*)&errorPacket,sizeof (ErrorPacket));\
+QNetworkDatagram datagram1(data,DATAGRAM.senderAddress(),DATAGRAM.senderPort());\
+qSocket.writeDatagram(datagram1);
+
 using namespace RoomCommon;
 
 Server::Server(int port)
@@ -54,12 +60,7 @@ void Server::readPendingDatagrams()
             {
                 ConnectPacket *connectPacket=(ConnectPacket*) data.constData();
                 if(connectPacket->version!=VERSION){
-                    ErrorPacket errorPacket;
-                    errorPacket.reason=WRONGVERSION;
-                    QByteArray data((char*)&errorPacket,sizeof (ErrorPacket));
-                    QNetworkDatagram datagram1(data,datagram.senderAddress(),datagram.senderPort());
-                    qSocket.writeDatagram(datagram1);
-
+                    SENDERRORPACKET(WRONGVERSION,datagram);
                 } else if(!clients.keys().contains(connectPacket->secretId)) {
                     if(addClient(datagram))
                             enableClient(datagram);
@@ -103,11 +104,7 @@ void Server::readPendingDatagrams()
         else
         {
             qDebug() << "WARNING: Improperly sized packet";
-            ErrorPacket errorPacket;
-            errorPacket.reason=WRONGSIZEPACKET;
-            QByteArray data((char*)&errorPacket,sizeof (ErrorPacket));
-            QNetworkDatagram datagram1(data,datagram.senderAddress(),datagram.senderPort());
-            qSocket.writeDatagram(datagram1);
+            SENDERRORPACKET(WRONGSIZEPACKET,datagram);
         }
     }
 }
@@ -175,6 +172,7 @@ bool Server::addClient(QNetworkDatagram joinRequest)
     else
     {
         qDebug() << "A connection attempt was made by a client with an invalid clientId";
+        SENDERRORPACKET(PLAYERNOTFOUND,joinRequest);
         return false;
     }
 }
