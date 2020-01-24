@@ -116,6 +116,21 @@ void PlayScreen::handleDataFromServer()
                 deleteLater();
                 break;
             }
+
+        case ERROR:
+            {
+                ErrorPacket *errorPacket=(ErrorPacket*) data.constData();
+                QString errorMessage;
+                switch(errorPacket->reason)
+                {
+                    case WRONGVERSION:
+                        errorMessage="The server is running a different version of the communications protocol. Try updating your client.";
+                        break;
+                }
+
+                QMessageBox::warning(this,"An error has occured",errorMessage);
+                quitPlaying();
+            }
         }
 
         else

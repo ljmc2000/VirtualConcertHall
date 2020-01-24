@@ -53,7 +53,14 @@ void Server::readPendingDatagrams()
         case CONNECT:
             {
                 ConnectPacket *connectPacket=(ConnectPacket*) data.constData();
-                if(!clients.keys().contains(connectPacket->secretId)) {
+                if(connectPacket->version!=VERSION){
+                    ErrorPacket errorPacket;
+                    errorPacket.reason=WRONGVERSION;
+                    QByteArray data((char*)&errorPacket,sizeof (ErrorPacket));
+                    QNetworkDatagram datagram1(data,datagram.senderAddress(),datagram.senderPort());
+                    qSocket.writeDatagram(datagram1);
+
+                } else if(!clients.keys().contains(connectPacket->secretId)) {
                     if(addClient(datagram))
                             enableClient(datagram);
                 } else {

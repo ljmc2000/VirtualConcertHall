@@ -1,6 +1,8 @@
 #ifndef ROOMCOMMON_H
 #define ROOMCOMMON_H
 
+#define VERSION 1   //increment every time the api changes in a breaking way
+
 #include <QMetaEnum>
 
 #define HEARTBEATINTERVAL 40        //how often to send heartbeat messages
@@ -26,7 +28,13 @@ namespace RoomCommon
                      DISABLE,ENABLE,    //notification of a client being enabled or disabled
                      DISCONNECT,        //sent to inform a player they have been disconnected
                      CLOSESERVER,       //can be sent by the owner to close the server
+                     ERROR,             //if something goes really wrong
                     };
+
+    enum ErrorType
+    {
+        WRONGVERSION,   //if the server and client have different versions of roomcommon
+    };
 
     enum InstrumentType
     {
@@ -38,6 +46,7 @@ namespace RoomCommon
     struct ConnectPacket
     {
         PacketType packetType=CONNECT;
+        quint16 version=VERSION;
         quint32 secretId;
         InstrumentType instrument;
         instrument_args_t instrumentArgs;
@@ -94,6 +103,12 @@ namespace RoomCommon
         quint32 secretId;
     };
 
+    struct ErrorPacket
+    {
+        PacketType packetType=ERROR;
+        ErrorType reason;
+    };
+
     static QHash<PacketType,quint8> packetSize
     {
         {CONNECT, sizeof (ConnectPacket)},
@@ -104,6 +119,7 @@ namespace RoomCommon
         {ENABLE, sizeof (EnablePacket)},
         {DISCONNECT, sizeof (DisconnectPacket)},
         {CLOSESERVER, sizeof (CloseServerPacket)},
+        {ERROR, sizeof (ErrorPacket)},
     };
 
     static bool verifyPacketSize(PacketType packetType,quint8 size) //a guard against buffer underflow attacks
