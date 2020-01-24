@@ -94,7 +94,7 @@ void SettingsWindow::setMidiInPort()
 
 void SettingsWindow::setSoundFont()
 {
-    QString filename = QFileDialog::getOpenFileName(this, "Select Sound Font", "", "Sound font 2 files (*.sf2)");
+    QString filename = QFileDialog::getOpenFileName(this, "Select Sound Font", soundfont, "Sound font 2 files (*.sf2)");
     if(filename.size()!=0)
     {
         prefs.setValue("soundfont",filename);
