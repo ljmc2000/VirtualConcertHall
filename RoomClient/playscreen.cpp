@@ -19,7 +19,7 @@ PlayScreen::PlayScreen(RoomConnectionInfo r,HttpAPIClient *httpApiClient,QWidget
     this->serverPort=r.roomPort;
 
     this->instrumentType=(InstrumentType)prefs.value("instrumentType").toInt();
-    this->instrumentArgs=prefs.value("instrumentArgs").toString().toULongLong(nullptr,16);
+    this->instrumentArgs=ui->midiout->getInstrumentArgs(&prefs,instrumentType);
 
     unsigned int midiInPort = prefs.value("midiInPort").toUInt();
     midiin.openPort(midiInPort<midiin.getPortCount() ? midiInPort:0);

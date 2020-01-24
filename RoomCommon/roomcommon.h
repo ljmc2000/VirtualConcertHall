@@ -26,9 +26,12 @@ namespace RoomCommon
                      CLOSESERVER,       //can be sent by the owner to close the server
                     };
 
-    enum InstrumentType {PIANO,
-                     };
-    Q_ENUM_NS(InstrumentType);
+    enum InstrumentType
+    {
+        PIANO,
+        GUITAR,
+
+    }; Q_ENUM_NS(InstrumentType);
 
     struct ConnectPacket
     {
@@ -112,5 +115,30 @@ namespace RoomCommon
     {
         144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159 //on message for all 16 channels
     });
+
+    struct PianoArgs
+    {
+        quint8 minNote=0;
+        quint8 maxNote=127;
+    };
+
+    struct GuitarArgs
+    {
+        quint8 lowestNote=40;   //lowest not of the lowest string
+        quint8 fretCount=18;
+        quint8 gaps1=0x55;      //the note gap from the first to second and second to third strings
+        quint8 gaps2=0x54;      //the note gap from the third to forth and forth to fifth strings
+        quint8 gaps3=0x50;      //the note gap from the fifth to sixth and sixth to seventh strings
+        quint8 gaps4=0x00;      //etc
+        quint8 gaps5=0x00;
+        quint8 gaps6=0x00;
+    };
+
+    enum GuitarTuning
+    {
+        EADGBE,
+        DADGAD,
+    };
+    Q_ENUM_NS(GuitarTuning);
 }
 #endif

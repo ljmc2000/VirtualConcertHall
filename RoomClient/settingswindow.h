@@ -8,6 +8,7 @@
 #include <fluidsynth.h>
 
 #include "basescreen.h"
+#include "guitarutils.h"
 #include "httpapiclient.h"
 #include "instrumentview.h"
 #include "onlinestatusnamespace.h"
@@ -58,6 +59,9 @@ private:
     InstrumentType instrumentType=PIANO;
     quint64 instrumentArgs=0; quint8* changeAttr=0;
     QString audioDriver,soundfont;
+
+    GuitarUtils guitarUtils;
+    QMetaEnum tunings=QMetaEnum::fromType<GuitarTuning>();
 
     HttpAPIClient *httpApiClient;
 };

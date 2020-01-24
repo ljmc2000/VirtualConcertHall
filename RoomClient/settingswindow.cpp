@@ -16,7 +16,12 @@ SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
     if(prefs.value("midiInPort").isNull()) setDefaults();
 
     instrumentType=(InstrumentType)prefs.value("instrumentType").toInt();
-    instrumentArgs=prefs.value("instrumentArgs").toString().toULongLong(nullptr,16);
+    ui->instrumentTypeBox->setCurrentIndex(instrumentType);
+    instrumentArgs=ui->midiHandler->getInstrumentArgs(&prefs,instrumentType);
+    if(instrumentArgs==0) {
+        instrumentArgs=ui->midiHandler->getDefaultInstrumentArgs(instrumentType);
+        ui->midiHandler->setInstrumentArgs(&prefs,instrumentType,instrumentArgs);
+    }
     audioDriver=prefs.value("audioDriver").toString();
     soundfont=prefs.value("soundfont").toString();
 
@@ -36,6 +41,9 @@ SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
 
     connect(ui->midiInputSelector, SIGNAL(currentIndexChanged(int)),
             this, SLOT(setMidiInPort()));
+
+    connect(ui->instrumentTypeBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(setInstrumentType()));
 
     connect(ui->pickSfButton, SIGNAL(clicked()),
             this, SLOT(setSoundFont()));
@@ -108,6 +116,9 @@ void SettingsWindow::setInstrumentType()
     int instrument=ui->instrumentTypeBox->currentIndex();
     prefs.setValue("instrumentType",instrument);
     this->instrumentType=(InstrumentType)instrument;
+
+    showInstrumentConfig();
+    redrawInstrument();
 }
 
 void SettingsWindow::setAudioDriver()
@@ -146,6 +157,16 @@ ARGTYPE* args=(ARGTYPE*)&instrumentArgs;\
 changeAttr=&args->ARG;\
 midiin.cancelCallback();\
 midiin.setCallback(&midiSetArg,this);
+
+#define ADDBUTTON(BUTTONLABEL,ARGTYPE,ARG,INSTRUCTION){\
+    QPushButton *button = new QPushButton(BUTTONLABEL,this);\
+    connect(button, &QPushButton::clicked,[=](){\
+        SETARG(ARGTYPE,ARG);\
+        ui->instrumentDebugLabel->setText(INSTRUCTION);\
+    });\
+    ui->instrumentConf->addWidget(button);\
+}
+
 void SettingsWindow::showInstrumentConfig()
 {
     clearInstrumentConfig();
@@ -154,36 +175,36 @@ void SettingsWindow::showInstrumentConfig()
     {
         case PIANO:
         {
+            ADDBUTTON("SetMinimumNote",PianoArgs,minNote,"Press the lowest key on your piano");
+            ADDBUTTON("SetMaximumNote",PianoArgs,maxNote,"Press the highest key on your piano");
+            break;
+        }
+
+        case GUITAR:
+        {
+            QLabel *label=new QLabel("Select your tuning",this);
+            QComboBox *box=new QComboBox(this);
+
+            for(int i=0; i<tunings.keyCount(); i++)
             {
-            QPushButton *button = new QPushButton("Set Minimum Note",this);
-            connect(button, &QPushButton::clicked,[=](){
-                SETARG(PianoArgs,minNote);
-                ui->instrumentDebugLabel->setText("Press the lowest key on your piano");
-            });
-            ui->instrumentConf->addWidget(button);
+                box->addItem(tunings.valueToKey(i));
             }
 
-            {
-            QPushButton *button = new QPushButton("Set Maximum Note",this);
-            connect(button, &QPushButton::clicked,[=](){
-                SETARG(PianoArgs,maxNote);
-                ui->instrumentDebugLabel->setText("Press the highest key on your piano");
-            });
-            ui->instrumentConf->addWidget(button);
-            }
+            ui->instrumentConf->addWidget(label);
+            ui->instrumentConf->addWidget(box);
+            break;
         }
+
     }
 }
 
 void SettingsWindow::clearInstrumentConfig()
 {
-    while (true)
+    for(int i=ui->instrumentConf->count()-1; i>=0; i--)
     {
-        QLayoutItem *wItem = ui->instrumentConf->takeAt(0);
-        if(wItem == 0)
-            break;
-        else
-            delete wItem;
+        QLayoutItem *wItem=ui->instrumentConf->takeAt(i);
+        ui->instrumentConf->removeItem(wItem);
+        wItem->widget()->deleteLater();
     }
 
     ui->instrumentDebugLabel->setText("");
@@ -228,7 +249,7 @@ void SettingsWindow::midiSetArg(double timeStamp, std::vector<unsigned char> *me
     {
         *self->changeAttr=message->at(1);
         self->changeAttr=0;
-        self->prefs.setValue("instrumentArgs",QString::number(self->instrumentArgs,16));
+        self->ui->midiHandler->setInstrumentArgs(&self->prefs,self->instrumentType,self->instrumentArgs);
         self->instrumentUpdate();
         self->ui->instrumentDebugLabel->setText("");
         self->midiin.cancelCallback();

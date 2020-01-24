@@ -30,6 +30,10 @@ public:
     void handleMidi(quint32 clientId, quint8* midiMessage, qint16 latency);
     void setSoundFont(QString soundfont), setAudioDriver(QString audioDriver);
 
+    static void setInstrumentArgs(QSettings *prefs, InstrumentType type, quint64 args);
+    static quint64 getInstrumentArgs(QSettings *prefs, InstrumentType type);
+    static quint64 getDefaultInstrumentArgs(InstrumentType type);
+
 private:    //methods
     void addSynth(), deleteSynth(), deleteAllSynth();
 
@@ -46,6 +50,8 @@ private:
 
     InstrumentType insturmentType;
     quint64 instrumentArgs=0;
+
+    static QMetaEnum instrumentTypeEnum;
 };
 
 #endif // MIDIHANDLER_H

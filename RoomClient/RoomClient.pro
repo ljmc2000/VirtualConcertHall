@@ -37,7 +37,8 @@ SOURCES += \
     roombrowser.cpp \
     roomcreator.cpp \
     instrumentview.cpp \
-    bihash.cpp
+    bihash.cpp \
+    guitarutils.cpp
 
 HEADERS += \
     midihandler.h \
@@ -54,7 +55,8 @@ HEADERS += \
     roombrowser.h \
     roomcreator.h \
     instrumentview.h \
-    bihash.h
+    bihash.h \
+    guitarutils.h
 
 FORMS += \
     settingswindow.ui \

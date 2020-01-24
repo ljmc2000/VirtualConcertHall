@@ -9,6 +9,10 @@ static QString quaver="<svg width=\"280\" height=\"430\">\
         <path d=\"m 170 240 0 -240 c16 72 80 48 80 100\" fill=\"none\" stroke=\"%1\" stroke-width=\"20\" stroke-linecap=\"round\"/>\
     </svg>";
 
+static QString guitarBody="<svg width=\"280\" height=\"280\">\
+        <ellipse cx=\"100\" cy=\"240\" rx=\"80\" ry=\"40\" fill=\"yellow\"/>\
+    </svg>";
+
 InstrumentView::InstrumentView(InstrumentType type, quint64 args, QWidget *parent) :
     QOpenGLWidget(parent),
     ui(new Ui::InstrumentView),
@@ -38,7 +42,12 @@ void InstrumentView::updateInstrument()
     case PIANO:
         fromPiano();
         break;
+    case GUITAR:
+        fromGuitar();
+        break;
     }
+
+    update();
 }
 
 void InstrumentView::fromPiano()
@@ -81,7 +90,11 @@ void InstrumentView::fromPiano()
 
         keys.insert(i,k);
     }
-    update();
+}
+
+void InstrumentView::fromGuitar()
+{
+    guitarBodyRenderer.load(guitarBody.toUtf8());
 }
 
 void InstrumentView::playNote(quint8 note)
@@ -96,15 +109,14 @@ void InstrumentView::paintGL()
 {
     painter.begin(this);
 
-    painter.setPen(Qt::black);
-    painter.setBrush(QBrush(Qt::white));
-
     switch (instrumentType)
     {
         case PIANO:
         {
             PianoArgs *args=(PianoArgs*)&instrumentArgs;
+            painter.setPen(Qt::black);
 
+            painter.setBrush(QBrush(Qt::white));
             for(PianoKey k: keys)
             {
                 if(k.color==Qt::white)
@@ -132,6 +144,12 @@ void InstrumentView::paintGL()
                 else notes.removeAt(i);
             }
             break;
+        }
+
+        case GUITAR:
+        {
+            GuitarArgs *args=(GuitarArgs*)&instrumentArgs;
+            guitarBodyRenderer.render(&painter,this->rect());
         }
     }
 

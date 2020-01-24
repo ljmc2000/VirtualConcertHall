@@ -85,6 +85,40 @@ void MidiHandler::setSoundFont(QString soundfont)
         fluid_synth_sfload(synth,soundfont.toUtf8().constData(),true);
 }
 
+QMetaEnum MidiHandler::instrumentTypeEnum=QMetaEnum::fromType<InstrumentType>();
+
+void MidiHandler::setInstrumentArgs(QSettings *prefs, InstrumentType type, quint64 args)
+{
+    prefs->setValue(QString("instrumentArgs")+instrumentTypeEnum.valueToKey(type),QString::number(args,16));
+}
+
+quint64 MidiHandler::getInstrumentArgs(QSettings *prefs, InstrumentType type)
+{
+    return prefs->value(QString("instrumentArgs")+instrumentTypeEnum.valueToKey(type)).toString().toULongLong(nullptr,16);
+}
+
+quint64 MidiHandler::getDefaultInstrumentArgs(InstrumentType type)
+{
+#define CASEFOR(CASE,TYPE) case CASE:\
+{\
+    TYPE a;\
+    TYPE *b=(TYPE*)&args;\
+    *b=a;\
+    break;\
+}
+
+
+    quint64 args=0;
+
+    switch(type)
+    {
+    CASEFOR(PIANO,PianoArgs);
+    CASEFOR(GUITAR,GuitarArgs);
+    }
+
+    return args;
+}
+
 void MidiHandler::setAudioDriver(QString audioDriver)
 {
     this->audioDriver=audioDriver;

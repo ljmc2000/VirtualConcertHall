@@ -31,12 +31,6 @@ struct Note
     quint8 note;
 };
 
-struct PianoArgs
-{
-    quint8 minNote=0;
-    quint8 maxNote=0;
-};
-
 class InstrumentView : public QOpenGLWidget
 {
     Q_OBJECT
@@ -58,11 +52,12 @@ protected:
 
 private: //methods
     void fromPiano();
+    void fromGuitar();
 
 private:
     Ui::InstrumentView *ui;
     QPainter painter;
-    QSvgRenderer noteRenderer;
+    QSvgRenderer noteRenderer,guitarBodyRenderer;
     QHash<quint8,PianoKey> keys;
     QTimer screenUpdateTimer;
     QList<Note> notes;
