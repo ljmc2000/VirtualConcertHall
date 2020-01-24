@@ -4,12 +4,10 @@
 #include <QDebug>
 #include <QOpenGLFunctions>
 
-static QString note="<svg width=\"360\" height=\"480\">\
-        <g transform=\"translate(15 -500), scale(3,3)\">\
-         <ellipse cx=\"30.069\" cy=\"277.61\" rx=\"27.933\" ry=\"18.536\" style=\"paint-order:normal\" fill=\"rgb(%1,%2,%3)\"/>\
-         <path d=\"m54.026 276.84-4.175-101.78c7.9922 36.668 37.012 24.436 37.973 53.744\" fill=\"none\" stroke=\"rgb(%1,%2,%3)\" stroke-dashoffset=\"200.02\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"8.3981\" style=\"paint-order:normal\"/>\
-        </g>\
-       </svg>";
+static QString quaver="<svg width=\"280\" height=\"430\">\
+        <ellipse cx=\"100\" cy=\"240\" rx=\"80\" ry=\"40\" fill=\"%1\"/>\
+        <path d=\"m 170 240 0 -240 c16 72 80 48 80 100\" fill=\"none\" stroke=\"%1\" stroke-width=\"20\" stroke-linecap=\"round\"/>\
+    </svg>";
 
 InstrumentView::InstrumentView(InstrumentType type, quint64 args, QWidget *parent) :
     QOpenGLWidget(parent),
@@ -147,10 +145,8 @@ void InstrumentView::initializeGL()
 
     glClearColor(bgcolor.redF(),bgcolor.greenF(),bgcolor.blueF(),bgcolor.alphaF());
 
-    noteRenderer.load(note
-                      .arg((int)255*fgcolor.redF())
-                      .arg((int)255*fgcolor.greenF())
-                      .arg((int)255*fgcolor.blueF())
+    noteRenderer.load(quaver
+                      .arg(fgcolor.name(QColor::HexRgb))
                       .toUtf8());
 }
 
