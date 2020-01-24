@@ -109,6 +109,7 @@ void MidiHandler::addSynth()
     fluid_settings_t* fluidSettings=new_fluid_settings();
 
     fluid_settings_setstr(fluidSettings,"audio.driver",audioDriver.toUtf8().constData());
+    fluid_settings_setstr(fluidSettings,"audio.jack.id","VirtualConcertHall");
     fluid_settings_setint(fluidSettings,"synth.midi-channels",256);
     synth=new_fluid_synth(fluidSettings);
     driver=new_fluid_audio_driver(fluidSettings,synth);
