@@ -103,6 +103,11 @@ void Server::readPendingDatagrams()
         else
         {
             qDebug() << "WARNING: Improperly sized packet";
+            ErrorPacket errorPacket;
+            errorPacket.reason=WRONGSIZEPACKET;
+            QByteArray data((char*)&errorPacket,sizeof (ErrorPacket));
+            QNetworkDatagram datagram1(data,datagram.senderAddress(),datagram.senderPort());
+            qSocket.writeDatagram(datagram1);
         }
     }
 }

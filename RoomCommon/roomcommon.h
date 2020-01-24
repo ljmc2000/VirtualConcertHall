@@ -28,12 +28,13 @@ namespace RoomCommon
                      DISABLE,ENABLE,    //notification of a client being enabled or disabled
                      DISCONNECT,        //sent to inform a player they have been disconnected
                      CLOSESERVER,       //can be sent by the owner to close the server
-                     ERROR,             //if something goes really wrong
+                     ERROR=-1,          //if something goes really wrong
                     };
 
     enum ErrorType
     {
-        WRONGVERSION,   //if the server and client have different versions of roomcommon
+        WRONGVERSION,       //if the server and client have different versions of roomcommon
+        WRONGSIZEPACKET,    //if the user somehow sends a packet with the wrong size for it's header
     };
 
     enum InstrumentType

@@ -126,6 +126,9 @@ void PlayScreen::handleDataFromServer()
                     case WRONGVERSION:
                         errorMessage="The server is running a different version of the communications protocol. Try updating your client.";
                         break;
+                    case WRONGSIZEPACKET:
+                        errorMessage="A malformed packet was sent to the server";
+                        break;
                 }
 
                 QMessageBox::warning(this,"An error has occured",errorMessage);
