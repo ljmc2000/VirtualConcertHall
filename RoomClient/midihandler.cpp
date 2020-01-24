@@ -110,7 +110,8 @@ void MidiHandler::addSynth()
 
     fluid_settings_setstr(fluidSettings,"audio.driver",audioDriver.toUtf8().constData());
     fluid_settings_setstr(fluidSettings,"audio.jack.id","VirtualConcertHall");
-    fluid_settings_setint(fluidSettings,"synth.midi-channels",256);
+    fluid_settings_setint(fluidSettings,"synth.midi-channels",256); //16 users per synth with 16 channels each
+    fluid_settings_setint(fluidSettings,"synth.polyphony",65535);   //so there are enough notes to go around
     synth=new_fluid_synth(fluidSettings);
     driver=new_fluid_audio_driver(fluidSettings,synth);
     fluid_synth_sfload(synth,soundfont.toUtf8().constData(),true);
