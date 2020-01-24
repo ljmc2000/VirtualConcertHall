@@ -113,9 +113,10 @@ void SettingsWindow::setSoundFont()
 
 void SettingsWindow::setInstrumentType()
 {
-    int instrument=ui->instrumentTypeBox->currentIndex();
+    InstrumentType instrument=(InstrumentType)ui->instrumentTypeBox->currentIndex();
     prefs.setValue("instrumentType",instrument);
     this->instrumentType=(InstrumentType)instrument;
+    this->instrumentArgs=ui->midiHandler->getInstrumentArgs(&prefs,instrument);
 
     showInstrumentConfig();
     redrawInstrument();
@@ -184,6 +185,12 @@ void SettingsWindow::showInstrumentConfig()
         {
             QLabel *label=new QLabel("Select your tuning",this);
             QComboBox *box=new QComboBox(this);
+            connect(box, &QComboBox::currentTextChanged,[=](){
+                GuitarArgs *args=(GuitarArgs*)&instrumentArgs;
+                args->tuning=(GuitarTuning)box->currentIndex();
+                ui->midiHandler->setInstrumentArgs(&prefs,instrumentType,instrumentArgs);
+                emit instrumentUpdate();
+            });
 
             for(int i=0; i<tunings.keyCount(); i++)
             {
@@ -237,7 +244,6 @@ void SettingsWindow::setDefaults()
 
     prefs.setValue("midiInPort", 0);
     prefs.setValue("instrumentType",PIANO);
-    prefs.setValue("instrumentArgs",QString::number(0ull,16));
     prefs.setValue("audioDriver",ui->audioDriverBox->currentText());
 }
 

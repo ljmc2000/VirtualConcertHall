@@ -87,17 +87,18 @@ void MidiHandler::setSoundFont(QString soundfont)
 
 QMetaEnum MidiHandler::instrumentTypeEnum=QMetaEnum::fromType<InstrumentType>();
 
-void MidiHandler::setInstrumentArgs(QSettings *prefs, InstrumentType type, quint64 args)
+void MidiHandler::setInstrumentArgs(QSettings *prefs, InstrumentType type, instrument_args_t args)
 {
     prefs->setValue(QString("instrumentArgs")+instrumentTypeEnum.valueToKey(type),QString::number(args,16));
 }
 
-quint64 MidiHandler::getInstrumentArgs(QSettings *prefs, InstrumentType type)
+instrument_args_t MidiHandler::getInstrumentArgs(QSettings *prefs, InstrumentType type)
 {
-    return prefs->value(QString("instrumentArgs")+instrumentTypeEnum.valueToKey(type)).toString().toULongLong(nullptr,16);
+    instrument_args_t args = prefs->value(QString("instrumentArgs")+instrumentTypeEnum.valueToKey(type)).toString().toULongLong(nullptr,16);
+    return args!=0? args:getDefaultInstrumentArgs(type);
 }
 
-quint64 MidiHandler::getDefaultInstrumentArgs(InstrumentType type)
+instrument_args_t MidiHandler::getDefaultInstrumentArgs(InstrumentType type)
 {
 #define CASEFOR(CASE,TYPE) case CASE:\
 {\
@@ -108,7 +109,7 @@ quint64 MidiHandler::getDefaultInstrumentArgs(InstrumentType type)
 }
 
 
-    quint64 args=0;
+    instrument_args_t args=0;
 
     switch(type)
     {

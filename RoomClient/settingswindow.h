@@ -57,7 +57,7 @@ private:
     RtMidiIn midiin;
 
     InstrumentType instrumentType=PIANO;
-    quint64 instrumentArgs=0; quint8* changeAttr=0;
+    instrument_args_t instrumentArgs=0; quint8* changeAttr=0;
     QString audioDriver,soundfont;
 
     GuitarUtils guitarUtils;

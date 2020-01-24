@@ -5,13 +5,20 @@
 
 using namespace RoomCommon;
 
+struct GuitarPrefs
+{
+    quint8 fretCount=0;
+    QList<quint8>strings;
+
+    GuitarPrefs(quint8 fretCount,QList<quint8>strings);
+};
+
 class GuitarUtils
 {
 public:
-    GuitarUtils();
-    quint64 getInstrumentArgs(GuitarTuning tuning);
+    static GuitarPrefs & getInstrumentArgs(GuitarTuning tuning);
 private:
-    GuitarArgs eadgbe,dadgad;
+    static GuitarPrefs standard,dadgad;
 };
 
 #endif // GUITARUTILS_H

@@ -30,9 +30,9 @@ public:
     void handleMidi(quint32 clientId, quint8* midiMessage, qint16 latency);
     void setSoundFont(QString soundfont), setAudioDriver(QString audioDriver);
 
-    static void setInstrumentArgs(QSettings *prefs, InstrumentType type, quint64 args);
-    static quint64 getInstrumentArgs(QSettings *prefs, InstrumentType type);
-    static quint64 getDefaultInstrumentArgs(InstrumentType type);
+    static void setInstrumentArgs(QSettings *prefs, InstrumentType type, instrument_args_t args);
+    static instrument_args_t getInstrumentArgs(QSettings *prefs, InstrumentType type);
+    static instrument_args_t getDefaultInstrumentArgs(InstrumentType type);
 
 private:    //methods
     void addSynth(), deleteSynth(), deleteAllSynth();

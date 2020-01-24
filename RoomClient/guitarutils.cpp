@@ -1,20 +1,20 @@
 #include "guitarutils.h"
 
-GuitarUtils::GuitarUtils()
+GuitarPrefs::GuitarPrefs(quint8 fretCount,QList<quint8> strings)
 {
-    dadgad.lowestNote=38;
-    dadgad.gaps1=0x75;
-    dadgad.gaps2=0x52;
-    dadgad.gaps3=0x50;
+    this->fretCount=fretCount;
+    this->strings=strings;
 }
+GuitarPrefs GuitarUtils::standard(18,{40,45,50,55,59,64});
+GuitarPrefs GuitarUtils::dadgad(18,{38,45,50,55,57,62});
 
-quint64 GuitarUtils::getInstrumentArgs(GuitarTuning tuning)
+GuitarPrefs & GuitarUtils::getInstrumentArgs(GuitarTuning tuning)
 {
     switch(tuning)
     {
-    case EADGBE:
-        return *((quint64*)&eadgbe);
+    case STANDARD:
+        return standard;
     case DADGAD:
-        return *((quint64*)&dadgad);
+        return dadgad;
     }
 }
