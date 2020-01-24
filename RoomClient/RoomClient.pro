@@ -36,7 +36,8 @@ SOURCES += \
     mainmenu.cpp \
     roombrowser.cpp \
     roomcreator.cpp \
-    instrumentview.cpp
+    instrumentview.cpp \
+    bihash.cpp
 
 HEADERS += \
     midihandler.h \
@@ -52,7 +53,8 @@ HEADERS += \
     basescreen.h \
     roombrowser.h \
     roomcreator.h \
-    instrumentview.h
+    instrumentview.h \
+    bihash.h
 
 FORMS += \
     settingswindow.ui \
@@ -63,7 +65,8 @@ FORMS += \
     mainmenu.ui \
     roombrowser.ui \
     roomcreator.ui \
-    instrumentview.ui
+    instrumentview.ui \
+    midihandler.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

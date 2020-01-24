@@ -22,12 +22,20 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QWidget" name="playArea" native="true">
+    <widget class="MidiHandler" name="midiout" native="true">
      <layout class="QGridLayout" name="gridLayout_2" columnminimumwidth="0"/>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MidiHandler</class>
+   <extends>QWidget</extends>
+   <header>midihandler.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

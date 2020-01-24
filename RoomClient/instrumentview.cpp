@@ -11,17 +11,21 @@ static QString note="<svg width=\"360\" height=\"480\">\
         </g>\
        </svg>";
 
-InstrumentView::InstrumentView(QWidget *parent) :
+InstrumentView::InstrumentView(InstrumentType type, quint64 args, QWidget *parent) :
     QOpenGLWidget(parent),
     ui(new Ui::InstrumentView),
     noteRenderer(this)
 {
     ui->setupUi(this);
+    this->instrumentType=type;
+    this->instrumentArgs=args;
 
     screenUpdateTimer.setInterval(33);
     connect(&screenUpdateTimer, SIGNAL(timeout()),
             this, SLOT(update()));
     screenUpdateTimer.start();
+
+    updateInstrument();
 }
 
 InstrumentView::~InstrumentView()
@@ -29,18 +33,22 @@ InstrumentView::~InstrumentView()
     delete ui;
 }
 
-void InstrumentView::fromPiano(quint8 minNote, quint8 maxNote)
+void InstrumentView::updateInstrument()
 {
-    this->minNote=minNote;
-    this->maxNote=maxNote;
-    fromPiano();
+    switch (instrumentType)
+    {
+    case PIANO:
+        fromPiano();
+        break;
+    }
 }
 
 void InstrumentView::fromPiano()
 {
+    PianoArgs* args=(PianoArgs*)&instrumentArgs;
     keys.clear();
 
-    quint8 range=maxNote-minNote;
+    quint8 range=args->maxNote-args->minNote;
     float height=size().height()/3;
     float width=size().width()/(1+(7*(range/12.0)));
     QSizeF wKeySize(width,height);
@@ -52,7 +60,7 @@ void InstrumentView::fromPiano()
     position.setX(0);
     position.setY(size().height()-height);
 
-    for(quint8 i=minNote; i<=maxNote; i++)
+    for(quint8 i=args->minNote; i<=args->maxNote; i++)
     {
         PianoKey k;
 
@@ -80,13 +88,10 @@ void InstrumentView::fromPiano()
 
 void InstrumentView::playNote(quint8 note)
 {
-    if(note<=maxNote && note>=minNote)
-    {
-        Note n;
-        n.note=note;
-        notes.append(n);
-        update();
-    }
+    Note n;
+    n.note=note;
+    notes.append(n);
+    update();
 }
 
 void InstrumentView::paintGL()
@@ -95,29 +100,41 @@ void InstrumentView::paintGL()
 
     painter.setPen(Qt::black);
     painter.setBrush(QBrush(Qt::white));
-    for(PianoKey k: keys)
-    {
-        if(k.color==Qt::white)
-            painter.drawRect(k.dim);
-    }
 
-    painter.setBrush(QBrush(Qt::black));
-    for(PianoKey k: keys)
+    switch (instrumentType)
     {
-        if(k.color==Qt::black)
-            painter.drawRect(k.dim);
-    }
+        case PIANO:
+        {
+            PianoArgs *args=(PianoArgs*)&instrumentArgs;
 
-    for(int i=notes.size()-1; i>=0; i--)
-    {
-        Note *n=&notes[i];
-        QRectF dimensions=keys[n->note].dim;
-        QPointF h(dimensions.x(),dimensions.y()+(size().height()*.666666666f)*(-n->age/(float)TIMEOUT));
-        dimensions.moveTo(h);
+            for(PianoKey k: keys)
+            {
+                if(k.color==Qt::white)
+                    painter.drawRect(k.dim);
+            }
 
-        noteRenderer.render(&painter,dimensions);
-        if(n->age<TIMEOUT)n->age+=100;
-        else notes.removeAt(i);
+            painter.setBrush(QBrush(Qt::black));
+            for(PianoKey k: keys)
+            {
+                if(k.color==Qt::black)
+                    painter.drawRect(k.dim);
+            }
+
+            for(int i=notes.size()-1; i>=0; i--)
+            {
+                Note *n=&notes[i];
+                if(n->note>args->maxNote || n->note<args->minNote) continue;
+
+                QRectF dimensions=keys[n->note].dim;
+                QPointF h(dimensions.x(),dimensions.y()+(size().height()*.666666666f)*(-n->age/(float)TIMEOUT));
+                dimensions.moveTo(h);
+
+                noteRenderer.render(&painter,dimensions);
+                if(n->age<TIMEOUT)n->age+=100;
+                else notes.removeAt(i);
+            }
+            break;
+        }
     }
 
     painter.end();
@@ -139,5 +156,5 @@ void InstrumentView::initializeGL()
 
 void InstrumentView::resizeGL(int w, int h)
 {
-    fromPiano();
+    updateInstrument();
 }

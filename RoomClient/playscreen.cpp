@@ -12,33 +12,131 @@ PlayScreen::PlayScreen(RoomConnectionInfo r,HttpAPIClient *httpApiClient,QWidget
     ui(new Ui::PlayScreen)
 {
     ui->setupUi(this);
+
     this->httpApiClient=httpApiClient;
     this->owner=r.owner;
+    this->serverHost=r.roomIp;
+    this->serverPort=r.roomPort;
 
-    this->midiHandler=new MidiHandler(r.secretId,r.roomIp,r.roomPort,parent);
-    connect(midiHandler, SIGNAL(destroyed()),
-            this, SLOT(quitPlaying()));
+    this->instrumentType=(InstrumentType)prefs.value("instrumentType").toInt();
+    this->instrumentArgs=prefs.value("instrumentArgs").toString().toULongLong(nullptr,16);
 
-    connect(midiHandler, &MidiHandler::playerJoin,
-            this, &PlayScreen::addInstrumentView);
-
-    connect(midiHandler, &MidiHandler::playerLeave,
-            this, &PlayScreen::removeInstrumentView);
-
-    connect(midiHandler, &MidiHandler::midiMessage,
-            this, &PlayScreen::handleMidiPacket);
+    unsigned int midiInPort = prefs.value("midiInPort").toUInt();
+    midiin.openPort(midiInPort<midiin.getPortCount() ? midiInPort:0);
+    midiin.setClientName("VirtualConcertHallClient");
+    midiin.setCallback(&handleMidiIn,this);
 
     connect(ui->exitButton, SIGNAL(clicked()),
             this, SLOT(askQuit()));
+
+    serverTimeIterator.setInterval(SERVERTIMEUPDATEINTERVAL);
+    connect(
+                &serverTimeIterator, SIGNAL(timeout()),
+                this, SLOT(iterateServertime())
+            );
+
+    connect(
+                &qSocket, SIGNAL(readyRead()),
+                this, SLOT(handleDataFromServer())
+            );
+
+    reconnectClock.setInterval(RECONNECTDELAY);
+    connect(
+                &reconnectClock, SIGNAL(timeout()),
+                this, SLOT(attemptConnect())
+            );
+    this->secretId=r.secretId;
+    attemptConnect();
+    reconnectClock.start();
 }
 
 PlayScreen::~PlayScreen()
 {
-    for(InstrumentView *v: instrumentViews)
-        delete v;
+    reconnectClock.stop();
+    disconnectFromServer();
 
-    midiHandler->deleteLater();
     delete ui;
+}
+
+void PlayScreen::handleDataFromServer()
+{
+    while (qSocket.hasPendingDatagrams())
+    {
+        //deal with server stuff here
+        QNetworkDatagram datagram = qSocket.receiveDatagram();
+        QByteArray data = datagram.data();
+
+        if(verifyPacketSize((PacketType) data.at(0), data.size())) switch(data.at(0))
+        {
+        case INIT:
+            {
+                InitPacket *initPacket=(InitPacket*) data.constData();
+                clientId=initPacket->clientId;
+                timestamp=initPacket->timestamp;
+                reconnectClock.stop();
+                serverTimeIterator.start();
+                break;
+            }
+
+        case HEARTBEAT:
+            {
+                HeartbeatPacket *heartbeatPacket=(HeartbeatPacket*) data.constData();
+                timestamp=heartbeatPacket->timestamp;
+                heartbeatPacket->secretId=secretId;
+                QNetworkDatagram rsvp(data,serverHost,serverPort);
+                qSocket.writeDatagram(rsvp);
+                break;
+            }
+
+        case MIDI:
+            {
+                MidiPacket *midiPacket=(MidiPacket*) data.constData();
+                ui->midiout->handleMidi(midiPacket->clientId,midiPacket->message,midiPacket->timestamp-timestamp);
+                break;
+            }
+
+        case DISABLE:
+            {
+                DisablePacket *disablePacket=(DisablePacket*) data.constData();
+                qDebug() << "player" << disablePacket->clientId << "has gone dormant";
+                ui->midiout->delChannel(disablePacket->clientId);
+                break;
+            }
+
+        case ENABLE:    //TODO add behaviour for un greying out players who have gone dormant
+            {
+                EnablePacket *enablePacket=(EnablePacket*) data.constData();
+                qDebug() << "player" << enablePacket->clientId << "has awoken";
+                ui->midiout->addChannel(enablePacket->clientId, enablePacket->instrument, enablePacket->instrumentArgs);
+                break;
+            }
+
+        case DISCONNECT:
+            {
+                deleteLater();
+                break;
+            }
+        }
+
+        else
+        {
+            qDebug() << "WARNING: Improperly sized packet";
+        }
+    }
+}
+
+void PlayScreen::handleMidiIn( double timeStamp, std::vector<unsigned char> *message, void *userData )
+{
+    PlayScreen *self=(PlayScreen*)userData;
+
+    MidiPacket midiPacket;
+    midiPacket.clientId=self->secretId;
+    midiPacket.timestamp=self->timestamp;
+    for(int i=0; i<MIDIMESSAGESIZE; i++)midiPacket.message[i]=message->at(i);
+
+    QByteArray data((char*)&midiPacket,sizeof(MidiPacket));
+    QNetworkDatagram datagram(data,self->serverHost,self->serverPort);
+    self->qSocket.writeDatagram(datagram);
 }
 
 void PlayScreen::askQuit()
@@ -65,7 +163,7 @@ void PlayScreen::quitPlaying()
     }
     else
     {
-        midiHandler->closeServer();
+        closeServer();
     }
 
     qDebug() << "Disconnected from server";
@@ -73,42 +171,53 @@ void PlayScreen::quitPlaying()
     emit switchScreen(MAINMENU);
 }
 
-void PlayScreen::addInstrumentView(quint32 clientId, InstrumentType instrament, quint64 instrumentArgs)
+void PlayScreen::closeServer()
 {
-    InstrumentView *v;
-    quint8 *args=(quint8*)&instrumentArgs;
-
-    if(!instrumentViews.contains(clientId)) {
-        v=new InstrumentView(ui->playArea);
-        ui->gridLayout_2->addWidget(v);
-
-        switch (instrament)
-        {
-        case PIANO:
-            v->fromPiano(args[0],args[1]);
-            break;
-        }
-
-        instrumentViews.insert(clientId,v);
-    } else {
-        v=instrumentViews[clientId];
-    }
-
-    if(v!=nullptr) v->show();
+    CloseServerPacket closeServerPacket;
+    closeServerPacket.secretId=secretId;
+    QByteArray data((char *)&closeServerPacket, sizeof (DisconnectPacket));
+    QNetworkDatagram datagram(data,serverHost,serverPort);
+    qSocket.writeDatagram(datagram);
+    disconnectFromServer();
 }
 
-void PlayScreen::removeInstrumentView(quint32 clientId)
+void PlayScreen::disconnectFromServer()
 {
-    InstrumentView *v = instrumentViews[clientId];
-    if(v!=nullptr) v->hide();
-    instrumentViews.remove(clientId);
-}
-
-void PlayScreen::handleMidiPacket(quint32 clientId, quint8* message)
-{
-    if(message[2]!=0) switch(message[0]>>4)
+    if(qSocket.isOpen())
     {
-    case 0b1001:
-        instrumentViews[clientId]->playNote(message[1]);
+        DisconnectPacket disconnectPacket;
+        disconnectPacket.secretId=secretId;
+        QByteArray data((char *)&disconnectPacket, sizeof (DisconnectPacket));
+        QNetworkDatagram datagram(data,serverHost,serverPort);
+        qSocket.writeDatagram(datagram);
+        qSocket.disconnectFromHost();
     }
+}
+
+void PlayScreen::attemptConnect()
+{
+    if(reconnectAttempts!=0)
+    {
+        reconnectAttempts--;
+        qDebug() << "attempting connection to server";
+        ConnectPacket connectPacket;
+        connectPacket.secretId=secretId;
+        connectPacket.instrument=instrumentType;
+        connectPacket.instrumentArgs=instrumentArgs;
+
+        QByteArray data((char*)&connectPacket,sizeof(ConnectPacket));
+        qSocket.disconnectFromHost();
+        qSocket.connectToHost(serverHost,serverPort);
+        qSocket.writeDatagram(QNetworkDatagram(data,serverHost,serverPort));
+    }
+    else
+    {
+        qDebug() << "Exiting after " << MAXCONNECTATTEMPTS << " tries";
+        deleteLater();
+    }
+}
+
+void PlayScreen::iterateServertime()
+{
+    timestamp+=SERVERTIMEUPDATEINTERVAL;
 }

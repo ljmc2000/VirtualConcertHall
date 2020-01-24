@@ -16,18 +16,18 @@ SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
     if(prefs.value("midiInPort").isNull()) setDefaults();
 
     instrumentType=(InstrumentType)prefs.value("instrumentType").toInt();
-    renderInstrument();
+    instrumentArgs=prefs.value("instrumentArgs").toString().toULongLong(nullptr,16);
+    audioDriver=prefs.value("audioDriver").toString();
+    soundfont=prefs.value("soundfont").toString();
 
     setMidiPortsList();
 
     fluid_settings_t *settings=new_fluid_settings();
     fluid_settings_foreach_option(settings,"audio.driver",this,&SettingsWindow::setDriverList);
     delete_fluid_settings(settings);
-    ui->audioDriverBox->setCurrentText(prefs.value("audioDriver").toString());
+    ui->audioDriverBox->setCurrentText(audioDriver);
 
-    ui->pickSfButton->setText(prefs.value("soundfont").toString());
-
-    initSynth();
+    ui->pickSfButton->setText(soundfont);
 
     refreshUsername();
 
@@ -42,11 +42,20 @@ SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
 
     connect(ui->audioDriverBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(setAudioDriver()));
+
+    connect(this, SIGNAL(instrumentUpdate()),
+            this, SLOT(redrawInstrument()));
+
+    ui->midiHandler->setAudioDriver(audioDriver);
+    ui->midiHandler->setSoundFont(soundfont);
+    ui->midiHandler->addChannel(0,instrumentType,instrumentArgs);
+
+    showInstrumentConfig();
 }
 
 SettingsWindow::~SettingsWindow()
 {
-    closeSynth();
+    clearInstrumentConfig();
     delete ui;
 }
 
@@ -74,17 +83,6 @@ void SettingsWindow::setMidiPortsList()
     ui->instrumentTypeBox->setCurrentIndex(prefs.value("instrumentType").toInt());
 }
 
-void SettingsWindow::renderInstrument()
-{
-    quint8 min=prefs.value("minNote").toInt(),max=prefs.value("maxNote").toInt();
-    if(min<max && max-min>0) switch(instrumentType)
-    {
-    case PIANO:
-        ui->instrumentView->fromPiano(min,max);
-        break;
-    }
-}
-
 void SettingsWindow::setMidiInPort()
 {
     int port=ui->midiInputSelector->currentIndex();
@@ -100,7 +98,7 @@ void SettingsWindow::setSoundFont()
     {
         prefs.setValue("soundfont",filename);
         ui->pickSfButton->setText(filename);
-        fluid_synth_sfload(midiout,filename.toUtf8().constData(),true);
+        ui->midiHandler->setSoundFont(filename);
     }
 }
 
@@ -114,8 +112,7 @@ void SettingsWindow::setInstrumentType()
 void SettingsWindow::setAudioDriver()
 {
     prefs.setValue("audioDriver",ui->audioDriverBox->currentText());
-    closeSynth();
-    initSynth();
+    ui->midiHandler->setAudioDriver(ui->audioDriverBox->currentText());
 }
 
 void SettingsWindow::logout()
@@ -143,58 +140,61 @@ void SettingsWindow::refreshUsername()
     }
 }
 
+void SettingsWindow::showInstrumentConfig()
+{
+    clearInstrumentConfig();
+
+    switch (instrumentType)
+    {
+        case PIANO:
+        {
+            {
+            QPushButton *button = new QPushButton("Set Minimum Note",this);
+            connect(button, &QPushButton::clicked,[=](){
+                midiin.cancelCallback();
+                midiin.setCallback(&pianoSetMinNote,this);
+                ui->instrumentDebugLabel->setText("Press the lowest key on your piano");
+            });
+            ui->instrumentConf->addWidget(button);
+            }
+
+            {
+            QPushButton *button = new QPushButton("Set Maximum Note",this);
+            connect(button, &QPushButton::clicked,[=](){
+                midiin.cancelCallback();
+                midiin.setCallback(&pianoSetMaxNote,this);
+                ui->instrumentDebugLabel->setText("Press the highest key on your piano");
+            });
+            ui->instrumentConf->addWidget(button);
+            }
+        }
+    }
+}
+
+void SettingsWindow::clearInstrumentConfig()
+{
+    while (true)
+    {
+        QLayoutItem *wItem = ui->instrumentConf->takeAt(0);
+        if(wItem == 0)
+            break;
+        else
+            delete wItem;
+    }
+
+    ui->instrumentDebugLabel->setText("");
+}
+
+void SettingsWindow::redrawInstrument()
+{
+    ui->midiHandler->delChannel(0);
+    ui->midiHandler->addChannel(0,instrumentType,instrumentArgs);
+}
+
 void SettingsWindow::midiHandler(double timeStamp, std::vector<unsigned char> *message, void *userData)
 {
     SettingsWindow *self = static_cast<SettingsWindow*>(userData);
-    bool change=false;
-    int note=message->at(1);
-
-    switch(message->at(0))
-    {
-        case 144:
-        {
-            if(note<self->minNote)
-            {
-                change=true;
-                self->minNote=note;
-                self->prefs.setValue("minNote",note);
-            }
-            if(note>self->maxNote)
-            {
-                change=true;
-                self->maxNote=note;
-                self->prefs.setValue("maxNote",note);
-            }
-
-            if(message->at(2)!=0)self->ui->instrumentView->playNote(note);
-            fluid_synth_noteon(self->midiout,0,note,message->at(2));
-            break;
-        }
-
-        case 128:
-            fluid_synth_noteoff(self->midiout,0,note);
-            break;
-    }
-
-    if(change) self->renderInstrument();
-}
-
-void SettingsWindow::initSynth()
-{
-    QString filename=prefs.value("soundfont").toString();
-    fluid_settings_t *settings = new_fluid_settings();
-    fluid_settings_setstr(settings, "audio.driver", ui->audioDriverBox->currentText().toUtf8().constData());
-    midiout=new_fluid_synth(settings);
-    soundout=new_fluid_audio_driver(settings,midiout);
-    if(filename.size()!=0) fluid_synth_sfload(midiout,filename.toUtf8().constData(),true);
-}
-
-void SettingsWindow::closeSynth()
-{
-    fluid_settings_t *settings = fluid_synth_get_settings(midiout);
-    delete_fluid_audio_driver(soundout);
-    delete_fluid_synth(midiout);
-    delete_fluid_settings(settings);
+    self->ui->midiHandler->handleMidi(0,message->data(),0);
 }
 
 void SettingsWindow::setDriverList(void *data, const char *name, const char* value)
@@ -212,7 +212,24 @@ void SettingsWindow::setDefaults()
 
     prefs.setValue("midiInPort", 0);
     prefs.setValue("instrumentType",PIANO);
+    prefs.setValue("instrumentArgs",QString::number(0ull,16));
     prefs.setValue("audioDriver",ui->audioDriverBox->currentText());
-    prefs.setValue("minNote",0);
-    prefs.setValue("maxNote",127);
 }
+
+#define PIANOSETNOTE(FN,NXE) void SettingsWindow::FN(double timeStamp, std::vector<unsigned char> *message, void *userData)\
+{\
+    SettingsWindow *self = (SettingsWindow*)userData;\
+    if(message->at(0)>>4 == 0b1001)\
+    {\
+        PianoArgs *args=(PianoArgs*)&self->instrumentArgs;\
+        args->NXE=message->at(1);\
+        self->prefs.setValue("instrumentArgs",QString::number(self->instrumentArgs,16));\
+        self->instrumentUpdate();\
+        self->ui->instrumentDebugLabel->setText("");\
+        self->midiin.cancelCallback();\
+        self->midiin.setCallback(&midiHandler,self);\
+    }\
+}
+
+PIANOSETNOTE(pianoSetMinNote,minNote)
+PIANOSETNOTE(pianoSetMaxNote,maxNote)

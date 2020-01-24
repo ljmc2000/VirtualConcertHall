@@ -31,11 +31,25 @@ public slots:
     void setSoundFont();
     void setAudioDriver();
     void setInstrumentType();
+    void redrawInstrument();
     void logout();
     void refreshUsername();
 
 signals:
     void switchScreen(Mode mode);
+    void instrumentUpdate();
+
+private: //methods
+    void setDefaults();
+    void setMidiPortsList();
+    void showInstrumentConfig();
+    void clearInstrumentConfig();
+    static void setDriverList(void *data, const char *name, const char* value);
+    static void midiHandler( double timeStamp, std::vector<unsigned char> *message, void *userData );
+
+private: //piano specific methods
+    static void pianoSetMinNote(double timeStamp, std::vector<unsigned char> *message, void *userData);
+    static void pianoSetMaxNote(double timeStamp, std::vector<unsigned char> *message, void *userData);
 
 private:
     Ui::SettingsWindow *ui;
@@ -43,21 +57,12 @@ private:
     QSettings prefs;
 
     RtMidiIn midiin;
-    fluid_synth_t *midiout;
-    fluid_audio_driver_t *soundout;
 
-    int maxNote=0, minNote=127;
-    InstrumentType instrumentType;
+    InstrumentType instrumentType=PIANO;
+    quint64 instrumentArgs=0;
+    QString audioDriver,soundfont;
 
     HttpAPIClient *httpApiClient;
-
-private: //methods
-    void setDefaults();
-    void setMidiPortsList();
-    void renderInstrument();
-    void initSynth(), closeSynth();
-    static void setDriverList(void *data, const char *name, const char* value);
-    static void midiHandler( double timeStamp, std::vector<unsigned char> *message, void *userData );
 };
 
 #endif // SETTINGSWINDOW_H

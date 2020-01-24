@@ -31,15 +31,23 @@ struct Note
     quint8 note;
 };
 
+struct PianoArgs
+{
+    quint8 none1=0, none2=0, none3=0, none4=0, none5=0, none6=0;
+    quint8 minNote=0;
+    quint8 maxNote=0;
+};
+
 class InstrumentView : public QOpenGLWidget
 {
     Q_OBJECT
 
 public:
-    explicit InstrumentView(QWidget *parent = nullptr);
+    explicit InstrumentView(InstrumentType type, quint64 args, QWidget *parent = nullptr);
     ~InstrumentView();
 
-    void fromPiano(quint8 minNote, quint8 maxNote),fromPiano();
+    void updateInstrument();
+    void setInstrument(InstrumentType type), setArgs(quint64 args);
 
 public slots:
     void playNote(quint8 note);
@@ -49,15 +57,20 @@ protected:
     void initializeGL();
     void resizeGL(int w, int h);
 
+private: //methods
+    void fromPiano();
+
 private:
     Ui::InstrumentView *ui;
     QPainter painter;
     QSvgRenderer noteRenderer;
     QHash<quint8,PianoKey> keys;
     QTimer screenUpdateTimer;
-
     QList<Note> notes;
-    quint8 minNote,maxNote;
+
+
+    InstrumentType instrumentType;
+    quint64 instrumentArgs;
 };
 
 #endif // INSTRUMENTVIEW_H

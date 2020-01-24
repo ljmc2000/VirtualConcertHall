@@ -1,14 +1,16 @@
 #ifndef PLAYSCREEN_H
 #define PLAYSCREEN_H
 
-#include <QGraphicsSvgItem>
+#include <QNetworkDatagram>
+#include <QSettings>
 #include <QTimer>
 #include <QUdpSocket>
 #include <QWidget>
 
+#include <RtMidi.h>
+
 #include "basescreen.h"
 #include "httpapiclient.h"
-#include "instrumentview.h"
 #include "midihandler.h"
 #include "roomcommon.h"
 
@@ -28,22 +30,38 @@ public:
 
 private slots:
     void askQuit();
+    void attemptConnect();
+    void closeServer();
+    void disconnectFromServer();
+    void iterateServertime();
     void quitPlaying();
 
-    void addInstrumentView(quint32 clientId, InstrumentType instrament, quint64 args);
-    void removeInstrumentView(quint32 clientId);
-    void handleMidiPacket(quint32 clientId, quint8* message);
+    void handleDataFromServer();
 
 signals:
     void switchScreen(Mode mode);
 
+private:    //methods
+    static void handleMidiIn( double timeStamp, std::vector<unsigned char> *message, void *userData );
+    void loadInstrumentConfig(QSettings *prefs);
+
 private:
     Ui::PlayScreen *ui;
 
-    QHash<quint32,InstrumentView*> instrumentViews;
-
-    MidiHandler *midiHandler;
+    QSettings prefs;
+    RtMidiIn midiin;
     HttpAPIClient *httpApiClient;
+
+    QUdpSocket qSocket;
+    QHostAddress serverHost;
+    quint16 serverPort;
+    InstrumentType instrumentType;
+    quint64 instrumentArgs;
+    QTimer reconnectClock;
+    QTimer serverTimeIterator;
+    qint64 timestamp;
+    quint32 clientId=-1,secretId;
+    quint8 reconnectAttempts=MAXCONNECTATTEMPTS;
 
     bool owner;
 };
