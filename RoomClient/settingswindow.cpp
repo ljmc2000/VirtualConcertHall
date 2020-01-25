@@ -185,17 +185,18 @@ void SettingsWindow::showInstrumentConfig()
         {
             QLabel *label=new QLabel("Select your tuning",this);
             QComboBox *box=new QComboBox(this);
-            connect(box, &QComboBox::currentTextChanged,[=](){
-                GuitarArgs *args=(GuitarArgs*)&instrumentArgs;
-                args->tuning=(GuitarTuning)box->currentIndex();
-                ui->midiHandler->setInstrumentArgs(&prefs,instrumentType,instrumentArgs);
-                emit instrumentUpdate();
-            });
+            GuitarArgs *args=(GuitarArgs*)&instrumentArgs;
 
             for(int i=0; i<tunings.keyCount(); i++)
             {
                 box->addItem(tunings.valueToKey(i));
             }
+            box->setCurrentIndex(args->tuning);
+            connect(box,&QComboBox::currentTextChanged, [=](){
+                args->tuning=(GuitarTuning)box->currentIndex();
+                ui->midiHandler->setInstrumentArgs(&prefs,instrumentType,instrumentArgs);
+                emit instrumentUpdate();
+            });
 
             ui->instrumentConf->addWidget(label);
             ui->instrumentConf->addWidget(box);
