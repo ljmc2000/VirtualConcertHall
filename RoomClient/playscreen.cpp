@@ -117,9 +117,9 @@ void PlayScreen::handleDataFromServer()
                 break;
             }
 
-        case ERROR:
+        case WHOOPSIE:
             {
-                ErrorPacket *errorPacket=(ErrorPacket*) data.constData();
+                WhoopsiePacket *errorPacket=(WhoopsiePacket*) data.constData();
                 QString errorMessage;
                 switch(errorPacket->reason)
                 {

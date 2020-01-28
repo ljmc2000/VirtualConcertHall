@@ -19,7 +19,7 @@ typedef quint16 instrument_args_t;
 
 namespace RoomCommon
 {
-    Q_NAMESPACE
+    Q_NAMESPACE;
 
     enum PacketType {CONNECT,           //sent to request connection
                      INIT,              //sent upon connection
@@ -28,10 +28,10 @@ namespace RoomCommon
                      DISABLE,ENABLE,    //notification of a client being enabled or disabled
                      DISCONNECT,        //sent to inform a player they have been disconnected
                      CLOSESERVER,       //can be sent by the owner to close the server
-                     ERROR=-1,          //if something goes really wrong
+                     WHOOPSIE=-1,       //if something goes really wrong | apparantly windows.h defines an enum called error
                     };
 
-    enum ErrorType
+    enum WhoopsieType
     {
         WRONGVERSION,       //if the server and client have different versions of roomcommon
         WRONGSIZEPACKET,    //if the user somehow sends a packet with the wrong size for it's header
@@ -105,10 +105,10 @@ namespace RoomCommon
         quint32 secretId;
     };
 
-    struct ErrorPacket
+    struct WhoopsiePacket
     {
-        PacketType packetType=ERROR;
-        ErrorType reason;
+        PacketType packetType=WHOOPSIE;
+        WhoopsieType reason;
     };
 
     static QHash<PacketType,quint8> packetSize
@@ -121,7 +121,7 @@ namespace RoomCommon
         {ENABLE, sizeof (EnablePacket)},
         {DISCONNECT, sizeof (DisconnectPacket)},
         {CLOSESERVER, sizeof (CloseServerPacket)},
-        {ERROR, sizeof (ErrorPacket)},
+        {WHOOPSIE, sizeof (WhoopsiePacket)},
     };
 
     static bool verifyPacketSize(PacketType packetType,quint8 size) //a guard against buffer underflow attacks
