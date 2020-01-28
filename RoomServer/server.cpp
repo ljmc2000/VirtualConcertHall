@@ -13,6 +13,11 @@ Server::Server(int port)
     qSocket.bind(QHostAddress::Any,port);
     qDebug() << "Listening on port" << port;
 
+    connect(&hapicli, &HttpAPIClient::httpError, [=](){
+        qWarning() << "Failed to propperly connect to the httpapi. Something is very wrong.";
+    });
+    hapicli.test();
+
     connect(
         &qSocket, SIGNAL(readyRead()),
         this, SLOT(readPendingDatagrams())
