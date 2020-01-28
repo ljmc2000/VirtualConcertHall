@@ -5,9 +5,11 @@ dockercli = docker.from_env()
 def startRoomContainer(room: Room, owner: Player):
 	from os import environ
 	local_ip='127.0.0.1' if not environ.get('LOCAL_IP') else environ.get('LOCAL_IP')
+	httpapiurl = "virtualconcerthall.urown.cloud" if not environ.get('HTTPAPIURL') else environ.get('HTTPAPIURL')
 	containerEnv={
 			"TOKEN":room.token.id,
 			"OWNER":owner.secretId,
+			"HTTPAPIURL":httpapiurl,
 	}
 
 	dockercli.images.pull('thegingernut/roomserver')
