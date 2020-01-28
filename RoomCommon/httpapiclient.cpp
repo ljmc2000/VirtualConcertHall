@@ -3,7 +3,7 @@
 
 #include <QCoreApplication>
 
-#define httpAPIurl "http://virtualconcerthall.urown.cloud:5000"
+#define HTTPAPIURL "http://virtualconcerthall.urown.cloud:5000"
 #define REQUEST    while(!reply->isFinished()) qApp->processEvents();\
     QJsonObject json = QJsonDocument::fromJson(reply->readAll()).object();\
     if (reply->error() != QNetworkReply::NoError) emit httpError(reply->error(),reply->errorString()); \
@@ -33,6 +33,9 @@ int HttpAPIClient::getUserStatus()
 HttpAPIClient::HttpAPIClient()
 {
     this->token=prefs.value("loginToken").toString();
+
+    QString url=qgetenv("HTTPAPIURL");
+    this->httpAPIurl=url.size()!=0? url:HTTPAPIURL;
 }
 
 void HttpAPIClient::signup(QString username,QString password)
@@ -173,6 +176,9 @@ void HttpAPIClient::refreshPlayerState()
 HttpAPIClient::HttpAPIClient()
 {
     this->token=qgetenv("TOKEN");
+
+    QString url=qgetenv("HTTPAPIURL");
+    this->httpAPIurl=url.size()!=0? url:HTTPAPIURL;
 }
 
 quint32 HttpAPIClient::getClientId(quint32 secretId)

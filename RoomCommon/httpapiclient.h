@@ -83,6 +83,7 @@ private:
     QSettings prefs;
     QNetworkAccessManager netman;
     QString token;
+    QString httpAPIurl;
 };
 
 #endif // HTTPAPICLIENT_H
