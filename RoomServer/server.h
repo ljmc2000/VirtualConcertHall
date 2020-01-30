@@ -38,7 +38,7 @@ private slots:
     void readPendingDatagrams();
     void heartBeat();
     void pruneClients();
-    void finish();
+    void finish(HttpAPIClient::StopReason reason);
 
 private:
     QUdpSocket qSocket;

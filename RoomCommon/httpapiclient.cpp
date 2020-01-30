@@ -10,6 +10,8 @@
     else if (json["status"].toString() != "success") emit apiError(json["reason"].toString());\
     reply->deleteLater()
 
+QMetaEnum HttpAPIClient::MetaStopReason = QMetaEnum::fromType<HttpAPIClient::StopReason>();
+
 //common
 bool HttpAPIClient::test()
 {
@@ -161,13 +163,6 @@ void HttpAPIClient::leaveRoom()
     if(json["status"].toString()=="success") emit playerStateChange();
 }
 
-void HttpAPIClient::closeRoom()
-{
-    QJsonObject requestParams;
-    QJsonObject json=postRequest("/closeRoom",requestParams);
-    if(json["status"].toString()=="success") emit playerStateChange();
-}
-
 void HttpAPIClient::refreshPlayerState()
 {
     emit playerStateChange();
@@ -193,10 +188,11 @@ quint32 HttpAPIClient::getClientId(quint32 secretId)
         return 0;
 }
 
-void HttpAPIClient::timeoutRoom()
+void HttpAPIClient::closeRoom(StopReason reason)
 {
     QJsonObject requestParams;
-    QJsonObject json = postRequest("/timeoutRoom",requestParams);
+    requestParams.insert("reason",MetaStopReason.valueToKey(reason));
+    QJsonObject json = postRequest("/closeRoom",requestParams);
 }
 #endif
 

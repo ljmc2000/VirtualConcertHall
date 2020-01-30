@@ -210,24 +210,6 @@ def leaveRoom():
 	except Exception as e:
 		return jsonify(handleException(app,e,'/joinRoom'))
 
-@app.route("/closeRoom",methods=['POST'])
-def closeRoom():
-	try:
-		r=request.get_json()
-		u=getUserByToken(request.headers['loginToken'])
-		room=Room.objects.get(owner=u)
-
-		if room != None:
-			dockerProvider.deleteRoomContainer(room['containerid'])
-			room.close()
-
-			return jsonify({'status':'success'})
-		else:
-			return jsonify({'status':'failure','reason':'You do not currently have a room open'})
-
-	except Exception as e:
-		return jsonify(handleException(app,e,'/closeRoom'))
-
 #server endpoints
 @app.route("/getClientId",methods=['POST'])
 def getClientId():
@@ -242,18 +224,21 @@ def getClientId():
 	except Exception as e:
 		return jsonify(handleException(app,e,'/getClientId'))
 
-@app.route("/timeoutRoom",methods=['POST'])
-def timeoutRoom():
+@app.route("/closeRoom",methods=['POST'])
+def closeRoom():
 	try:
 		r=request.get_json()
 		checkIfServerToken(request.headers['loginToken'])
 		room=Room.objects.get(token=request.headers['loginToken'])
 
-		room.close("Timeout")
+		room.close(r['reason'])
 		return jsonify({"status":"success"})
 
+	except ValidationError as e:
+		return jsonify({"status":"failure","reason":"Invalid reason for closure"})
+
 	except Exception as e:
-		return jsonify(handleException(app,e,'/timeoutRoom'))
+		return jsonify(handleException(app,e,'/closeRoom'))
 
 if __name__ == "__main__":
 	app.run(debug=True)

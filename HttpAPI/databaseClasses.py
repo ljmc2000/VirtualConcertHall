@@ -9,7 +9,7 @@ from exceptions import ExpiredLoginToken, ShortPassword, BadPassword, Imposter
 passwordSize=8
 connect(environ['MONGO_URL'],serverSelectionTimeoutMS=100)
 
-ROOMCLOSESTATES = ('Crash','Timeout','User')
+ROOMCLOSESTATES = ('CRASH','TIMEOUT','USER')
 
 class WithPassword:
 	def setpwd(self,password: str):
@@ -69,7 +69,7 @@ class Room(Document,WithPassword):
 	def close(self,reason):
 		closedRoom=ClosedRoom()
 		closedRoom.fromRoom(self)
-		closedRoom.closureState=reason
+		closedRoom.closureReason=reason
 		closedRoom.save()
 
 		self.token.delete()
@@ -90,7 +90,7 @@ class ClosedRoom(Document):
 	players = ListField(ReferenceField(User))
 	created = DateTimeField(required=True)
 	closed = DateTimeField(default=datetime.datetime.now)
-	closureState = StringField(required=True,choices=ROOMCLOSESTATES)
+	closureReason = StringField(required=True,choices=ROOMCLOSESTATES)
 
 	def fromRoom(self,room: Room):
 		self.id = room.id

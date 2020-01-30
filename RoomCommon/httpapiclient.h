@@ -4,6 +4,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QMetaEnum>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QObject>
@@ -43,6 +44,10 @@ class HttpAPIClient: public QObject
 public:
     HttpAPIClient();
 
+    enum StopReason {TIMEOUT,CRASH,USER};
+    Q_ENUM(StopReason);
+    static QMetaEnum MetaStopReason;
+
 public slots:   //common
     bool test();
     int getUserStatus();
@@ -58,7 +63,6 @@ public slots:   //client
     RoomConnectionInfo getCurrentRoom();
     void joinRoom(QString roomId, QString password=nullptr);
     void leaveRoom();
-    void closeRoom();
 
 public:
     void refreshPlayerState();
@@ -68,7 +72,7 @@ signals:
 #else
 public slots:   //server
     quint32 getClientId(quint32 secretId);
-    void timeoutRoom();
+    void closeRoom(StopReason reason);
 #endif
 
 signals:

@@ -14,7 +14,7 @@ Server::Server(int port)
     qDebug() << "Listening on port" << port;
 
     connect(&hapicli, &HttpAPIClient::httpError, [=](){
-        qWarning() << "Failed to propperly connect to the httpapi. Something is very wrong.";
+        qWarning() << "Failed to properly connect to the httpapi. Something is very wrong.";
     });
     hapicli.test();
 
@@ -24,10 +24,8 @@ Server::Server(int port)
     );
 
     heartBeatTimer.setInterval(HEARTBEATINTERVAL);
-    connect(
-        &heartBeatTimer, SIGNAL(timeout()),
-        this, SLOT(heartBeat())
-    );
+    connect( &heartBeatTimer, SIGNAL(timeout()),
+             this, SLOT(heartBeat()));
     heartBeatTimer.start();
 
     pruneTimer.setInterval(PRUNINGINTERVAL);
@@ -39,8 +37,9 @@ Server::Server(int port)
 
     idleTimeoutTimer.setSingleShot(true);
     idleTimeoutTimer.setInterval(IDLETIMEOUT);
-    connect(&idleTimeoutTimer, SIGNAL(timeout()),
-            this, SLOT(finish()));
+    connect(&idleTimeoutTimer, &QTimer::timeout,[=](){
+        finish(HttpAPIClient::TIMEOUT);
+    });
     idleTimeoutTimer.start();
 
     owner=qgetenv("OWNER").toUInt();
@@ -84,7 +83,7 @@ void Server::readPendingDatagrams()
 
         case CLOSESERVER:
             {
-                finish();
+                finish(HttpAPIClient::USER);
                 break;
             }
 
@@ -148,15 +147,15 @@ void Server::pruneClients()
     }
 }
 
-void Server::finish()
+void Server::finish(HttpAPIClient::StopReason reason)
 {
-    qDebug() << "server is shutting down";
+    qDebug() << "server is shutting down due to" << HttpAPIClient::MetaStopReason.valueToKey(reason);
 
     DisconnectPacket disconnectPacket;
     QByteArray data((char *)&disconnectPacket,sizeof (DisconnectPacket));
     sendToAll(data);
 
-    hapicli.timeoutRoom();
+    hapicli.closeRoom(reason);
     QCoreApplication::quit();
 }
 
