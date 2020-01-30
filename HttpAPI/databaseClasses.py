@@ -7,7 +7,7 @@ from mongoengine.fields import *
 from exceptions import ExpiredLoginToken, ShortPassword, BadPassword, Imposter
 
 passwordSize=8
-connect(environ['MONGO_URL'],serverSelectionTimeoutMS=100)
+connect('virtualconcerthall',host=environ.get('MONGO_URL'),serverSelectionTimeoutMS=100)
 
 ROOMCLOSESTATES = ('CRASH','TIMEOUT','USER')
 
