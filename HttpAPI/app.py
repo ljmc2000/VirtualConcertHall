@@ -1,6 +1,7 @@
 from dockerProvider import getDockerProvider
 from exceptions import handleException
 from databaseClasses import *
+from roomserver_util import *
 from os import environ
 from bson import json_util
 from bson.objectid import ObjectId
@@ -47,6 +48,10 @@ def getUserStatus():
 
 		try:
 			player=Player.objects.get(user=user)
+			if not testRoom(player.room.ipaddress):
+				if datetime.datetime.now()>(player.room.created+datetime.timedelta(seconds=15)):
+					player.room.close("Crash")
+				player=None
 		except DoesNotExist as e:
 			player=None
 
@@ -214,12 +219,7 @@ def closeRoom():
 
 		if room != None:
 			dockerProvider.deleteRoomContainer(room['containerid'])
-			closedRoom=ClosedRoom()
-			closedRoom.fromRoom(room)
-			closedRoom.save()
-			Player.objects(room=room).delete()
-
-			room.delete()
+			room.close()
 
 			return jsonify({'status':'success'})
 		else:
@@ -249,14 +249,7 @@ def timeoutRoom():
 		checkIfServerToken(request.headers['loginToken'])
 		room=Room.objects.get(token=request.headers['loginToken'])
 
-		closedRoom=ClosedRoom()
-		closedRoom.fromRoom(room)
-		closedRoom.save()
-
-		Player.objects(room=room).delete()
-		room.delete()
-		LoginToken.objects.get(token=request.headers['loginToken']).delete()
-
+		room.close("Timeout")
 		return jsonify({"status":"success"})
 
 	except Exception as e:

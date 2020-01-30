@@ -56,7 +56,7 @@ private:
     QHostAddress serverHost;
     quint16 serverPort;
     InstrumentType instrumentType;
-    quint64 instrumentArgs;
+    instrument_args_t instrumentArgs;
     QTimer reconnectClock;
     QTimer serverTimeIterator;
     qint64 timestamp;

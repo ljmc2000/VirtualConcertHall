@@ -102,6 +102,16 @@ void Server::readPendingDatagrams()
                 sendToAll(data);
                 break;
             }
+
+        case PING:
+            {
+                PingPacket pingPacket;
+                QByteArray data((char*)&pingPacket, sizeof(PingPacket));
+                QNetworkDatagram datagram1(data,datagram.senderAddress(),datagram.senderPort());
+                qSocket.writeDatagram(datagram1);
+                break;
+            }
+
         default:
             qDebug() << "unimplemented packet type recieved";
         }

@@ -9,6 +9,8 @@ from exceptions import ExpiredLoginToken, ShortPassword, BadPassword, Imposter
 passwordSize=8
 connect(environ['MONGO_URL'],serverSelectionTimeoutMS=100)
 
+ROOMCLOSESTATES = ('Crash','Timeout','User')
+
 class WithPassword:
 	def setpwd(self,password: str):
 		if len(password) < passwordSize:
@@ -64,11 +66,21 @@ class Room(Document,WithPassword):
 	private = BooleanField(default=False)
 	created = DateTimeField(default=datetime.datetime.now)
 
+	def close(self,reason):
+		closedRoom=ClosedRoom()
+		closedRoom.fromRoom(self)
+		closedRoom.closureState=reason
+		closedRoom.save()
+
+		self.token.delete()
+
+		self.delete()
+
 class Player(Document):
 	user = ReferenceField(User, required=True, unique=True)
 	secretId = IntField(default=lambda: getrandbits(32), unique=True)
 	clientId = IntField(default=lambda: getrandbits(32), unique=True)
-	room = ReferenceField(Room, required=True)
+	room = ReferenceField(Room, required=True, reverse_delete_rule=CASCADE)
 
 class ClosedRoom(Document):
 	roomname = StringField(required=True)
@@ -78,8 +90,10 @@ class ClosedRoom(Document):
 	players = ListField(ReferenceField(User))
 	created = DateTimeField(required=True)
 	closed = DateTimeField(default=datetime.datetime.now)
+	closureState = StringField(required=True,choices=ROOMCLOSESTATES)
 
 	def fromRoom(self,room: Room):
+		self.id = room.id
 		self.roomname = room.roomname
 		self.owner = room.owner
 		self.description = room.description

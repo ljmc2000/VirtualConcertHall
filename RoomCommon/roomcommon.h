@@ -1,7 +1,7 @@
 #ifndef ROOMCOMMON_H
 #define ROOMCOMMON_H
 
-#define VERSION 1   //increment every time the api changes in a breaking way
+#define VERSION 2   //increment every time the api changes in a breaking way
 
 #include <QMetaEnum>
 
@@ -29,6 +29,7 @@ namespace RoomCommon
                      DISCONNECT,        //sent to inform a player they have been disconnected
                      CLOSESERVER,       //can be sent by the owner to close the server
                      WHOOPSIE=-1,       //if something goes really wrong | apparantly windows.h defines an enum called error
+                     PING=-2,           //sent by the httpapi to check if the server is alive
                     };
 
     enum WhoopsieType
@@ -111,6 +112,11 @@ namespace RoomCommon
         WhoopsieType reason;
     };
 
+    struct PingPacket
+    {
+        PacketType packetType=PING;
+    };
+
     static QHash<PacketType,quint8> packetSize
     {
         {CONNECT, sizeof (ConnectPacket)},
@@ -122,6 +128,7 @@ namespace RoomCommon
         {DISCONNECT, sizeof (DisconnectPacket)},
         {CLOSESERVER, sizeof (CloseServerPacket)},
         {WHOOPSIE, sizeof (WhoopsiePacket)},
+        {PING, sizeof (PingPacket)},
     };
 
     static bool verifyPacketSize(PacketType packetType,quint8 size) //a guard against buffer underflow attacks
