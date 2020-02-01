@@ -50,9 +50,12 @@ def getUserStatus():
 			player=Player.objects.get(user=user)
 			if not testRoom(player.room.ipaddress):
 				if datetime.datetime.now()>(player.room.created+datetime.timedelta(seconds=15)):
-					player.room.close("Crash")
+					player.room.close("CRASH")
 				player=None
 		except DoesNotExist as e:
+			player=None
+		except socket.gaierror as e:
+			player.room.close("CRASH")
 			player=None
 
 		if user.lastPing + datetime.timedelta(minutes=15) < datetime.datetime.now():
