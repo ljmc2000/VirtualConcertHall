@@ -73,9 +73,12 @@ void SettingsWindow::setMidiPortsList()
 
     int inport=prefs.value("midiInPort").toInt();
 
-    midiin.openPort(inport<midiin.getPortCount() ? inport:0);
-    midiin.setClientName("VirtualConcertHallClient");
-    midiin.setCallback(midiHandler,this);
+    if(midiin.getPortCount()!=0)
+    {
+        midiin.openPort(inport<midiin.getPortCount() ? inport:0);
+        midiin.setClientName("VirtualConcertHallClient");
+        midiin.setCallback(midiHandler,this);
+    }
 
     for(unsigned int i=0; i<midiin.getPortCount(); i++)
     {
