@@ -1,4 +1,5 @@
 Client
+Client.exe
 Makefile*
 .qmake.stash
 Client.pro.user
@@ -12,4 +13,5 @@ ui_*.h
 rtmidi[WL]*
 
 release
+RoomClientWindows.zip
 dsound.dll
