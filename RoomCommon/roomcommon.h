@@ -147,7 +147,7 @@ namespace RoomCommon
         quint8 maxNote=127;
     };
 
-    enum GuitarTuning
+    enum GuitarTuning: quint8
     {
         STANDARD,
         DADGAD,
