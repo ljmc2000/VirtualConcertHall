@@ -1,7 +1,7 @@
 #ifndef ROOMCOMMON_H
 #define ROOMCOMMON_H
 
-#define VERSION 2   //increment every time the api changes in a breaking way
+#define VERSION 3   //increment every time the api changes in a breaking way
 
 #include <QMetaEnum>
 
@@ -21,25 +21,27 @@ namespace RoomCommon
 {
     Q_NAMESPACE;
 
-    enum PacketType {CONNECT,           //sent to request connection
-                     INIT,              //sent upon connection
-                     HEARTBEAT,         //sent constantly to ensure continued connection
-                     MIDI,              //a packet which contains midi data
-                     DISABLE,ENABLE,    //notification of a client being enabled or disabled
-                     DISCONNECT,        //sent to inform a player they have been disconnected
-                     CLOSESERVER,       //can be sent by the owner to close the server
-                     WHOOPSIE=-1,       //if something goes really wrong | apparantly windows.h defines an enum called error
-                     PING=-2,           //sent by the httpapi to check if the server is alive
-                    };
+    enum PacketType: qint8
+    {
+        CONNECT,           //sent to request connection
+        INIT,              //sent upon connection
+        HEARTBEAT,         //sent constantly to ensure continued connection
+        MIDI,              //a packet which contains midi data
+        DISABLE,ENABLE,    //notification of a client being enabled or disabled
+        DISCONNECT,        //sent to inform a player they have been disconnected
+        CLOSESERVER,       //can be sent by the owner to close the server
+        WHOOPSIE=-1,       //if something goes really wrong | apparantly windows.h defines an enum called error
+        PING=-2,           //sent by the httpapi to check if the server is alive
+    };
 
-    enum WhoopsieType
+    enum WhoopsieType: quint8
     {
         WRONGVERSION,       //if the server and client have different versions of roomcommon
         WRONGSIZEPACKET,    //if the user somehow sends a packet with the wrong size for it's header
         PLAYERNOTFOUND,     //if the player trys to connect to a server but the server cannot identify them
     };
 
-    enum InstrumentType
+    enum InstrumentType: quint8
     {
         PIANO,
         GUITAR,

@@ -8,7 +8,7 @@ def testRoom(ipaddress):
 	sock.settimeout(2)
 
 	try:
-		sock.sendto(int.to_bytes(256-2,4,'little'),ip)
+		sock.sendto(int.to_bytes(256-2,1,'little'),ip)
 		data,addr=sock.recvfrom(1)
 		n=int.from_bytes(data,'little')
 
