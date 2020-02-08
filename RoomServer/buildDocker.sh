@@ -1,3 +1,7 @@
 ./clean.sh
-docker build -f Dockerfile .. -t thegingernut/roomserver &&
-docker push thegingernut/roomserver
+if [ -z $IMAGE_NAME ]
+then
+	IMAGE_NAME=virtualconcerthall.azurecr.io/roomserver
+fi
+docker build -f Dockerfile .. -t $IMAGE_NAME &&
+docker push $IMAGE_NAME

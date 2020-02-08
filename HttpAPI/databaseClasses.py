@@ -37,11 +37,7 @@ class WithPassword:
 class User(Document,WithPassword):
 	username = StringField(unique=True,required=True,min_length=4)
 	passhash = StringField(max_length=60,required=True)
-	lastPing = DateTimeField()
-
-class IpAddress(EmbeddedDocument):
-	ip = StringField(required=True)
-	port = IntField(required=True)
+	lastPing = DateTimeField()	
 
 class LoginToken(Document):
 	token=StringField(default=lambda: secrets.token_urlsafe(32),primary_key=True)
@@ -54,11 +50,24 @@ class LoginToken(Document):
 	def expired(self):
 		return self.expires < datetime.datetime.now()
 
-class Room(Document,WithPassword):
-	ipaddress = EmbeddedDocumentField(IpAddress,required=True)
+class RoomServer(Document,WithPassword):
+	containerName=StringField(primary_key=True)
+	ip = StringField()
+	port = IntField()
 	token = ReferenceField(LoginToken,required=True)
-	containerid = StringField(required=True,unique=True)
+	roomCount = IntField(default=0)
+
+def getLeastLoadedServer():
+	server=RoomServer.objects.order_by("roomCount")[0]
+	server.roomCount += 1
+
+	return server
+
+class Room(Document):
 	roomname = StringField(required=True)
+	roomId = LongField(primary_key=True, default=lambda: int(secrets.token_hex(8),16)-(2**63))
+	server = ReferenceField(RoomServer, default=getLeastLoadedServer, required=True, reverse_delete_rule=CASCADE)
+	port = IntField()
 	owner = ReferenceField(User, required=True, unique=True)
 	players = ListField(ReferenceField(User))
 	passhash = StringField(max_length=60)
@@ -72,8 +81,8 @@ class Room(Document,WithPassword):
 		closedRoom.closureReason=reason
 		closedRoom.save()
 
-		self.token.delete()
-
+		self.server.roomCount-=1
+		self.server.save()
 		self.delete()
 
 class Player(Document):
@@ -93,7 +102,6 @@ class ClosedRoom(Document):
 	closureReason = StringField(required=True,choices=ROOMCLOSESTATES)
 
 	def fromRoom(self,room: Room):
-		self.id = room.id
 		self.roomname = room.roomname
 		self.owner = room.owner
 		self.description = room.description

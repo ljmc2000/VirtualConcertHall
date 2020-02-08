@@ -1,7 +1,7 @@
 import socket
 
-def testRoom(ipaddress):
-	ip=ipaddress.ip, ipaddress.port
+def testRoom(room):
+	ip=room.server.ip, room.server.port
 
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	sock.connect(ip)

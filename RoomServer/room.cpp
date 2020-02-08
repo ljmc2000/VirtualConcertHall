@@ -1,4 +1,4 @@
-#include "server.h"
+#include "room.h"
 
 #define SENDWHOOPSIEPACKET(REASON,DATAGRAM) WhoopsiePacket whoopsiePacket;\
 whoopsiePacket.reason=REASON;\
@@ -8,15 +8,14 @@ qSocket.writeDatagram(datagram1);
 
 using namespace RoomCommon;
 
-Server::Server(int port)
+Room::Room(quint64 roomID, quint32 owner, quint16 port,HttpAPIClient *httpapicli,QObject *parent): QObject(parent)
 {
     qSocket.bind(QHostAddress::Any,port);
     qDebug() << "Listening on port" << port;
 
-    connect(&hapicli, &HttpAPIClient::httpError, [=](){
-        qWarning() << "Failed to properly connect to the httpapi. Something is very wrong.";
-    });
-    hapicli.test();
+    this->roomID=roomID;
+    this->hapicli=httpapicli;
+    hapicli->setRoomPort(port,roomID);
 
     connect(
         &qSocket, SIGNAL(readyRead()),
@@ -42,15 +41,15 @@ Server::Server(int port)
     });
     idleTimeoutTimer.start();
 
-    owner=qgetenv("OWNER").toUInt();
+    this->owner=owner;
 }
 
-Server::~Server()
+Room::~Room()
 {
 
 }
 
-void Server::readPendingDatagrams()
+void Room::readPendingDatagrams()
 {
     while (qSocket.hasPendingDatagrams())
     {
@@ -123,7 +122,7 @@ void Server::readPendingDatagrams()
     }
 }
 
-void Server::heartBeat()
+void Room::heartBeat()
 {
     foreach(Client c,clients) if(c.awake)
     {
@@ -136,7 +135,7 @@ void Server::heartBeat()
     }
 }
 
-void Server::pruneClients()
+void Room::pruneClients()
 {
     foreach(quint32 secretId, clients.keys()) if(clients[secretId].awake)
     {
@@ -147,19 +146,18 @@ void Server::pruneClients()
     }
 }
 
-void Server::finish(HttpAPIClient::StopReason reason)
+void Room::finish(HttpAPIClient::StopReason reason)
 {
-    qDebug() << "server is shutting down due to" << HttpAPIClient::MetaStopReason.valueToKey(reason);
+    qDebug() << "Room is shutting down due to" << HttpAPIClient::MetaStopReason.valueToKey(reason);
 
     DisconnectPacket disconnectPacket;
     QByteArray data((char *)&disconnectPacket,sizeof (DisconnectPacket));
     sendToAll(data);
 
-    hapicli.closeRoom(reason);
-    QCoreApplication::quit();
+    hapicli->closeRoom(roomID,reason);
 }
 
-void Server::sendToAll(QByteArray data)
+void Room::sendToAll(QByteArray data)
 {
     foreach(Client c, clients) if(c.awake)
     {
@@ -168,18 +166,18 @@ void Server::sendToAll(QByteArray data)
     }
 }
 
-bool Server::addClient(QNetworkDatagram joinRequest)
+bool Room::addClient(QNetworkDatagram joinRequest)
 {
     QByteArray joinRequestData = joinRequest.data();
     ConnectPacket *connectPacket=(ConnectPacket*) joinRequestData.constData();
-    quint32 clientId=hapicli.getClientId(connectPacket->secretId);
+    quint32 clientId=hapicli->getClientId(connectPacket->secretId,roomID);
 
     if(clientId!=0)
     {
         Client c;
         c.clientId=clientId;
         clients[connectPacket->secretId]=c;
-        qDebug() << clientId << "joined the server";
+        qDebug() << clientId << "joined the Room";
         return true;
     }
 
@@ -191,7 +189,7 @@ bool Server::addClient(QNetworkDatagram joinRequest)
     }
 }
 
-void Server::disableClient(quint32 secretId)
+void Room::disableClient(quint32 secretId)
 {
     DisablePacket disablePacket;
     Client c = clients[secretId];
@@ -203,7 +201,7 @@ void Server::disableClient(quint32 secretId)
     qDebug() << "Client Disabled" << c.address << c.port;
 }
 
-void Server::enableClient(QNetworkDatagram joinRequest)
+void Room::enableClient(QNetworkDatagram joinRequest)
 {
     QByteArray joinRequestData = joinRequest.data();
     ConnectPacket *connectPacket=(ConnectPacket*) joinRequestData.constData();

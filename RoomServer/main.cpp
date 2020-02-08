@@ -1,10 +1,10 @@
 #include <QCoreApplication>
-#include <server.h>
+#include <servermanager.h>
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    Server s(1998);
+    ServerManager s;
 
     return a.exec();
 }

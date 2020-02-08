@@ -16,7 +16,7 @@ enum RoomInfoAttrs {roomId,roomName,owner,description,password};
 
 struct RoomInfo
 {
-    QString roomId="";
+    quint64 roomId=0;
     QString roomName="";
     QString owner="";
     QString description="";
@@ -44,9 +44,18 @@ class HttpAPIClient: public QObject
 public:
     HttpAPIClient();
 
-    enum StopReason {TIMEOUT,CRASH,USER};
+    enum StopReason:quint8 {TIMEOUT,CRASH,USER};
     Q_ENUM(StopReason);
-    static QMetaEnum MetaStopReason;
+    enum UpdateType:quint8 {ADD,REMOVE};
+    Q_ENUM(UpdateType);
+    static QMetaEnum MetaStopReason,MetaUpdateType;
+
+    struct RoomUpdate
+    {
+        UpdateType type;
+        quint64 roomId;
+        quint32 owner;
+    };
 
 public slots:   //common
     bool test();
@@ -61,7 +70,7 @@ public slots:   //client
     QString createRoom(QString name, QString description=nullptr, QString password=nullptr, bool isprivate=false);
     RoomList listRooms(int page,int perPage);
     RoomConnectionInfo getCurrentRoom();
-    void joinRoom(QString roomId, QString password=nullptr);
+    void joinRoom(quint64 roomId, QString password=nullptr);
     void leaveRoom();
 
 public:
@@ -71,8 +80,11 @@ signals:
     void playerStateChange();
 #else
 public slots:   //server
-    quint32 getClientId(quint32 secretId);
-    void closeRoom(StopReason reason);
+    quint32 getClientId(quint32 secretId, quint64 roomId);
+    void setServerIp(quint16 port);
+    void setRoomPort(quint16 port, quint64 roomId);
+    void closeRoom(quint64 roomId, StopReason reason);
+    void refreshRooms(QList<quint64> rooms, QList<RoomUpdate> *updated);
 #endif
 
 signals:

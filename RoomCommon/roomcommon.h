@@ -12,7 +12,7 @@
 #define RECONNECTDELAY 3000         //time waited before attempting to reconnect to server
 #define PRUNINGINTERVAL 5000        //how often to check for dead clients
 #define SERVERTIMEUPDATEINTERVAL 1  //increment the time sent by the heartbeat packet every n seconds
-#define IDLETIMEOUT 30000           //how long to wait before the server auto shuts down
+#define IDLETIMEOUT 300000          //how long to wait before the server auto shuts down
 #define MAXCONNECTATTEMPTS 5        //attempt to connect to server no more than n times
 
 typedef quint16 instrument_args_t;

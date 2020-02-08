@@ -51,7 +51,7 @@ void RoomBrowser::refreshRooms()
     for(i=0; i<rooms.results.count(); i++)
     {
         RoomInfo r= i<PERPAGE? rooms.results[i]:RoomInfo();
-        servers[i][roomId].setText(r.roomId);
+        servers[i][roomId].setText(QString::number(r.roomId,16));
         servers[i][roomName].setText(r.roomName);
         servers[i][description].setText(r.description);
         servers[i][owner].setText(r.owner);

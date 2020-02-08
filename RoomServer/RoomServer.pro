@@ -17,8 +17,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     main.cpp \
-    server.cpp \
-    $$PWD/../RoomCommon/httpapiclient.cpp
+    $$PWD/../RoomCommon/httpapiclient.cpp \
+    servermanager.cpp \
+    room.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -26,9 +27,10 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    server.h \
     $$PWD/../RoomCommon/roomcommon.h \
     $$PWD/../RoomCommon/httpapiclient.h \
-    $$PWD/../RoomCommon/onlinestatusnamespace.h
+    $$PWD/../RoomCommon/onlinestatusnamespace.h \
+    servermanager.h \
+    room.h
 
 INCLUDEPATH += $$PWD/../RoomCommon

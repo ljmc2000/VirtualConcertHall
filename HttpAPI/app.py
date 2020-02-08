@@ -7,7 +7,6 @@ from bson import json_util
 from bson.objectid import ObjectId
 from flask import Flask,request,Response
 
-dockerProvider=getDockerProvider[environ.get('DOCKER_PROVIDER')]()
 app = Flask(__name__)
 
 def jsonify(json: dict):
@@ -17,7 +16,7 @@ def jsonify(json: dict):
 @app.route("/test",methods=['GET'])
 def test():
 	try:
-		getUserByToken(request.headers['loginToken'])
+		u=getUserByToken(request.headers['loginToken'])
 		return jsonify({"status":"success","invalid":False})
 	except (DoesNotExist,ExpiredLoginToken) as e:
 		return jsonify({"status":"success","invalid":True})
@@ -48,14 +47,12 @@ def getUserStatus():
 
 		try:
 			player=Player.objects.get(user=user)
-			if not testRoom(player.room.ipaddress):
-				if datetime.datetime.now()>(player.room.created+datetime.timedelta(seconds=15)):
-					player.room.close("CRASH")
-				player=None
+			if not testRoom(player.room):
+				return jsonify({"status":"success","userStatus":"WAITING"})
 		except DoesNotExist as e:
 			player=None
 		except socket.gaierror as e:
-			player.room.close("CRASH")
+			app.logger.error(e)
 			player=None
 
 		if user.lastPing + datetime.timedelta(minutes=15) < datetime.datetime.now():
@@ -116,24 +113,20 @@ def createRoom():
 	try:
 		r=request.get_json()
 		owner=getUserByToken(request.headers['loginToken'])
-		token=LoginToken()
-		token.save()
-		room=Room(roomname=r['roomname'],owner=owner,players=[owner],description=r.get('description'),token=token)
+		room=Room(roomname=r['roomname'],owner=owner,players=[owner],description=r.get('description'))
 
 		if r.get('private'):
 			room.private=True
 		if r.get('password'):
 			room.setpwd(r['password'])
 
-
 		p=Player(user=owner,room=room)
-		roomContainer=dockerProvider.startRoomContainer(room,p)
-		room.ipaddress=IpAddress(ip=roomContainer['ip'],port=roomContainer['port'])
-		room.containerid=roomContainer['id']
-		room.save()
 
+		room.server.save()
+		room.save()
 		p.save()
 
+		testRoom(room)
 		return jsonify({'status':'success','roomId':str(room.id)})
 
 	except Exception as e:
@@ -163,11 +156,11 @@ def getCurrentRoom():
 		player=Player.objects.get(user=user)
 
 		return jsonify({
-				'status':'success',
-				'roomIp':player.room.ipaddress.ip,
-				'roomPort':player.room.ipaddress.port,
-				'secretId':str(player.secretId),
-				'owner':player.user==player.room.owner,
+			'status':'success',
+			'roomIp':player.room.server.ip,
+			'roomPort':player.room.port,
+			'secretId':str(player.secretId),
+			'owner':player.user==player.room.owner,
 		})
 
 	except Exception as e:
@@ -219,20 +212,48 @@ def getClientId():
 	try:
 		r=request.get_json()
 		checkIfServerToken(request.headers['loginToken'])
-		room=Room.objects.get(token=request.headers['loginToken'])
-		player=Player.objects.get(secretId=int(r['secretId']),room=room)
+		player=Player.objects.get(secretId=int(r['secretId']),room=r['roomId'])
 
 		return jsonify({"status":"success","clientId":str(player.clientId)})
 
 	except Exception as e:
 		return jsonify(handleException(app,e,'/getClientId'))
 
+@app.route("/setServerIp",methods=['POST'])
+def setServerIp():
+	try:
+		r=request.get_json()
+		checkIfServerToken(request.headers['loginToken'])
+		server=RoomServer.objects.get(token=request.headers['loginToken'])
+		server.ip=request.remote_addr
+		server.port=port=r['port']
+		server.save()
+
+		return jsonify({"status":"success"})
+
+	except Exception as e:
+		return jsonify(handleException(app,e,'/setServerIp'))
+
+@app.route("/setRoomPort",methods=['POST'])
+def setRoomPort():
+	try:
+		r=request.get_json()
+		checkIfServerToken(request.headers['loginToken'])
+		room=Room.objects.get(roomId=int(r['roomId']))
+		room.port=r['port']
+		room.save()
+
+		return jsonify({"status":"success"})
+
+	except Exception as e:
+		return jsonify(handleException(app,e,'/setRoomPort'))
+
 @app.route("/closeRoom",methods=['POST'])
 def closeRoom():
 	try:
 		r=request.get_json()
 		checkIfServerToken(request.headers['loginToken'])
-		room=Room.objects.get(token=request.headers['loginToken'])
+		room=Room.objects.get(roomId=r['roomId'])
 
 		room.close(r['reason'])
 		return jsonify({"status":"success"})
@@ -242,6 +263,31 @@ def closeRoom():
 
 	except Exception as e:
 		return jsonify(handleException(app,e,'/closeRoom'))
+
+@app.route("/refreshRooms",methods=['POST'])
+def refreshRooms():
+	try:
+		r=request.get_json()
+		checkIfServerToken(request.headers['loginToken'])
+		server=RoomServer.objects.get(token=request.headers['loginToken'])
+
+		returnme=[]
+		known=r['known']
+
+		for room in Room.objects(server=server):
+			try:
+				i=known.index(str(room.id))
+				known.pop(i)
+			except ValueError as e:
+				returnme.append({"type":"ADD","roomId":str(room.id),"owner":room.owner})
+
+		for roomId in known:
+			returnme.append({"type":"REMOVE","roomId":roomId,"owner":0})
+
+		return jsonify({"status":"success","updates":returnme})
+
+	except Exception as e:
+		return jsonify(handleException(app,e,'/refreshRooms'))
 
 if __name__ == "__main__":
 	app.run(debug=True)

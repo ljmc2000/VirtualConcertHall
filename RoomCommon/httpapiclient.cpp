@@ -11,6 +11,7 @@
     reply->deleteLater()
 
 QMetaEnum HttpAPIClient::MetaStopReason = QMetaEnum::fromType<HttpAPIClient::StopReason>();
+QMetaEnum HttpAPIClient::MetaUpdateType = QMetaEnum::fromType<HttpAPIClient::UpdateType>();
 
 //common
 bool HttpAPIClient::test()
@@ -118,7 +119,7 @@ RoomList HttpAPIClient::listRooms(int page, int perPage)
         QJsonObject o = j.toObject();
         RoomInfo r;
         r.roomName=o["roomname"].toString();
-        r.roomId=o["roomId"].toString();
+        r.roomId=(quint64)o["roomId"].toString().toLongLong();
         r.owner=o["owner"].toString();
         r.description=o["description"].toString();
         r.password=o["password"].toBool();
@@ -134,7 +135,6 @@ RoomList HttpAPIClient::listRooms(int page, int perPage)
 
 RoomConnectionInfo HttpAPIClient::getCurrentRoom()
 {
-    QJsonObject request;
     QJsonObject json = getRequest("/getCurrentRoom");
 
     RoomConnectionInfo r;
@@ -146,10 +146,10 @@ RoomConnectionInfo HttpAPIClient::getCurrentRoom()
     return r;
 }
 
-void HttpAPIClient::joinRoom(QString roomId,QString password)
+void HttpAPIClient::joinRoom(quint64 roomId,QString password)
 {
     QJsonObject request;
-    request.insert("roomId",roomId);
+    request.insert("roomId",QString::number(roomId));
     if(password!=nullptr) request.insert("password",password);
     QJsonObject json=postRequest("/joinRoom",request);
 
@@ -176,10 +176,11 @@ HttpAPIClient::HttpAPIClient()
     this->httpAPIurl=url.size()!=0? url:HTTPAPIURL;
 }
 
-quint32 HttpAPIClient::getClientId(quint32 secretId)
+quint32 HttpAPIClient::getClientId(quint32 secretId, quint64 roomId)
 {
     QJsonObject requestParams;
     requestParams.insert("secretId",QString::number(secretId));
+    requestParams.insert("roomId",QString::number((qint64)roomId));
     QJsonObject json = postRequest("/getClientId",requestParams);
 
     if(json["status"].toString()=="success")
@@ -188,11 +189,49 @@ quint32 HttpAPIClient::getClientId(quint32 secretId)
         return 0;
 }
 
-void HttpAPIClient::closeRoom(StopReason reason)
+void HttpAPIClient::setServerIp(quint16 port)
+{
+    QJsonObject requestParams;
+    requestParams.insert("port",port);
+    postRequest("/setServerIp",requestParams);
+}
+
+void HttpAPIClient::setRoomPort(quint16 port, quint64 roomId)
+{
+    QJsonObject requestParams;
+    requestParams.insert("port",port);
+    requestParams.insert("roomId",QString::number((qint64)roomId));
+    postRequest("/setRoomPort",requestParams);
+}
+
+void HttpAPIClient::closeRoom(quint64 roomId,StopReason reason)
 {
     QJsonObject requestParams;
     requestParams.insert("reason",MetaStopReason.valueToKey(reason));
+    requestParams.insert("roomId",QString::number((qint64)roomId));
     QJsonObject json = postRequest("/closeRoom",requestParams);
+}
+
+void HttpAPIClient::refreshRooms(QList<quint64> rooms, QList<RoomUpdate> *updated)
+{
+    QJsonObject requestParams;
+    QJsonArray roomList;
+    for(quint64 id: rooms)
+    {
+        roomList.append(QString::number((qint64)id));
+    }
+    requestParams.insert("known",roomList);
+    QJsonObject json = postRequest("/refreshRooms",requestParams);
+
+    for(QJsonValueRef c: json["updates"].toArray())
+    {
+        QJsonObject change=c.toObject();
+        RoomUpdate update;
+        update.type=(UpdateType)MetaUpdateType.keyToValue(change["type"].toString().toUtf8());
+        update.roomId=(quint64)change["roomId"].toString().toLongLong();
+        update.owner=change["owner"].toString().toLongLong();
+        updated->append(update);
+    }
 }
 #endif
 

@@ -26,13 +26,13 @@ struct Client
     bool awake=true;
 };
 
-class Server: public QObject
+class Room: public QObject
 {
     Q_OBJECT;
 
 public:
-    Server(int port);
-    ~Server();
+    Room(quint64 roomID,quint32 owner,quint16 port,HttpAPIClient *httpapiclient, QObject *parent);
+    ~Room();
 
 private slots:
     void readPendingDatagrams();
@@ -42,12 +42,13 @@ private slots:
 
 private:
     QUdpSocket qSocket;
-    HttpAPIClient hapicli;
+    HttpAPIClient *hapicli;
     QTimer heartBeatTimer;
     QTimer pruneTimer;
     QTimer idleTimeoutTimer;
     QHash<quint32,Client> clients;
     quint32 owner;
+    quint64 roomID;
 
     void sendToAll(QByteArray data);
     bool addClient(QNetworkDatagram joinRequest);
