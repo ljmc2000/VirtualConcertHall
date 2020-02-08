@@ -29,6 +29,7 @@ def destroyAll():
 	for room in RoomServer.objects:
 		container=dockercli.containers.get(room.id)
 		container.stop()
+		room.token.delete()
 		room.delete()
 
 functions={

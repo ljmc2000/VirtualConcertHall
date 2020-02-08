@@ -12,6 +12,7 @@ namespace OnlineStatusNamespace
         ONLINE,
         OFFLINE,
         INROOM,
+        WAITING,
         NOLOGIN,
         APIDOWN,
     };
@@ -22,6 +23,7 @@ namespace OnlineStatusNamespace
         "Online",
         "Offline",
         "In Room",
+        "Waiting for Room",
         "Signed out",
         "Server fault",
     };
@@ -36,6 +38,7 @@ namespace OnlineStatusNamespace
         QIcon("online.svg"),
         QIcon("offline.svg"),
         QIcon("inroom.svg"),
+        QIcon(),
         QIcon("nologin.svg"),
         QIcon("apidown.svg"),
     };

@@ -81,8 +81,8 @@ signals:
 #else
 public slots:   //server
     quint32 getClientId(quint32 secretId, quint64 roomId);
-    void setServerIp(quint16 port);
-    void setRoomPort(quint16 port, quint64 roomId);
+    bool setServerIp(quint16 port);
+    bool setRoomPort(quint16 port, quint64 roomId);
     void closeRoom(quint64 roomId, StopReason reason);
     void refreshRooms(QList<quint64> rooms, QList<RoomUpdate> *updated);
 #endif

@@ -28,12 +28,7 @@ ServerManager::~ServerManager()
 
 void ServerManager::refreshServers()
 {
-    while(qSocket.hasPendingDatagrams())
-    {
-        QNetworkDatagram datagram = qSocket.receiveDatagram();
-        QNetworkDatagram reply(datagram.data(),datagram.senderAddress(),datagram.senderPort());
-        qSocket.writeDatagram(reply);
-    }
+    qDebug() << "Updating server list";
 
     httpapicli.refreshRooms(rooms.keys(),&roomUpdates);
 
@@ -51,11 +46,17 @@ void ServerManager::refreshServers()
     }
 
     roomUpdates.clear();
+    while(qSocket.hasPendingDatagrams())
+    {
+        QNetworkDatagram datagram = qSocket.receiveDatagram();
+    }
 }
 
 void ServerManager::addServer(quint64 roomID, quint32 owner)
 {
     rooms.insert(roomID, new Room(roomID, owner, nextPort, &httpapicli, this));
+    httpapicli.setRoomPort(nextPort,roomID);
+    qDebug() << "Room" << roomID << "listening on port" << nextPort;
     nextPort++;
 }
 
@@ -63,4 +64,5 @@ void ServerManager::removeServer(quint64 roomID)
 {
     rooms[roomID]->deleteLater();
     rooms.remove(roomID);
+    qDebug() << "Room" << roomID << "closed";
 }

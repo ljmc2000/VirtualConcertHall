@@ -189,19 +189,21 @@ quint32 HttpAPIClient::getClientId(quint32 secretId, quint64 roomId)
         return 0;
 }
 
-void HttpAPIClient::setServerIp(quint16 port)
+bool HttpAPIClient::setServerIp(quint16 port)
 {
     QJsonObject requestParams;
     requestParams.insert("port",port);
-    postRequest("/setServerIp",requestParams);
+    QJsonObject json=postRequest("/setServerIp",requestParams);
+    return json["status"].toString()=="success";
 }
 
-void HttpAPIClient::setRoomPort(quint16 port, quint64 roomId)
+bool HttpAPIClient::setRoomPort(quint16 port, quint64 roomId)
 {
     QJsonObject requestParams;
     requestParams.insert("port",port);
     requestParams.insert("roomId",QString::number((qint64)roomId));
-    postRequest("/setRoomPort",requestParams);
+    QJsonObject json=postRequest("/setRoomPort",requestParams);
+    return json["status"].toString()=="success";
 }
 
 void HttpAPIClient::closeRoom(quint64 roomId,StopReason reason)

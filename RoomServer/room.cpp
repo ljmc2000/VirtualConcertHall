@@ -1,4 +1,5 @@
 #include "room.h"
+#include "servermanager.h"
 
 #define SENDWHOOPSIEPACKET(REASON,DATAGRAM) WhoopsiePacket whoopsiePacket;\
 whoopsiePacket.reason=REASON;\
@@ -11,11 +12,9 @@ using namespace RoomCommon;
 Room::Room(quint64 roomID, quint32 owner, quint16 port,HttpAPIClient *httpapicli,QObject *parent): QObject(parent)
 {
     qSocket.bind(QHostAddress::Any,port);
-    qDebug() << "Listening on port" << port;
 
     this->roomID=roomID;
     this->hapicli=httpapicli;
-    hapicli->setRoomPort(port,roomID);
 
     connect(
         &qSocket, SIGNAL(readyRead()),
@@ -155,6 +154,7 @@ void Room::finish(HttpAPIClient::StopReason reason)
     sendToAll(data);
 
     hapicli->closeRoom(roomID,reason);
+    ((ServerManager*)parent())->removeServer(roomID);
 }
 
 void Room::sendToAll(QByteArray data)

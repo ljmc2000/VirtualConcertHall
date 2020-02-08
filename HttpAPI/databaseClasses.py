@@ -37,7 +37,7 @@ class WithPassword:
 class User(Document,WithPassword):
 	username = StringField(unique=True,required=True,min_length=4)
 	passhash = StringField(max_length=60,required=True)
-	lastPing = DateTimeField()	
+	lastPing = DateTimeField()
 
 class LoginToken(Document):
 	token=StringField(default=lambda: secrets.token_urlsafe(32),primary_key=True)
@@ -69,6 +69,7 @@ class Room(Document):
 	server = ReferenceField(RoomServer, default=getLeastLoadedServer, required=True, reverse_delete_rule=CASCADE)
 	port = IntField()
 	owner = ReferenceField(User, required=True, unique=True)
+	ownerId = IntField(required=True)
 	players = ListField(ReferenceField(User))
 	passhash = StringField(max_length=60)
 	description = StringField()

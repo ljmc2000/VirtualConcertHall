@@ -1,7 +1,19 @@
 import socket
 
+def informServerOfUpdate(roomServer):
+	ip=roomServer.ip, roomServer.port
+
+	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	sock.connect(ip)
+	sock.settimeout(2)
+
+	sock.sendto(int.to_bytes(0,1,'little'),ip)
+	sock.close()
+
 def testRoom(room):
-	ip=room.server.ip, room.server.port
+	if room.port==None:
+		return False
+	ip=room.server.ip, room.port
 
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	sock.connect(ip)

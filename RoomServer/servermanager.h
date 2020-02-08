@@ -11,11 +11,10 @@ public:
     explicit ServerManager();
     ~ServerManager();
 
+    void addServer(quint64 roomID, quint32 owner), removeServer(quint64 roomID);
+
 public slots:
     void refreshServers();
-
-private: //methods
-    void addServer(quint64 roomID, quint32 owner), removeServer(quint64 roomID);
 
 private:
     QUdpSocket qSocket;

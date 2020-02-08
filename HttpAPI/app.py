@@ -1,10 +1,9 @@
-from dockerProvider import getDockerProvider
 from exceptions import handleException
 from databaseClasses import *
 from roomserver_util import *
-from os import environ
 from bson import json_util
 from bson.objectid import ObjectId
+from time import sleep
 from flask import Flask,request,Response
 
 app = Flask(__name__)
@@ -48,6 +47,7 @@ def getUserStatus():
 		try:
 			player=Player.objects.get(user=user)
 			if not testRoom(player.room):
+				informServerOfUpdate(player.room.server)
 				return jsonify({"status":"success","userStatus":"WAITING"})
 		except DoesNotExist as e:
 			player=None
@@ -121,12 +121,14 @@ def createRoom():
 			room.setpwd(r['password'])
 
 		p=Player(user=owner,room=room)
+		room.ownerId=p.secretId
 
 		room.server.save()
 		room.save()
 		p.save()
 
-		testRoom(room)
+		sleep(.25)	#give mongo a chance to write
+		informServerOfUpdate(room.server)
 		return jsonify({'status':'success','roomId':str(room.id)})
 
 	except Exception as e:
@@ -279,7 +281,7 @@ def refreshRooms():
 				i=known.index(str(room.id))
 				known.pop(i)
 			except ValueError as e:
-				returnme.append({"type":"ADD","roomId":str(room.id),"owner":room.owner})
+				returnme.append({"type":"ADD","roomId":str(room.id),"owner":room.ownerId})
 
 		for roomId in known:
 			returnme.append({"type":"REMOVE","roomId":roomId,"owner":0})
