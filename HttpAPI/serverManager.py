@@ -6,6 +6,7 @@ from databaseClasses import RoomServer,LoginToken
 dockercli = docker.from_env()
 
 HTTPAPIURL = "virtualconcerthall.urown.cloud" if not environ.get('HTTPAPIURL') else environ.get('HTTPAPIURL')
+IMAGE = "virtualconcerthall.azurecr.io/roomserver" if not environ.get('DOCKER_IMAGE') else environ.get('DOCKER_IMAGE')
 
 def create():
 	token=LoginToken()
@@ -21,7 +22,7 @@ def create():
 	for i in range(10000,10100):
 		ports['%d/udp'%i]=i
 
-	room=dockercli.containers.run('virtualconcerthall.azurecr.io/roomserver',name="room_server",ports=ports,environment=containerEnv,remove=True,detach=True)
+	room=dockercli.containers.run(IMAGE,name="room_server",ports=ports,environment=containerEnv,remove=True,detach=True)
 	roomserver.id=room.id
 	roomserver.save()
 
