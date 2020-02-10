@@ -28,32 +28,33 @@ struct Client
 
 class Room: public QObject
 {
-    Q_OBJECT;
+    Q_OBJECT
 
 public:
-    Room(quint64 roomID,quint32 owner,quint16 port,HttpAPIClient *httpapiclient, QObject *parent);
+    Room(room_id_t roomID,quint32 owner, QUdpSocket *qSocket, HttpAPIClient *httpapiclient, QObject *parent);
     ~Room();
 
+    void handlePacket(const QNetworkDatagram &datagram);
+
 private slots:
-    void readPendingDatagrams();
     void heartBeat();
     void pruneClients();
     void finish(HttpAPIClient::StopReason reason);
 
 private:
-    QUdpSocket qSocket;
+    QUdpSocket *qSocket;
     HttpAPIClient *hapicli;
     QTimer heartBeatTimer;
     QTimer pruneTimer;
     QTimer idleTimeoutTimer;
     QHash<quint32,Client> clients;
     quint32 owner;
-    quint64 roomID;
+    room_id_t roomID;
 
-    void sendToAll(QByteArray data);
-    bool addClient(QNetworkDatagram joinRequest);
+    void sendToAll(const QByteArray &data);
+    bool addClient(const QNetworkDatagram &joinRequest);
     void disableClient(quint32 secretId);
-    void enableClient(QNetworkDatagram joinRequest);
+    void enableClient(const QNetworkDatagram &joinRequest);
 };
 
 #endif // SERVER_H

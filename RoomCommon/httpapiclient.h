@@ -10,6 +10,8 @@
 #include <QObject>
 #include <QSettings>
 
+#include "roomcommon.h"
+
 #define ROOMINFOATTRCOUNT 5
 
 enum RoomInfoAttrs {roomId,roomName,owner,description,password};
@@ -33,6 +35,7 @@ struct RoomConnectionInfo
 {
     QString roomIp;
     quint16 roomPort;
+    room_id_t roomId;
     quint32 secretId;
     bool owner=false;
 };
@@ -53,7 +56,7 @@ public:
     struct RoomUpdate
     {
         UpdateType type;
-        quint64 roomId;
+        room_id_t roomId;
         quint32 owner;
     };
 
@@ -80,11 +83,12 @@ signals:
     void playerStateChange();
 #else
 public slots:   //server
-    quint32 getClientId(quint32 secretId, quint64 roomId);
+    quint32 getClientId(quint32 secretId, room_id_t roomId);
     bool setServerIp(quint16 port);
-    bool setRoomPort(quint16 port, quint64 roomId);
-    void closeRoom(quint64 roomId, StopReason reason);
-    void refreshRooms(QList<quint64> rooms, QList<RoomUpdate> *updated);
+    void closeRoom(room_id_t roomId, StopReason reason);
+    void refreshRooms(QList<room_id_t> rooms, QList<RoomUpdate> *updated);
+private:
+    QString ipAddress;
 #endif
 
 signals:
@@ -94,6 +98,7 @@ signals:
 private:
     QJsonObject getRequest(QString endpoint);
     QJsonObject postRequest(QString endpoint, QJsonObject requestParams);
+    QString getIp();
 
 
     QSettings prefs;

@@ -1,4 +1,7 @@
 #include "servermanager.h"
+#include "roomcommon.h"
+
+using namespace RoomCommon;
 
 ServerManager::ServerManager()
 {
@@ -7,7 +10,7 @@ ServerManager::ServerManager()
 
     qSocket.bind(QHostAddress::Any,port);
     connect(&qSocket, SIGNAL(readyRead()),
-            this, SLOT(refreshServers()));
+            this, SLOT(handlePackets()));
     qDebug() << "Listening on port" << port;
 
     connect(&httpapicli, &HttpAPIClient::httpError, [=](){
@@ -46,21 +49,53 @@ void ServerManager::refreshServers()
     }
 
     roomUpdates.clear();
+}
+
+void ServerManager::handlePackets()
+{
     while(qSocket.hasPendingDatagrams())
     {
         QNetworkDatagram datagram = qSocket.receiveDatagram();
+        QByteArray data = datagram.data();
+        PacketType packetType=(PacketType)data.at(0);
+
+        switch (packetType)
+        {
+            case WHOOPSIE:
+            {
+                break;
+            }
+            case REFRESHSERVERS:
+            {
+                refreshServers();
+                break;
+            }
+            default:
+            {
+                if(data.size()>sizeof (room_id_t))
+                {
+                    room_id_t *roomID=(room_id_t*)(
+                                data.data()
+                                +data.size()
+                                -sizeof(room_id_t)
+                            );
+                    Room *room=rooms.value(*roomID);
+                    if(room != nullptr)room->handlePacket(datagram);
+                    else qDebug() << "A packet was sent with an invalid room number: " << *roomID;
+                }
+                break;
+            }
+        }
     }
 }
 
-void ServerManager::addServer(quint64 roomID, quint32 owner)
+void ServerManager::addServer(room_id_t roomID, quint32 owner)
 {
-    rooms.insert(roomID, new Room(roomID, owner, nextPort, &httpapicli, this));
-    httpapicli.setRoomPort(nextPort,roomID);
-    qDebug() << "Room" << roomID << "listening on port" << nextPort;
-    nextPort++;
+    rooms.insert(roomID, new Room(roomID, owner, &qSocket, &httpapicli, this));
+    qDebug() << "Room" << roomID << "has opened";
 }
 
-void ServerManager::removeServer(quint64 roomID)
+void ServerManager::removeServer(room_id_t roomID)
 {
     rooms[roomID]->deleteLater();
     rooms.remove(roomID);

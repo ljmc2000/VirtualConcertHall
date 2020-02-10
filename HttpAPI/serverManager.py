@@ -7,6 +7,7 @@ dockercli = docker.from_env()
 
 HTTPAPIURL = "virtualconcerthall.urown.cloud" if not environ.get('HTTPAPIURL') else environ.get('HTTPAPIURL')
 IMAGE = "virtualconcerthall.azurecr.io/roomserver" if not environ.get('DOCKER_IMAGE') else environ.get('DOCKER_IMAGE')
+IP_ADDRESS = environ.get('IP_ADDRESS')
 
 def create():
 	token=LoginToken()
@@ -16,20 +17,28 @@ def create():
 	containerEnv={
 		"TOKEN":token.id,
 		"HTTPAPIURL":HTTPAPIURL,
+		"IP_ADDRESS":IP_ADDRESS,
 	}
 
 	ports={'1998/udp':1998}
-	for i in range(10000,10100):
-		ports['%d/udp'%i]=i
 
-	room=dockercli.containers.run(IMAGE,name="room_server",ports=ports,environment=containerEnv,remove=True,detach=True)
+	room=dockercli.containers.run(IMAGE,
+		name="room_server",
+		ports=ports,
+		environment=containerEnv,
+		remove=False,
+		detach=True
+	)
 	roomserver.id=room.id
 	roomserver.save()
 
 def destroyAll():
 	for room in RoomServer.objects:
-		container=dockercli.containers.get(room.id)
-		container.stop()
+		try:
+			container=dockercli.containers.get(room.id)
+			container.stop()
+		except:
+			pass
 		room.token.delete()
 		room.delete()
 

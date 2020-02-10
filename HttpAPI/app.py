@@ -160,7 +160,8 @@ def getCurrentRoom():
 		return jsonify({
 			'status':'success',
 			'roomIp':player.room.server.ip,
-			'roomPort':player.room.port,
+			'roomPort':player.room.server.port,
+			'roomId':player.room.roomId,
 			'secretId':str(player.secretId),
 			'owner':player.user==player.room.owner,
 		})
@@ -227,7 +228,7 @@ def setServerIp():
 		r=request.get_json()
 		checkIfServerToken(request.headers['loginToken'])
 		server=RoomServer.objects.get(token=request.headers['loginToken'])
-		server.ip=request.remote_addr
+		server.ip=r['ip']
 		server.port=port=r['port']
 		server.save()
 
@@ -236,28 +237,16 @@ def setServerIp():
 	except Exception as e:
 		return jsonify(handleException(app,e,'/setServerIp'))
 
-@app.route("/setRoomPort",methods=['POST'])
-def setRoomPort():
-	try:
-		r=request.get_json()
-		checkIfServerToken(request.headers['loginToken'])
-		room=Room.objects.get(roomId=int(r['roomId']))
-		room.port=r['port']
-		room.save()
-
-		return jsonify({"status":"success"})
-
-	except Exception as e:
-		return jsonify(handleException(app,e,'/setRoomPort'))
-
 @app.route("/closeRoom",methods=['POST'])
 def closeRoom():
 	try:
 		r=request.get_json()
 		checkIfServerToken(request.headers['loginToken'])
 		room=Room.objects.get(roomId=r['roomId'])
+		server=room.server
 
 		room.close(r['reason'])
+		informServerOfUpdate(server)
 		return jsonify({"status":"success"})
 
 	except ValidationError as e:
@@ -281,7 +270,7 @@ def refreshRooms():
 				i=known.index(str(room.id))
 				known.pop(i)
 			except ValueError as e:
-				returnme.append({"type":"ADD","roomId":str(room.id),"owner":room.ownerId})
+				returnme.append({"type":"ADD","roomId":room.roomId,"owner":room.ownerId})
 
 		for roomId in known:
 			returnme.append({"type":"REMOVE","roomId":roomId,"owner":0})

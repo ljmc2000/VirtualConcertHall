@@ -1,7 +1,7 @@
 #ifndef ROOMCOMMON_H
 #define ROOMCOMMON_H
 
-#define VERSION 3   //increment every time the api changes in a breaking way
+#define VERSION 4   //increment every time the api changes in a breaking way
 
 #include <QMetaEnum>
 
@@ -16,6 +16,7 @@
 #define MAXCONNECTATTEMPTS 5        //attempt to connect to server no more than n times
 
 typedef quint16 instrument_args_t;
+typedef qint32 room_id_t;
 
 namespace RoomCommon
 {
@@ -32,7 +33,8 @@ namespace RoomCommon
         CLOSESERVER,       //can be sent by the owner to close the server
         WHOOPSIE=-1,       //if something goes really wrong | apparantly windows.h defines an enum called error
         PING=-2,           //sent by the httpapi to check if the server is alive
-    };
+        REFRESHSERVERS=-3,    //sent when the servers config has changed
+    }; Q_ENUM_NS(PacketType)
 
     enum WhoopsieType: quint8
     {
@@ -119,6 +121,11 @@ namespace RoomCommon
         PacketType packetType=PING;
     };
 
+    struct RefreshServersPacket
+    {
+        PacketType packetType=REFRESHSERVERS;
+    };
+
     static QHash<PacketType,quint8> packetSize
     {
         {CONNECT, sizeof (ConnectPacket)},
@@ -131,6 +138,7 @@ namespace RoomCommon
         {CLOSESERVER, sizeof (CloseServerPacket)},
         {WHOOPSIE, sizeof (WhoopsiePacket)},
         {PING, sizeof (PingPacket)},
+        {REFRESHSERVERS, sizeof(RefreshServersPacket)},
     };
 
     static bool verifyPacketSize(PacketType packetType,quint8 size) //a guard against buffer underflow attacks

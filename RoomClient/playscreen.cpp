@@ -17,6 +17,7 @@ PlayScreen::PlayScreen(RoomConnectionInfo r,HttpAPIClient *httpApiClient,QWidget
     this->owner=r.owner;
     this->serverHost=r.roomIp;
     this->serverPort=r.roomPort;
+    this->roomId=r.roomId;
 
     this->instrumentType=(InstrumentType)prefs.value("instrumentType").toInt();
     this->instrumentArgs=ui->midiout->getInstrumentArgs(&prefs,instrumentType);
@@ -83,8 +84,7 @@ void PlayScreen::handleDataFromServer()
                 HeartbeatPacket *heartbeatPacket=(HeartbeatPacket*) data.constData();
                 timestamp=heartbeatPacket->timestamp;
                 heartbeatPacket->secretId=secretId;
-                QNetworkDatagram rsvp(data,serverHost,serverPort);
-                qSocket.writeDatagram(rsvp);
+                sendPacket(data.data(),HEARTBEAT);
                 break;
             }
 
@@ -154,9 +154,16 @@ void PlayScreen::handleMidiIn( double timeStamp, std::vector<unsigned char> *mes
     midiPacket.timestamp=self->timestamp;
     for(int i=0; i<message->size(); i++)midiPacket.message[i]=message->at(i);
 
-    QByteArray data((char*)&midiPacket,sizeof(MidiPacket));
-    QNetworkDatagram datagram(data,self->serverHost,self->serverPort);
-    self->qSocket.writeDatagram(datagram);
+    self->sendPacket((char*)&midiPacket,MIDI);
+}
+
+void PlayScreen::sendPacket(char *packet, PacketType packetType)
+{
+    QByteArray data(packet, packetSize[packetType]);
+    int s = sizeof(room_id_t);
+    data.append(QByteArray((char*)&roomId, s), s);
+    QNetworkDatagram datagram(data,serverHost,serverPort);
+    qSocket.writeDatagram(datagram);
 }
 
 void PlayScreen::askQuit()
@@ -195,9 +202,7 @@ void PlayScreen::closeServer()
 {
     CloseServerPacket closeServerPacket;
     closeServerPacket.secretId=secretId;
-    QByteArray data((char *)&closeServerPacket, sizeof (DisconnectPacket));
-    QNetworkDatagram datagram(data,serverHost,serverPort);
-    qSocket.writeDatagram(datagram);
+    sendPacket((char*)&closeServerPacket,CLOSESERVER);
     disconnectFromServer();
 }
 
@@ -207,9 +212,7 @@ void PlayScreen::disconnectFromServer()
     {
         DisconnectPacket disconnectPacket;
         disconnectPacket.secretId=secretId;
-        QByteArray data((char *)&disconnectPacket, sizeof (DisconnectPacket));
-        QNetworkDatagram datagram(data,serverHost,serverPort);
-        qSocket.writeDatagram(datagram);
+        sendPacket((char *)&disconnectPacket, DISCONNECT);
         qSocket.disconnectFromHost();
     }
 }
@@ -225,10 +228,9 @@ void PlayScreen::attemptConnect()
         connectPacket.instrument=instrumentType;
         connectPacket.instrumentArgs=instrumentArgs;
 
-        QByteArray data((char*)&connectPacket,sizeof(ConnectPacket));
         qSocket.disconnectFromHost();
         qSocket.connectToHost(serverHost,serverPort);
-        qSocket.writeDatagram(QNetworkDatagram(data,serverHost,serverPort));
+        sendPacket((char*)&connectPacket,CONNECT);
     }
     else
     {

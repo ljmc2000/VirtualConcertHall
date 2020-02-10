@@ -140,6 +140,7 @@ RoomConnectionInfo HttpAPIClient::getCurrentRoom()
     RoomConnectionInfo r;
     r.roomIp=json["roomIp"].toString();
     r.roomPort=json["roomPort"].toInt();
+    r.roomId=json["roomId"].toInt();
     r.secretId=json["secretId"].toString().toUInt();
     r.owner=json["owner"].toBool();
 
@@ -174,13 +175,16 @@ HttpAPIClient::HttpAPIClient()
 
     QString url=qgetenv("HTTPAPIURL");
     this->httpAPIurl=url.size()!=0? url:HTTPAPIURL;
+
+    QString ipAddress=qgetenv("IP_ADDRESS");
+    this->ipAddress=ipAddress.size()!=0? ipAddress:getIp();
 }
 
-quint32 HttpAPIClient::getClientId(quint32 secretId, quint64 roomId)
+quint32 HttpAPIClient::getClientId(quint32 secretId, room_id_t roomId)
 {
     QJsonObject requestParams;
     requestParams.insert("secretId",QString::number(secretId));
-    requestParams.insert("roomId",QString::number((qint64)roomId));
+    requestParams.insert("roomId",roomId);
     QJsonObject json = postRequest("/getClientId",requestParams);
 
     if(json["status"].toString()=="success")
@@ -193,34 +197,26 @@ bool HttpAPIClient::setServerIp(quint16 port)
 {
     QJsonObject requestParams;
     requestParams.insert("port",port);
+    requestParams.insert("ip",ipAddress);
     QJsonObject json=postRequest("/setServerIp",requestParams);
     return json["status"].toString()=="success";
 }
 
-bool HttpAPIClient::setRoomPort(quint16 port, quint64 roomId)
-{
-    QJsonObject requestParams;
-    requestParams.insert("port",port);
-    requestParams.insert("roomId",QString::number((qint64)roomId));
-    QJsonObject json=postRequest("/setRoomPort",requestParams);
-    return json["status"].toString()=="success";
-}
-
-void HttpAPIClient::closeRoom(quint64 roomId,StopReason reason)
+void HttpAPIClient::closeRoom(room_id_t roomId,StopReason reason)
 {
     QJsonObject requestParams;
     requestParams.insert("reason",MetaStopReason.valueToKey(reason));
-    requestParams.insert("roomId",QString::number((qint64)roomId));
+    requestParams.insert("roomId",roomId);
     QJsonObject json = postRequest("/closeRoom",requestParams);
 }
 
-void HttpAPIClient::refreshRooms(QList<quint64> rooms, QList<RoomUpdate> *updated)
+void HttpAPIClient::refreshRooms(QList<room_id_t> rooms, QList<RoomUpdate> *updated)
 {
     QJsonObject requestParams;
     QJsonArray roomList;
-    for(quint64 id: rooms)
+    for(room_id_t id: rooms)
     {
-        roomList.append(QString::number((qint64)id));
+        roomList.append(id);
     }
     requestParams.insert("known",roomList);
     QJsonObject json = postRequest("/refreshRooms",requestParams);
@@ -230,8 +226,8 @@ void HttpAPIClient::refreshRooms(QList<quint64> rooms, QList<RoomUpdate> *update
         QJsonObject change=c.toObject();
         RoomUpdate update;
         update.type=(UpdateType)MetaUpdateType.keyToValue(change["type"].toString().toUtf8());
-        update.roomId=(quint64)change["roomId"].toString().toLongLong();
-        update.owner=change["owner"].toString().toLongLong();
+        update.roomId=change["roomId"].toInt();
+        update.owner=change["owner"].toString().toUInt();
         updated->append(update);
     }
 }
@@ -256,4 +252,17 @@ QJsonObject HttpAPIClient::postRequest(QString endpoint, QJsonObject requestPara
     REQUEST;
 
     return json;
+}
+
+QString HttpAPIClient::getIp()
+{
+    QString returnme("ERROR");
+    QString url("http://ifconfig.io/ip");
+    QNetworkRequest request(url);
+    QNetworkReply *reply=netman.get(request);
+    while(!reply->isFinished()) qApp->processEvents();
+    if (reply->error() != QNetworkReply::NoError) emit httpError(reply->error(),reply->errorString());
+    else returnme=reply->readAll();
+    reply->deleteLater();
+    return returnme;
 }

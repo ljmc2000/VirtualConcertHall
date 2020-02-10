@@ -11,18 +11,17 @@ public:
     explicit ServerManager();
     ~ServerManager();
 
-    void addServer(quint64 roomID, quint32 owner), removeServer(quint64 roomID);
+    void addServer(room_id_t roomID, quint32 owner), removeServer(room_id_t roomID);
 
 public slots:
     void refreshServers();
+    void handlePackets();
 
 private:
     QUdpSocket qSocket;
-    QHash<quint64,Room*> rooms;
+    QHash<room_id_t,Room*> rooms;
     HttpAPIClient httpapicli;
     QList<HttpAPIClient::RoomUpdate> roomUpdates;
-
-    quint16 nextPort=10000;
 };
 
 #endif // SERVERMANAGER_H

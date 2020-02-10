@@ -44,6 +44,7 @@ signals:
 private:    //methods
     static void handleMidiIn( double timeStamp, std::vector<unsigned char> *message, void *userData );
     void loadInstrumentConfig(QSettings *prefs);
+    void sendPacket(char* packet, PacketType packetType);
 
 private:
     Ui::PlayScreen *ui;
@@ -55,6 +56,7 @@ private:
     QUdpSocket qSocket;
     QHostAddress serverHost;
     quint16 serverPort;
+    room_id_t roomId;
     InstrumentType instrumentType;
     instrument_args_t instrumentArgs;
     QTimer reconnectClock;

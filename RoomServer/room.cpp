@@ -5,21 +5,15 @@
 whoopsiePacket.reason=REASON;\
 QByteArray data((char*)&whoopsiePacket,sizeof (WhoopsiePacket));\
 QNetworkDatagram datagram1(data,DATAGRAM.senderAddress(),DATAGRAM.senderPort());\
-qSocket.writeDatagram(datagram1);
+qSocket->writeDatagram(datagram1);
 
 using namespace RoomCommon;
 
-Room::Room(quint64 roomID, quint32 owner, quint16 port,HttpAPIClient *httpapicli,QObject *parent): QObject(parent)
+Room::Room(room_id_t roomID, quint32 owner, QUdpSocket *qSocket, HttpAPIClient *httpapicli,QObject *parent): QObject(parent)
 {
-    qSocket.bind(QHostAddress::Any,port);
-
     this->roomID=roomID;
     this->hapicli=httpapicli;
-
-    connect(
-        &qSocket, SIGNAL(readyRead()),
-        this, SLOT(readPendingDatagrams())
-    );
+    this->qSocket=qSocket;
 
     heartBeatTimer.setInterval(HEARTBEATINTERVAL);
     connect( &heartBeatTimer, SIGNAL(timeout()),
@@ -48,77 +42,75 @@ Room::~Room()
 
 }
 
-void Room::readPendingDatagrams()
+void Room::handlePacket(const QNetworkDatagram &datagram)
 {
-    while (qSocket.hasPendingDatagrams())
+    idleTimeoutTimer.setInterval(IDLETIMEOUT);
+    PacketType packetType = (PacketType) datagram.data().at(0);
+    QByteArray data(datagram.data(),packetSize[packetType]);
+
+    if(verifyPacketSize(packetType,datagram.data().size()-sizeof(room_id_t))) switch(data.at(0))
     {
-        idleTimeoutTimer.setInterval(IDLETIMEOUT);
-        QNetworkDatagram datagram = qSocket.receiveDatagram();
-        QByteArray data = datagram.data();
-
-        if(verifyPacketSize((PacketType) data.at(0),data.size())) switch(data.at(0))
+    case CONNECT:
         {
-        case CONNECT:
-            {
-                ConnectPacket *connectPacket=(ConnectPacket*) data.constData();
-                if(connectPacket->version!=VERSION){
-                    SENDWHOOPSIEPACKET(WRONGVERSION,datagram);
-                } else if(!clients.keys().contains(connectPacket->secretId)) {
-                    if(addClient(datagram))
-                            enableClient(datagram);
-                } else {
-                    enableClient(datagram);
-                }
-                break;
+            ConnectPacket *connectPacket=(ConnectPacket*) data.constData();
+            if(connectPacket->version!=VERSION){
+                SENDWHOOPSIEPACKET(WRONGVERSION,datagram);
+            } else if(!clients.keys().contains(connectPacket->secretId)) {
+                if(addClient(datagram))
+                        enableClient(datagram);
+            } else {
+                enableClient(datagram);
             }
-
-        case DISCONNECT:
-            {
-                DisconnectPacket *disconnectPacket=(DisconnectPacket*) data.constData();
-                disableClient(disconnectPacket->secretId);
-                break;
-            }
-
-        case CLOSESERVER:
-            {
-                finish(HttpAPIClient::USER);
-                break;
-            }
-
-        case HEARTBEAT:
-            {
-                HeartbeatPacket *heartbeatPacket=(HeartbeatPacket*) data.constData();
-                clients[heartbeatPacket->secretId].lastMessage=heartbeatPacket->timestamp;
-                break;
-            }
-
-        case MIDI:
-            {
-                MidiPacket *midiPacket=(MidiPacket*) data.constData();
-                midiPacket->clientId=clients[midiPacket->clientId].clientId;
-                sendToAll(data);
-                break;
-            }
-
-        case PING:
-            {
-                PingPacket pingPacket;
-                QByteArray data((char*)&pingPacket, sizeof(PingPacket));
-                QNetworkDatagram datagram1(data,datagram.senderAddress(),datagram.senderPort());
-                qSocket.writeDatagram(datagram1);
-                break;
-            }
-
-        default:
-            qDebug() << "unimplemented packet type recieved";
+            break;
         }
 
-        else
+    case DISCONNECT:
         {
-            qDebug() << "WARNING: Improperly sized packet";
-            SENDWHOOPSIEPACKET(WRONGSIZEPACKET,datagram);
+            DisconnectPacket *disconnectPacket=(DisconnectPacket*) data.constData();
+            disableClient(disconnectPacket->secretId);
+            break;
         }
+
+    case CLOSESERVER:
+        {
+            finish(HttpAPIClient::USER);
+            break;
+        }
+
+    case HEARTBEAT:
+        {
+            HeartbeatPacket *heartbeatPacket=(HeartbeatPacket*) data.constData();
+            clients[heartbeatPacket->secretId].lastMessage=heartbeatPacket->timestamp;
+            break;
+        }
+
+    case MIDI:
+        {
+            MidiPacket *midiPacket=(MidiPacket*) data.constData();
+            midiPacket->clientId=clients[midiPacket->clientId].clientId;
+            sendToAll(data);
+            break;
+        }
+
+    case PING:
+    {
+        PingPacket pingPacket;
+        QByteArray data((char*)&pingPacket, sizeof(PingPacket));
+        QNetworkDatagram datagram1(data,datagram.senderAddress(),datagram.senderPort());
+        qSocket->writeDatagram(datagram1);
+        break;
     }
+
+    default:
+        qDebug() << "unimplemented packet type recieved";
+    }
+
+    else
+    {
+        qDebug() << "WARNING: Improperly sized packet of type" << packetType << "and size" << data.size();
+        SENDWHOOPSIEPACKET(WRONGSIZEPACKET,datagram);
+    }
+
 }
 
 void Room::heartBeat()
@@ -130,13 +122,13 @@ void Room::heartBeat()
 
         QByteArray data((char*)&heartbeatPacket,sizeof(HeartbeatPacket));
         QNetworkDatagram datagram(data,c.address,c.port);
-        qSocket.writeDatagram(datagram);
+        qSocket->writeDatagram(datagram);
     }
 }
 
 void Room::pruneClients()
 {
-    foreach(quint32 secretId, clients.keys()) if(clients[secretId].awake)
+    for(quint32 secretId: clients.keys()) if(clients[secretId].awake)
     {
         if(clients[secretId].lastMessage+SERVERTIMEOUT<GETTIME())
         {
@@ -157,16 +149,16 @@ void Room::finish(HttpAPIClient::StopReason reason)
     ((ServerManager*)parent())->removeServer(roomID);
 }
 
-void Room::sendToAll(QByteArray data)
+void Room::sendToAll(const QByteArray &data)
 {
     foreach(Client c, clients) if(c.awake)
     {
         QNetworkDatagram datagram(data, c.address, c.port);
-        qSocket.writeDatagram(datagram);
+        qSocket->writeDatagram(datagram);
     }
 }
 
-bool Room::addClient(QNetworkDatagram joinRequest)
+bool Room::addClient(const QNetworkDatagram &joinRequest)
 {
     QByteArray joinRequestData = joinRequest.data();
     ConnectPacket *connectPacket=(ConnectPacket*) joinRequestData.constData();
@@ -192,7 +184,7 @@ bool Room::addClient(QNetworkDatagram joinRequest)
 void Room::disableClient(quint32 secretId)
 {
     DisablePacket disablePacket;
-    Client c = clients[secretId];
+    Client c = clients.value(secretId);
     c.awake=false;
     clients[secretId]=c;
     disablePacket.clientId=c.clientId;
@@ -201,13 +193,13 @@ void Room::disableClient(quint32 secretId)
     qDebug() << "Client Disabled" << c.address << c.port;
 }
 
-void Room::enableClient(QNetworkDatagram joinRequest)
+void Room::enableClient(const QNetworkDatagram &joinRequest)
 {
     QByteArray joinRequestData = joinRequest.data();
     ConnectPacket *connectPacket=(ConnectPacket*) joinRequestData.constData();
     quint32 secretId=connectPacket->secretId;
 
-    Client c = clients[secretId];
+    Client c = clients.value(secretId);
     c.address=joinRequest.senderAddress();
     c.port=joinRequest.senderPort();
     c.instrument=connectPacket->instrument;
@@ -222,7 +214,7 @@ void Room::enableClient(QNetworkDatagram joinRequest)
 
     QByteArray data((char*)&initPacket,sizeof(InitPacket));
     QNetworkDatagram datagram(data, c.address, c.port);
-    qSocket.writeDatagram(datagram);
+    qSocket->writeDatagram(datagram);
     qDebug() << "Client Connecting" << c.address << c.port;
 
     for(Client c: clients) if(c.awake)
@@ -233,7 +225,7 @@ void Room::enableClient(QNetworkDatagram joinRequest)
         enablePacket.instrumentArgs=c.instrumentArgs;
         QByteArray data((char*)&enablePacket,sizeof(EnablePacket));
         QNetworkDatagram datagram(data, joinRequest.senderAddress(), joinRequest.senderPort());
-        qSocket.writeDatagram(datagram);
+        qSocket->writeDatagram(datagram);
     }
 
     EnablePacket enablePacket;

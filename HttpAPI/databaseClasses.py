@@ -64,10 +64,9 @@ def getLeastLoadedServer():
 	return server
 
 class Room(Document):
-	roomname = StringField(required=True)
-	roomId = LongField(primary_key=True, default=lambda: int(secrets.token_hex(8),16)-(2**63))
+	roomId = IntField(primary_key=True, default=lambda: int(secrets.token_hex(4),16)-2**31)
 	server = ReferenceField(RoomServer, default=getLeastLoadedServer, required=True, reverse_delete_rule=CASCADE)
-	port = IntField()
+	roomname = StringField(required=True)
 	owner = ReferenceField(User, required=True, unique=True)
 	ownerId = IntField(required=True)
 	players = ListField(ReferenceField(User))
