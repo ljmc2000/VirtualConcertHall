@@ -26,7 +26,7 @@ def create():
 		name="room_server",
 		ports=ports,
 		environment=containerEnv,
-		remove=False,
+		remove=True,
 		detach=True
 	)
 	roomserver.id=room.id

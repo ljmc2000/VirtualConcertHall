@@ -81,6 +81,12 @@ void ServerManager::handlePackets()
                             );
                     Room *room=rooms.value(*roomID);
                     if(room != nullptr)room->handlePacket(datagram);
+                    else if(packetType==PING)
+                    {
+                        PingPacket p;
+                        p.packetType=WHOOPSIE;
+                        qSocket.writeDatagram((char*)&p, packetSize[PING], datagram.senderAddress(), datagram.senderPort());
+                    }
                     else qDebug() << "A packet was sent with an invalid room number: " << *roomID;
                 }
                 break;

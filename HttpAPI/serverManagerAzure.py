@@ -20,6 +20,8 @@ CONTAINER_NAME='roomserver'
 
 #ensure certain variables are set
 environ['MONGO_URL']
+if not HTTPAPIURL.startswith("http"):
+	raise Exception("HTTPAPIURL must begin with http")
 
 def create(*args):
 	CONTAINER_GROUP_NAME=args[0]
@@ -35,9 +37,6 @@ def create(*args):
 	ports=[
 		Port(port=1998,protocol=ContainerGroupNetworkProtocol.udp),
 	]
-
-	for i in range(10000,10009):
-		ports.append(Port(port=i, protocol=ContainerGroupNetworkProtocol.udp))
 
 	credential=ImageRegistryCredential(
 		server=REGISTRY_URL,
