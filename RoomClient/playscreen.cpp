@@ -2,6 +2,7 @@
 #include "ui_playscreen.h"
 
 #include <QMessageBox>
+#include <QHostInfo>
 
 #include "roomcommon.h"
 
@@ -14,8 +15,9 @@ PlayScreen::PlayScreen(RoomConnectionInfo r,HttpAPIClient *httpApiClient,QWidget
     ui->setupUi(this);
 
     this->httpApiClient=httpApiClient;
+
     this->owner=r.owner;
-    this->serverHost=r.roomIp;
+    this->serverHost=QHostInfo::fromName(r.roomIp).addresses().first();
     this->serverPort=r.roomPort;
     this->roomId=r.roomId;
 
@@ -91,7 +93,7 @@ void PlayScreen::handleDataFromServer()
         case MIDI:
             {
                 MidiPacket *midiPacket=(MidiPacket*) data.constData();
-                ui->midiout->handleMidi(midiPacket->clientId,midiPacket->message,midiPacket->timestamp-timestamp);
+                ui->midiout->handleMidi(midiPacket->clientId,midiPacket->message,timestamp-midiPacket->timestamp);
                 break;
             }
 

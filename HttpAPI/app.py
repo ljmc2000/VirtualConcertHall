@@ -222,21 +222,6 @@ def getClientId():
 	except Exception as e:
 		return jsonify(handleException(app,e,'/getClientId'))
 
-@app.route("/setServerIp",methods=['POST'])
-def setServerIp():
-	try:
-		r=request.get_json()
-		checkIfServerToken(request.headers['loginToken'])
-		server=RoomServer.objects.get(token=request.headers['loginToken'])
-		server.ip=r['ip']
-		server.port=port=r['port']
-		server.save()
-
-		return jsonify({"status":"success"})
-
-	except Exception as e:
-		return jsonify(handleException(app,e,'/setServerIp'))
-
 @app.route("/closeRoom",methods=['POST'])
 def closeRoom():
 	try:

@@ -84,11 +84,8 @@ signals:
 #else
 public slots:   //server
     quint32 getClientId(quint32 secretId, room_id_t roomId);
-    bool setServerIp(quint16 port);
     void closeRoom(room_id_t roomId, StopReason reason);
     void refreshRooms(QList<room_id_t> rooms, QList<RoomUpdate> *updated);
-private:
-    QString ipAddress;
 #endif
 
 signals:

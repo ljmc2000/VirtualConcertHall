@@ -175,9 +175,6 @@ HttpAPIClient::HttpAPIClient()
 
     QString url=qgetenv("HTTPAPIURL");
     this->httpAPIurl=url.size()!=0? url:HTTPAPIURL;
-
-    QString ipAddress=qgetenv("IP_ADDRESS");
-    this->ipAddress=ipAddress.size()!=0? ipAddress:getIp();
 }
 
 quint32 HttpAPIClient::getClientId(quint32 secretId, room_id_t roomId)
@@ -191,15 +188,6 @@ quint32 HttpAPIClient::getClientId(quint32 secretId, room_id_t roomId)
         return json["clientId"].toString().toUInt();
     else
         return 0;
-}
-
-bool HttpAPIClient::setServerIp(quint16 port)
-{
-    QJsonObject requestParams;
-    requestParams.insert("port",port);
-    requestParams.insert("ip",ipAddress);
-    QJsonObject json=postRequest("/setServerIp",requestParams);
-    return json["status"].toString()=="success";
 }
 
 void HttpAPIClient::closeRoom(room_id_t roomId,StopReason reason)

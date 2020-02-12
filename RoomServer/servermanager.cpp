@@ -17,7 +17,6 @@ ServerManager::ServerManager()
         qWarning() << "Failed to properly connect to the httpapi. Something is very wrong.";
     });
 
-    httpapicli.setServerIp(port);
     refreshServers();
 }
 

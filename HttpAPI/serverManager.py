@@ -5,9 +5,10 @@ from databaseClasses import RoomServer,LoginToken
 
 dockercli = docker.from_env()
 
-HTTPAPIURL = "virtualconcerthall.urown.cloud" if not environ.get('HTTPAPIURL') else environ.get('HTTPAPIURL')
+HTTPAPIURL = environ['HTTPAPIURL']
 IMAGE = "virtualconcerthall.azurecr.io/roomserver" if not environ.get('DOCKER_IMAGE') else environ.get('DOCKER_IMAGE')
-IP_ADDRESS = environ.get('IP_ADDRESS')
+IP_ADDRESS = environ['IP_ADDRESS']
+PORT = 1998 if not environ.get('PORT') else int(environ.get('PORT'))
 
 def create():
 	token=LoginToken()
@@ -17,10 +18,9 @@ def create():
 	containerEnv={
 		"TOKEN":token.id,
 		"HTTPAPIURL":HTTPAPIURL,
-		"IP_ADDRESS":IP_ADDRESS,
 	}
 
-	ports={'1998/udp':1998}
+	ports={('%d/udp' % PORT):PORT}
 
 	room=dockercli.containers.run(IMAGE,
 		name="room_server",
@@ -30,6 +30,8 @@ def create():
 		detach=True
 	)
 	roomserver.id=room.id
+	roomserver.ip=IP_ADDRESS
+	roomserver.port=PORT
 	roomserver.save()
 
 def destroyAll():
