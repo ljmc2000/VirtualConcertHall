@@ -4,7 +4,7 @@ from time import sleep
 from random import getrandbits
 from mongoengine import *
 from mongoengine.fields import *
-from exceptions import ExpiredLoginToken, ShortPassword, BadPassword, Imposter
+from exceptions import ExpiredLoginToken, ShortPassword, BadPassword, Imposter, NoRoomServerAvailable
 
 passwordSize=8
 connect('virtualconcerthall',host=environ.get('MONGO_URL'),serverSelectionTimeoutMS=100)
@@ -58,10 +58,15 @@ class RoomServer(Document,WithPassword):
 	roomCount = IntField(default=0)
 
 def getLeastLoadedServer():
-	server=RoomServer.objects.order_by("roomCount")[0]
-	server.roomCount += 1
+	query=RoomServer.objects.order_by("+roomCount")
+	if query.count() != 0:
+		server=query[0]
+		server.roomCount += 1
 
-	return server
+		return server
+
+	else:
+		raise NoRoomServerAvailable("There are no servers available at this time")
 
 class Room(Document):
 	roomId = IntField(primary_key=True, default=lambda: int(secrets.token_hex(4),16)-2**31)

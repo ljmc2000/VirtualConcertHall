@@ -28,9 +28,13 @@ class Imposter(Exception):
 		super().__init__("User %s tried to access a server only function" % user)
 		self.user=user
 
+class NoRoomServerAvailable(Exception):
+	pass
+		
+
 def handleException(app, e: Exception, endpoint: str):
 	try:
-		app.logger.error(type(e).__name__+' '+str(e))
+		app.logger.error('%s threw the following exception, "%s" because %s', endpoint, type(e).__name__, e)
 		raise e
 	except ExpiredLoginToken as e:
 		return {"status":"failure","reason":"Your login token has expired"}
@@ -38,6 +42,8 @@ def handleException(app, e: Exception, endpoint: str):
 		return {"status":"failure","reason":str(e)}
 	except Imposter as e:
 		return {"status":"failure","reason":"User tokens may not be used to access server endpoints"}
+	except NoRoomServerAvailable as e:
+		return {"status":"failure","reason":str(e)}
 	except NotUniqueError as e:
 		usefulInformation=notUniqueErrorRegex.search(str(e))
 		return {"status":"failure","reason":"A duplicate %s exists" % usefulInformation.group(3)}
