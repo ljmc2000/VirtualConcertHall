@@ -86,5 +86,5 @@ INCLUDEPATH += $$PWD/rtmidi
 DEPENDPATH += $$PWD/rtmidi
 
 #fluidsynth
-win32:LIBS += -L$$MXE_PREFIX/include/ -lfluidsynth -ldsound
-else:unix: LIBS += -lfluidsynth
+win32: LIBS += -L$$(MXE_PREFIX)/libs/
+LIBS += -lfluidsynth
