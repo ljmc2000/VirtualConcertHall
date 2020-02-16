@@ -4,7 +4,6 @@ from os import environ
 MXE_PREFIX=environ['HOME']+'/.local/share/mxe/usr/x86_64-w64-mingw32.shared'
 OBJDUMP=environ['HOME']+'/.local/share/mxe/usr/bin/x86_64-w64-mingw32.shared-objdump'
 BUILD_DIR='/tmp/RoomClientWindows'
-build_dir='RoomClientWindows'
 
 dllPattern=re.compile('DLL Name: (.*)')
 
@@ -35,4 +34,5 @@ for dependency in inspectFile('Client.exe'):
 subprocess.run('cp Client.exe *.svg %s' % BUILD_DIR, shell=True)
 subprocess.run(('cp', '-r', MXE_PREFIX+'/qt5/plugins/platforms', BUILD_DIR))
 subprocess.run(('zip', '-r', 'RoomClientWindows.zip', '.'), cwd=BUILD_DIR)
+subprocess.run(('cp', BUILD_DIR+'/RoomClientWindows.zip', '.'))
 subprocess.run(('rm','-r',BUILD_DIR))
