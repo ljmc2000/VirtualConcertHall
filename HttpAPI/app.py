@@ -175,7 +175,7 @@ def joinRoom():
 		r=request.get_json()
 		user=getUserByToken(request.headers['loginToken'])
 
-		room=Room.objects.get(id=r['roomId'])
+		room=Room.objects.get(roomId=r['roomId'])
 		if room.passhash and not room.checkpwd(r['password']):
 			return jsonify({'status':'failure', 'reason':'Incorrect password'})
 
