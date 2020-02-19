@@ -26,8 +26,8 @@ def create():
 		name="room_server",
 		ports=ports,
 		environment=containerEnv,
-		remove=True,
-		detach=True
+		restart_policy={"Name":"always"},
+		detach=True,
 	)
 	roomserver.id=room.id
 	roomserver.ip=IP_ADDRESS
@@ -38,7 +38,7 @@ def destroyAll():
 	for room in RoomServer.objects:
 		try:
 			container=dockercli.containers.get(room.id)
-			container.stop()
+			container.remove(force=True)
 		except:
 			pass
 		room.token.delete()

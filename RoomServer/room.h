@@ -47,7 +47,7 @@ private:
     QTimer heartBeatTimer;
     QTimer pruneTimer;
     QTimer idleTimeoutTimer;
-    QHash<quint32,Client> clients;
+    QHash<quint32,Client*> clients;
     quint32 owner;
     room_id_t roomID;
 

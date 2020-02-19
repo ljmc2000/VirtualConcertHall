@@ -39,7 +39,7 @@ Room::Room(room_id_t roomID, quint32 owner, QUdpSocket *qSocket, HttpAPIClient *
 
 Room::~Room()
 {
-
+    for(Client *c: clients) delete c;
 }
 
 void Room::handlePacket(const QNetworkDatagram &datagram)
@@ -80,14 +80,14 @@ void Room::handlePacket(const QNetworkDatagram &datagram)
     case HEARTBEAT:
         {
             HeartbeatPacket *heartbeatPacket=(HeartbeatPacket*) data.constData();
-            clients[heartbeatPacket->secretId].lastMessage=heartbeatPacket->timestamp;
+            clients[heartbeatPacket->secretId]->lastMessage=heartbeatPacket->timestamp;
             break;
         }
 
     case MIDI:
         {
             MidiPacket *midiPacket=(MidiPacket*) data.constData();
-            midiPacket->clientId=clients[midiPacket->clientId].clientId;
+            midiPacket->clientId=clients[midiPacket->clientId]->clientId;
             sendToAll(data);
             break;
         }
@@ -115,24 +115,25 @@ void Room::handlePacket(const QNetworkDatagram &datagram)
 
 void Room::heartBeat()
 {
-    foreach(Client c,clients) if(c.awake)
+    foreach(Client *c,clients) if(c->awake)
     {
         HeartbeatPacket heartbeatPacket;
         heartbeatPacket.timestamp=GETTIME();
 
         QByteArray data((char*)&heartbeatPacket,sizeof(HeartbeatPacket));
-        QNetworkDatagram datagram(data,c.address,c.port);
+        QNetworkDatagram datagram(data,c->address,c->port);
         qSocket->writeDatagram(datagram);
     }
 }
 
 void Room::pruneClients()
 {
-    for(quint32 secretId: clients.keys()) if(clients[secretId].awake)
+    for(QHash<quint32,Client*>::Iterator iter=clients.begin(); iter!=clients.end(); iter++)
     {
-        if(clients[secretId].lastMessage+SERVERTIMEOUT<GETTIME())
+        Client* c = iter.value();
+        if(c->awake && c->lastMessage+SERVERTIMEOUT<GETTIME())
         {
-            disableClient(secretId);
+            disableClient(iter.key());
         }
     }
 }
@@ -151,9 +152,9 @@ void Room::finish(HttpAPIClient::StopReason reason)
 
 void Room::sendToAll(const QByteArray &data)
 {
-    foreach(Client c, clients) if(c.awake)
+    for(Client *c: clients) if(c->awake)
     {
-        QNetworkDatagram datagram(data, c.address, c.port);
+        QNetworkDatagram datagram(data, c->address, c->port);
         qSocket->writeDatagram(datagram);
     }
 }
@@ -166,8 +167,8 @@ bool Room::addClient(const QNetworkDatagram &joinRequest)
 
     if(clientId!=0)
     {
-        Client c;
-        c.clientId=clientId;
+        Client *c = new Client();
+        c->clientId=clientId;
         clients[connectPacket->secretId]=c;
         qDebug() << clientId << "joined the Room";
         return true;
@@ -184,13 +185,12 @@ bool Room::addClient(const QNetworkDatagram &joinRequest)
 void Room::disableClient(quint32 secretId)
 {
     DisablePacket disablePacket;
-    Client c = clients.value(secretId);
-    c.awake=false;
-    clients[secretId]=c;
-    disablePacket.clientId=c.clientId;
+    Client *c = clients.value(secretId);
+    c->awake=false;
+    disablePacket.clientId=c->clientId;
     QByteArray data((char*)&disablePacket,sizeof (DisablePacket));
     sendToAll(data);
-    qDebug() << "Client Disabled" << c.address << c.port;
+    qDebug() << "Client Disabled" << c->address << c->port;
 }
 
 void Room::enableClient(const QNetworkDatagram &joinRequest)
@@ -199,39 +199,38 @@ void Room::enableClient(const QNetworkDatagram &joinRequest)
     ConnectPacket *connectPacket=(ConnectPacket*) joinRequestData.constData();
     quint32 secretId=connectPacket->secretId;
 
-    Client c = clients.value(secretId);
-    c.address=joinRequest.senderAddress();
-    c.port=joinRequest.senderPort();
-    c.instrument=connectPacket->instrument;
-    c.instrumentArgs=connectPacket->instrumentArgs;
-    c.lastMessage=GETTIME();
-    c.awake=true;
-    clients[secretId]=c;
+    Client *c = clients.value(secretId);
+    c->address=joinRequest.senderAddress();
+    c->port=joinRequest.senderPort();
+    c->instrument=connectPacket->instrument;
+    c->instrumentArgs=connectPacket->instrumentArgs;
+    c->lastMessage=GETTIME();
+    c->awake=true;
 
     InitPacket initPacket;
-    initPacket.clientId=c.clientId;
+    initPacket.clientId=c->clientId;
     initPacket.timestamp=GETTIME();
 
     QByteArray data((char*)&initPacket,sizeof(InitPacket));
-    QNetworkDatagram datagram(data, c.address, c.port);
+    QNetworkDatagram datagram(data, c->address, c->port);
     qSocket->writeDatagram(datagram);
-    qDebug() << "Client Connecting" << c.address << c.port;
+    qDebug() << "Client Connecting" << c->address << c->port;
 
-    for(Client c: clients) if(c.awake)
+    for(Client *o: clients) if(o->awake)
     {
         EnablePacket enablePacket;
-        enablePacket.clientId=c.clientId;
-        enablePacket.instrument=c.instrument;
-        enablePacket.instrumentArgs=c.instrumentArgs;
+        enablePacket.clientId=o->clientId;
+        enablePacket.instrument=o->instrument;
+        enablePacket.instrumentArgs=o->instrumentArgs;
         QByteArray data((char*)&enablePacket,sizeof(EnablePacket));
         QNetworkDatagram datagram(data, joinRequest.senderAddress(), joinRequest.senderPort());
         qSocket->writeDatagram(datagram);
     }
 
     EnablePacket enablePacket;
-    enablePacket.clientId=c.clientId;
-    enablePacket.instrument=c.instrument;
-    enablePacket.instrumentArgs=c.instrumentArgs;
+    enablePacket.clientId=c->clientId;
+    enablePacket.instrument=c->instrument;
+    enablePacket.instrumentArgs=c->instrumentArgs;
 
     QByteArray data1((char*)&enablePacket,sizeof(EnablePacket));
     sendToAll(data1);
