@@ -18,7 +18,7 @@ enum RoomInfoAttrs {roomId,roomName,owner,description,password};
 
 struct RoomInfo
 {
-    quint64 roomId=0;
+    room_id_t roomId=0;
     QString roomName="";
     QString owner="";
     QString description="";
@@ -73,7 +73,7 @@ public slots:   //client
     QString createRoom(QString name, QString description=nullptr, QString password=nullptr, bool isprivate=false);
     RoomList listRooms(int page,int perPage);
     RoomConnectionInfo getCurrentRoom();
-    void joinRoom(quint64 roomId, QString password=nullptr);
+    void joinRoom(room_id_t roomId, QString password=nullptr);
     void leaveRoom();
 
 public:

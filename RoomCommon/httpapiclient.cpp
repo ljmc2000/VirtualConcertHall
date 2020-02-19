@@ -147,7 +147,7 @@ RoomConnectionInfo HttpAPIClient::getCurrentRoom()
     return r;
 }
 
-void HttpAPIClient::joinRoom(quint64 roomId,QString password)
+void HttpAPIClient::joinRoom(room_id_t roomId,QString password)
 {
     QJsonObject request;
     request.insert("roomId",QString::number(roomId));
