@@ -3,7 +3,9 @@
 
 #include <QCoreApplication>
 
-#define HTTPAPIURL "http://virtualconcerthall.urown.cloud:5000"
+#define HTTPAPIURL "http://virtualconcerthall.uksouth.azurecontainer.io"
+//#define HTTPAPIURL "http://virtualconcerthall.urown.cloud:5000"
+
 #define REQUEST    while(!reply->isFinished()) qApp->processEvents();\
     QJsonObject json = QJsonDocument::fromJson(reply->readAll()).object();\
     if (reply->error() != QNetworkReply::NoError) emit httpError(reply->error(),reply->errorString()); \
