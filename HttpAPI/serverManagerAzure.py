@@ -17,7 +17,7 @@ REGISTRY_URL="virtualconcerthall.azurecr.io" if not environ.get('REGISTRY_URL') 
 REGISTRY_USERNAME="virtualconcerthall" if not environ.get('REGISTRY_USERNAME') else environ.get('REGISTRY_USERNAME')
 REGISTRY_PASSWORD=environ["REGISTRY_PASSWORD"]
 RESOURCE_GROUP="virtualconcerthall" if not environ.get('RESOURCE_GROUP') else environ.get('RESOURCE_GROUP')
-ROOM_PORT=1998 if not environ.get('ROOM_PORT') else environ.get('ROOM_PORT')
+ROOM_PORT=80 if not environ.get('ROOM_PORT') else environ.get('ROOM_PORT')
 
 #ensure certain variables are set
 environ['MONGO_URL']
@@ -32,6 +32,7 @@ def create(*args):
 	containerEnv=[
 		EnvironmentVariable(name='TOKEN',value=token.id),
 		EnvironmentVariable(name='HTTPAPIURL',value=HTTPAPIURL),
+		EnvironmentVariable(name='SERVER_PORT',value=ROOM_PORT),
 	]
 
 	ports=[

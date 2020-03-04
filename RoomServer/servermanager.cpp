@@ -5,7 +5,7 @@ using namespace RoomCommon;
 
 ServerManager::ServerManager()
 {
-    QString sport=qgetenv("MANAGEMENT_PORT");
+    QString sport=qgetenv("SERVER_PORT");
     quint16 port=sport==""? 1998:sport.toUShort();
 
     qSocket.bind(QHostAddress::Any,port);

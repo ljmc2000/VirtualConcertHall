@@ -8,7 +8,7 @@ dockercli = docker.from_env()
 HTTPAPIURL = environ['HTTPAPIURL']
 IMAGE = "virtualconcerthall.azurecr.io/roomserver" if not environ.get('DOCKER_IMAGE') else environ.get('DOCKER_IMAGE')
 IP_ADDRESS = environ['IP_ADDRESS']
-PORT = 1998 if not environ.get('PORT') else int(environ.get('PORT'))
+PORT = 8000 if not environ.get('PORT') else int(environ.get('PORT'))
 
 def create():
 	token=LoginToken()
@@ -18,6 +18,7 @@ def create():
 	containerEnv={
 		"TOKEN":token.id,
 		"HTTPAPIURL":HTTPAPIURL,
+		"SERVER_PORT":PORT,
 	}
 
 	ports={('%d/udp' % PORT):PORT}
