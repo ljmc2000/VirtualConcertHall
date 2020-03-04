@@ -1,18 +1,20 @@
 #ifndef ROOMCOMMON_H
 #define ROOMCOMMON_H
 
-#define VERSION 4   //increment every time the api changes in a breaking way
+#define VERSION 5   //increment every time the api changes in a breaking way
 
 #include <QMetaEnum>
 
-#define HEARTBEATINTERVAL 3000      //how often to send heartbeat messages
-#define SERVERTIMEOUT 10000          //how long to wait since last packet before marking as dorment
+#define HEARTBEATINTERVAL 300       //how often to send heartbeat messages
+#define SERVERTIMEOUT 3000          //how long to wait since last packet before marking as dorment
 #define MIDIMESSAGESIZE 3           //the size in bytes of a midi message
 #define RECONNECTDELAY 3000         //time waited before attempting to reconnect to server
 #define PRUNINGINTERVAL 5000        //how often to check for dead clients
-#define SERVERTIMEUPDATEINTERVAL 1  //increment the time sent by the heartbeat packet every n miliseconds
 #define IDLETIMEOUT 300000          //how long to wait before the server auto shuts down
 #define MAXCONNECTATTEMPTS 5        //attempt to connect to server no more than n times
+#define PINGPACKETINTERVAL 100      //how often to send a packet to determine ping
+
+#define GETTIME() QDateTime::currentDateTime().toMSecsSinceEpoch()
 
 typedef quint16 instrument_args_t;
 typedef qint32 room_id_t;
@@ -30,6 +32,8 @@ namespace RoomCommon
         DISABLE,ENABLE,    //notification of a client being enabled or disabled
         DISCONNECT,        //sent to inform a player they have been disconnected
         CLOSESERVER,       //can be sent by the owner to close the server
+        CHECKDELAY,        //If sent server should respond immediately
+        CHECKTIME,         //return local time
         WHOOPSIE=-1,       //if something goes really wrong | apparantly windows.h defines an enum called error
         PING=-2,           //sent by the httpapi to check if the server is alive
         REFRESHSERVERS=-3,    //sent when the servers config has changed
@@ -69,7 +73,6 @@ namespace RoomCommon
     {
         PacketType packetType=HEARTBEAT;
         quint32 secretId=-1;
-        qint64 timestamp;
     };
 
     struct MidiPacket
@@ -109,6 +112,18 @@ namespace RoomCommon
         quint32 secretId;
     };
 
+    struct CheckDelayPacket
+    {
+        PacketType packetType=CHECKDELAY;
+        qint64 timestamp;
+    };
+
+    struct CheckTimePacket
+    {
+        PacketType packetType=CHECKTIME;
+        qint64 timestamp=0;
+    };
+
     struct WhoopsiePacket
     {
         PacketType packetType=WHOOPSIE;
@@ -135,6 +150,8 @@ namespace RoomCommon
         {ENABLE, sizeof (EnablePacket)},
         {DISCONNECT, sizeof (DisconnectPacket)},
         {CLOSESERVER, sizeof (CloseServerPacket)},
+        {CHECKDELAY,sizeof (CheckDelayPacket)},
+        {CHECKTIME,sizeof (CheckTimePacket)},
         {WHOOPSIE, sizeof (WhoopsiePacket)},
         {PING, sizeof (PingPacket)},
         {REFRESHSERVERS, sizeof(RefreshServersPacket)},

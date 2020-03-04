@@ -33,7 +33,7 @@ private slots:
     void attemptConnect();
     void closeServer();
     void disconnectFromServer();
-    void iterateServertime();
+    void ping();
     void quitPlaying();
 
     void handleDataFromServer();
@@ -60,8 +60,8 @@ private:
     InstrumentType instrumentType;
     instrument_args_t instrumentArgs;
     QTimer reconnectClock;
-    QTimer serverTimeIterator;
-    qint64 timestamp;
+    QTimer pingOffsetSyncClock;
+    qint16 timeOffset=0,pingOffset=0;
     quint32 clientId=-1,secretId;
     quint8 reconnectAttempts=MAXCONNECTATTEMPTS;
 

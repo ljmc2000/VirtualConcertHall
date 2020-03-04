@@ -11,8 +11,6 @@
 #include "httpapiclient.h"
 #include "roomcommon.h"
 
-#define GETTIME() QDateTime::currentDateTime().toMSecsSinceEpoch()
-
 using namespace RoomCommon;
 
 struct Client

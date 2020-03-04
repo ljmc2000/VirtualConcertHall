@@ -80,7 +80,7 @@ void Room::handlePacket(const QNetworkDatagram &datagram)
     case HEARTBEAT:
         {
             HeartbeatPacket *heartbeatPacket=(HeartbeatPacket*) data.constData();
-            clients[heartbeatPacket->secretId]->lastMessage=heartbeatPacket->timestamp;
+            clients[heartbeatPacket->secretId]->lastMessage=GETTIME();
             break;
         }
 
@@ -118,7 +118,6 @@ void Room::heartBeat()
     foreach(Client *c,clients) if(c->awake)
     {
         HeartbeatPacket heartbeatPacket;
-        heartbeatPacket.timestamp=GETTIME();
 
         QByteArray data((char*)&heartbeatPacket,sizeof(HeartbeatPacket));
         QNetworkDatagram datagram(data,c->address,c->port);

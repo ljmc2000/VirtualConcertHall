@@ -69,6 +69,18 @@ void ServerManager::handlePackets()
                 refreshServers();
                 break;
             }
+            case CHECKDELAY:
+            {
+                qSocket.writeDatagram(datagram.data(),datagram.senderAddress(),datagram.senderPort());
+                break;
+            }
+            case CHECKTIME:
+            {
+                CheckTimePacket *packet=(CheckTimePacket*) datagram.data().constData();
+                packet->timestamp=GETTIME();
+                qSocket.writeDatagram(datagram.data(),datagram.senderAddress(),datagram.senderPort());
+                break;
+            }
             default:
             {
                 if(data.size()>sizeof (room_id_t))

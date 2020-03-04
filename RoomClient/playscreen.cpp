@@ -35,11 +35,12 @@ PlayScreen::PlayScreen(RoomConnectionInfo r,HttpAPIClient *httpApiClient,QWidget
     connect(ui->latencySlider, &QSlider::valueChanged,
             [=](){ui->midiout->maxLatency=ui->latencySlider->value();});
 
-    serverTimeIterator.setInterval(SERVERTIMEUPDATEINTERVAL);
+    pingOffsetSyncClock.setInterval(PINGPACKETINTERVAL);
     connect(
-                &serverTimeIterator, SIGNAL(timeout()),
-                this, SLOT(iterateServertime())
+                &pingOffsetSyncClock, SIGNAL(timeout()),
+                this, SLOT(ping())
             );
+    pingOffsetSyncClock.start();
 
     connect(
                 &qSocket, SIGNAL(readyRead()),
@@ -78,16 +79,13 @@ void PlayScreen::handleDataFromServer()
             {
                 InitPacket *initPacket=(InitPacket*) data.constData();
                 clientId=initPacket->clientId;
-                timestamp=initPacket->timestamp;
                 reconnectClock.stop();
-                serverTimeIterator.start();
                 break;
             }
 
         case HEARTBEAT:
             {
                 HeartbeatPacket *heartbeatPacket=(HeartbeatPacket*) data.constData();
-                timestamp=heartbeatPacket->timestamp;
                 heartbeatPacket->secretId=secretId;
                 sendPacket(data.data(),HEARTBEAT);
                 break;
@@ -96,7 +94,8 @@ void PlayScreen::handleDataFromServer()
         case MIDI:
             {
                 MidiPacket *midiPacket=(MidiPacket*) data.constData();
-                ui->midiout->handleMidi(midiPacket->clientId,midiPacket->message,timestamp-midiPacket->timestamp);
+                int offset=GETTIME()-midiPacket->timestamp;
+                ui->midiout->handleMidi(midiPacket->clientId,midiPacket->message,offset-timeOffset);
                 break;
             }
 
@@ -119,6 +118,25 @@ void PlayScreen::handleDataFromServer()
         case DISCONNECT:
             {
                 deleteLater();
+                break;
+            }
+
+        case CHECKDELAY:
+            {
+                CheckDelayPacket *checkDelayPacket=(CheckDelayPacket*) data.constData();
+                pingOffset=GETTIME() - checkDelayPacket->timestamp;
+
+                CheckTimePacket checkTimePacket;
+                QByteArray data1((char*)&checkTimePacket,packetSize[CHECKTIME]);
+                qSocket.writeDatagram(data1,serverHost,serverPort);
+                break;
+            }
+
+        case CHECKTIME:
+            {
+                CheckTimePacket *checkTimePacket=(CheckTimePacket*) data.constData();
+                timeOffset=GETTIME()-pingOffset-checkTimePacket->timestamp;
+
                 break;
             }
 
@@ -156,7 +174,7 @@ void PlayScreen::handleMidiIn( double timeStamp, std::vector<unsigned char> *mes
 
     MidiPacket midiPacket;
     midiPacket.clientId=self->secretId;
-    midiPacket.timestamp=self->timestamp;
+    midiPacket.timestamp=GETTIME()-self->timeOffset;
     for(int i=0; i<message->size(); i++)midiPacket.message[i]=message->at(i);
 
     self->sendPacket((char*)&midiPacket,MIDI);
@@ -185,6 +203,14 @@ void PlayScreen::askQuit()
     default:
         break;
     }
+}
+
+void PlayScreen::ping()
+{
+    CheckDelayPacket packet;
+    packet.timestamp=GETTIME();
+    QByteArray data((char*)&packet, packetSize[CHECKDELAY]);
+    qSocket.writeDatagram(data,serverHost,serverPort);
 }
 
 void PlayScreen::quitPlaying()
@@ -242,9 +268,4 @@ void PlayScreen::attemptConnect()
         qDebug() << "Exiting after " << MAXCONNECTATTEMPTS << " tries";
         deleteLater();
     }
-}
-
-void PlayScreen::iterateServertime()
-{
-    timestamp+=SERVERTIMEUPDATEINTERVAL;
 }
