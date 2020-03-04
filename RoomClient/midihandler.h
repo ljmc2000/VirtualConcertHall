@@ -34,6 +34,8 @@ public:
     static instrument_args_t getInstrumentArgs(QSettings *prefs, InstrumentType type);
     static instrument_args_t getDefaultInstrumentArgs(InstrumentType type);
 
+    qint16 maxLatency = 50;
+
 private:    //methods
     void addSynth(), deleteSynth(), deleteAllSynth();
 

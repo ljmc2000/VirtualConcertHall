@@ -32,6 +32,9 @@ PlayScreen::PlayScreen(RoomConnectionInfo r,HttpAPIClient *httpApiClient,QWidget
     connect(ui->exitButton, SIGNAL(clicked()),
             this, SLOT(askQuit()));
 
+    connect(ui->latencySlider, &QSlider::valueChanged,
+            [=](){ui->midiout->maxLatency=ui->latencySlider->value();});
+
     serverTimeIterator.setInterval(SERVERTIMEUPDATEINTERVAL);
     connect(
                 &serverTimeIterator, SIGNAL(timeout()),

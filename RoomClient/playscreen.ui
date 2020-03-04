@@ -14,16 +14,35 @@
    <string>MainWindow</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0">
+    <widget class="MidiHandler" name="midiout" native="true">
+     <layout class="QGridLayout" name="gridLayout_2" columnminimumwidth="0"/>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QSlider" name="latencySlider">
+     <property name="whatsThis">
+      <string>Acceptable delay for notes in transit</string>
+     </property>
+     <property name="minimum">
+      <number>1</number>
+     </property>
+     <property name="maximum">
+      <number>200</number>
+     </property>
+     <property name="value">
+      <number>50</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0">
     <widget class="QPushButton" name="exitButton">
      <property name="text">
       <string>Exit</string>
      </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="MidiHandler" name="midiout" native="true">
-     <layout class="QGridLayout" name="gridLayout_2" columnminimumwidth="0"/>
     </widget>
    </item>
   </layout>

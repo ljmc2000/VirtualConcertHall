@@ -43,7 +43,7 @@ void MidiHandler::handleMidi(quint32 clientId, quint8 *midiMessage, qint16 laten
     case 0b1001:    //note on event
         if(midiMessage[2]==0) {
             fluid_synth_noteoff(synth,channel,midiMessage[1]);
-        } else if(latency>SERVERHEARTBEATTIMEOUT) {
+        } else if(latency>maxLatency) {
             qDebug() << "Midi packet dropped from" << clientId;
         } else {
             fluid_synth_noteon(synth,channel,midiMessage[1],midiMessage[2]);
