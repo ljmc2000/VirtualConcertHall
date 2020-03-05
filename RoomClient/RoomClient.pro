@@ -40,7 +40,8 @@ SOURCES += \
     bihash.cpp \
     guitarutils.cpp \
     pianoinstrumentview.cpp \
-    druminstrumentview.cpp
+    druminstrumentview.cpp \
+    drumpad_templates.cpp
 
 HEADERS += \
     midihandler.h \
