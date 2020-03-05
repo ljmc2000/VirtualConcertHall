@@ -43,8 +43,7 @@ InstrumentView* InstrumentView::getInstrumentView(InstrumentType type, instrumen
         case DRUM:
         {
             DrumArgs *dargs = (DrumArgs*)&args;
-            DrumInstrumentView *v=new DrumInstrumentView(dargs->layout,parent);
-            return v;
+            return new DrumInstrumentView(dargs->layout,parent);
         }
     }
 }

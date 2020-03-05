@@ -1,7 +1,7 @@
 #include "druminstrumentview.h"
 
 #include "roomcommon.h"
-#include <iostream>
+#include <QDebug>
 
 using namespace RoomCommon;
 
@@ -13,16 +13,20 @@ DrumInstrumentView::DrumInstrumentView(DrumLayout layout, QWidget *parent):
 
 void DrumInstrumentView::updateInstrument()
 {
-    this->pads=presets[layout];
+    pads.clear();
 
-    for(QRectF &pad: pads)
+    for(PadTemplate temp: presets[layout])
     {
-        pad.setX(pad.x() * size().width());
-        pad.setY(pad.y() * size().height());
-        //pad.setSize(QSizeF(pad.width() * size().width(),pad.height() * size().height()));
-
-        std::cout << pad.x() << ' ' << pad.y()<< ' ' << pad.width()<< ' ' << pad.height() << '\n';
+        float sx=size().width(),sy=size().height();
+        pads.insert(temp.note,
+                    QRectF(
+                        QPointF(temp.px*sx,temp.py*sy),
+                        QSizeF(temp.rx*sx,temp.ry*sy)
+                    )
+        );
     }
+
+    qDebug() << pads;
 }
 
 void DrumInstrumentView::paintGL()
@@ -32,15 +36,19 @@ void DrumInstrumentView::paintGL()
     painter.setPen(Qt::black);
     painter.setBrush(QBrush(Qt::red));
 
-    for(QRectF pad: pads)
+    for(const QRectF &pad: pads)
     {
         painter.drawEllipse(pad);
     }
 
-    for(int i=notes.size()-1; i>=0; i--)
+    for(int i=0; i<notes.size(); i++)
     {
         Note *n=&notes[i];
+        if(!pads.contains(n->note)) continue;
+
         QRectF dimensions=pads.value(n->note);
+        QPointF h(dimensions.x(),dimensions.y()+(size().height()*.666666666f)*(-n->age/(float)TIMEOUT));
+        dimensions.moveTo(h);
 
         noteRenderer.render(&painter,dimensions);
         if(n->age<TIMEOUT)n->age+=100;
@@ -50,13 +58,88 @@ void DrumInstrumentView::paintGL()
     painter.end();
 }
 
-static QHash<quint8,QRectF> AmmoonDrumPad
+PadTemplate::PadTemplate(quint8 note, float px, float py, float rx, float ry)
 {
-    {38,QRectF(QPointF(4.0f/5.0f,1.0f/4.0f),
-               QSizeF(1.0f/4.0f,1.0f/4.0f))},
-};
+    this->note=note;
+    this->px=px;
+    this->py=py;
+    this->rx=rx;
+    this->ry=ry;
+}
 
-QHash<DrumLayout,QHash<quint8,QRectF>> DrumInstrumentView::presets(
-{
+static QList<PadTemplate> AmmoonDrumPad
+({
+     PadTemplate(36,
+         3.0f/8.0f,
+         3.0f/8.0f,
+         1.0f/4.0f,
+         1.0f/4.0f
+     ),
+
+     PadTemplate(38,
+         0,
+         4.0f/5.0f,
+         1.0f/4.0f,
+         1.0f/4.0f
+     ),
+
+     PadTemplate(42,
+         1.0f/8.0f,
+         1.0f/2.0f,
+         3.0f/16.0f,
+         3.0f/16.0f
+     ),
+
+     PadTemplate(44,
+         7.0f/16.0f,
+         11.0f/16.0f,
+         1.0f/8.0f,
+         1.0f/8.0f
+     ),
+
+     PadTemplate(45,
+         1-1/4.0f,
+         4.0f/5.0f,
+         1.0f/4.0f,
+         1.0f/4.0f
+     ),
+
+     PadTemplate(48,
+         9.0f/16.0f,
+         4.0f/5.0f,
+         3.0f/16.0f,
+         3.0f/16.0f
+     ),
+
+     PadTemplate(49,
+         1.0f/8.0f,
+         1.0f/4.0f,
+         3.0f/16.0f,
+         3.0f/16.0f
+     ),
+
+     PadTemplate(50,
+         1.0f/4.0f,
+         4.0f/5.0f,
+         3.0f/16.0f,
+         3.0f/16.0f
+     ),
+
+     PadTemplate(51,
+         11.0f/16.0f,
+         1.0f/2.0f,
+         3.0f/16.0f,
+         3.0f/16.0f
+     ),
+
+     PadTemplate(57,
+         11.0f/16.0f,
+         1.0f/4.0f,
+         3.0f/16.0f,
+         3.0f/16.0f
+     ),
+});
+
+QHash<DrumLayout,QList<PadTemplate>> DrumInstrumentView::presets({
     {AMMOON,AmmoonDrumPad},
 });
