@@ -203,13 +203,13 @@ void MidiHandler::deleteAllSynth()
     channelMap.clear();
 }
 
-void MidiHandler::addChannel(quint32 clientId, InstrumentType instrument, quint64 args, QWidget *parent)
+void MidiHandler::addChannel(quint32 clientId, InstrumentType instrument, instrument_args_t args, QWidget *parent)
 {
     InstrumentView *v;
 
     //add visual
     if(!instrumentViews.contains(clientId)) {
-        v=new InstrumentView(instrument,args,this);
+        v=InstrumentView::getInstrumentView(instrument,args,this);
         v->updateInstrument();
         ui->gridLayout_2->addWidget(v);
 

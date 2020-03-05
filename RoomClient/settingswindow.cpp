@@ -206,6 +206,29 @@ void SettingsWindow::showInstrumentConfig()
             break;
         }
 
+        case DRUM:
+        {
+            QLabel *label=new QLabel("Select the model of your drumpad",this);
+            QComboBox *box=new QComboBox(this);
+            DrumArgs *args=(DrumArgs*)&instrumentArgs;
+
+            for(int i=0; i<DrumPadLayouts.keyCount(); i++)
+            {
+                box->addItem(DrumPadLayouts.valueToKey(i));
+            }
+            box->setCurrentIndex(args->layout);
+
+            connect(box,&QComboBox::currentTextChanged, [=](){
+                args->layout=(DrumLayout)box->currentIndex();
+                ui->midiHandler->setInstrumentArgs(&prefs,instrumentType,instrumentArgs);
+                emit instrumentUpdate();
+            });
+
+            ui->instrumentConf->addWidget(label);
+            ui->instrumentConf->addWidget(box);
+            break;
+        }
+
     }
 }
 

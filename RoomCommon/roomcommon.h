@@ -50,6 +50,7 @@ namespace RoomCommon
     {
         PIANO,
         GUITAR,
+        DRUM,
 
     }; Q_ENUM_NS(InstrumentType);
 
@@ -181,6 +182,17 @@ namespace RoomCommon
     struct GuitarArgs
     {
         GuitarTuning tuning=STANDARD;
+    };
+
+    enum DrumLayout: quint8
+    {
+        AMMOON,
+    };
+    Q_ENUM_NS(DrumLayout);
+
+    struct DrumArgs
+    {
+        DrumLayout layout=(DrumLayout)0;
     };
 }
 #endif

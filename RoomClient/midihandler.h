@@ -26,7 +26,7 @@ public:
     MidiHandler(QWidget *parent=nullptr);
     ~MidiHandler();
 
-    void addChannel(quint32 clientId, InstrumentType instrument, quint64 args, QWidget *parent=nullptr),delChannel(quint32 clientId);
+    void addChannel(quint32 clientId, InstrumentType instrument, instrument_args_t args, QWidget *parent=nullptr),delChannel(quint32 clientId);
     void handleMidi(quint32 clientId, quint8* midiMessage, qint16 latency);
     void setSoundFont(QString soundfont), setAudioDriver(QString audioDriver);
 

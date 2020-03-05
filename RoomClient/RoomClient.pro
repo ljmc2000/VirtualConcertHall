@@ -38,7 +38,9 @@ SOURCES += \
     roomcreator.cpp \
     instrumentview.cpp \
     bihash.cpp \
-    guitarutils.cpp
+    guitarutils.cpp \
+    pianoinstrumentview.cpp \
+    druminstrumentview.cpp
 
 HEADERS += \
     midihandler.h \
@@ -56,7 +58,9 @@ HEADERS += \
     roomcreator.h \
     instrumentview.h \
     bihash.h \
-    guitarutils.h
+    guitarutils.h \
+    pianoinstrumentview.h \
+    druminstrumentview.h
 
 FORMS += \
     settingswindow.ui \

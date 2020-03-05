@@ -19,12 +19,6 @@ namespace Ui {
 class InstrumentView;
 }
 
-struct PianoKey
-{
-    QRectF dim;
-    QColor color;
-};
-
 struct Note
 {
     quint16 age=0;
@@ -36,35 +30,26 @@ class InstrumentView : public QOpenGLWidget
     Q_OBJECT
 
 public:
-    explicit InstrumentView(InstrumentType type, quint64 args, QWidget *parent = nullptr);
+    explicit InstrumentView(QWidget *parent = nullptr);
     ~InstrumentView();
+    static InstrumentView* getInstrumentView(InstrumentType type, instrument_args_t args, QWidget *parent);
 
-    void updateInstrument();
-    void setInstrument(InstrumentType type), setArgs(quint64 args);
+    virtual void updateInstrument()=0;
 
 public slots:
     void playNote(quint8 note);
 
 protected:
-    void paintGL();
     void initializeGL();
     void resizeGL(int w, int h);
 
-private: //methods
-    void fromPiano();
-    void fromGuitar();
+    QPainter painter;
+    QSvgRenderer noteRenderer;
+    QList<Note> notes;
 
 private:
     Ui::InstrumentView *ui;
-    QPainter painter;
-    QSvgRenderer noteRenderer,guitarBodyRenderer;
-    QHash<quint8,PianoKey> keys;
     QTimer screenUpdateTimer;
-    QList<Note> notes;
-
-
-    InstrumentType instrumentType;
-    quint64 instrumentArgs;
 };
 
 #endif // INSTRUMENTVIEW_H

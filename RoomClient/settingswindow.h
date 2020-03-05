@@ -62,6 +62,7 @@ private:
 
     GuitarUtils guitarUtils;
     QMetaEnum tunings=QMetaEnum::fromType<GuitarTuning>();
+    QMetaEnum DrumPadLayouts=QMetaEnum::fromType<DrumLayout>();
 
     HttpAPIClient *httpApiClient;
 };
