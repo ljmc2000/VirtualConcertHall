@@ -32,6 +32,9 @@ PlayScreen::PlayScreen(RoomConnectionInfo r,HttpAPIClient *httpApiClient,QWidget
     connect(ui->exitButton, SIGNAL(clicked()),
             this, SLOT(askQuit()));
 
+    connect(this, &PlayScreen::pingChange,
+            [=](){ui->pingLabel->setText(QString::number(this->pingOffset)+"ms\n"+QString::number(ui->midiout->maxLatency)+"ms");});
+
     connect(ui->latencySlider, &QSlider::valueChanged,
             [=](){ui->midiout->maxLatency=ui->latencySlider->value();});
 
@@ -121,21 +124,12 @@ void PlayScreen::handleDataFromServer()
                 break;
             }
 
-        case CHECKDELAY:
-            {
-                CheckDelayPacket *checkDelayPacket=(CheckDelayPacket*) data.constData();
-                pingOffset=GETTIME() - checkDelayPacket->timestamp;
-
-                CheckTimePacket checkTimePacket;
-                QByteArray data1((char*)&checkTimePacket,packetSize[CHECKTIME]);
-                qSocket.writeDatagram(data1,serverHost,serverPort);
-                break;
-            }
-
         case CHECKTIME:
             {
                 CheckTimePacket *checkTimePacket=(CheckTimePacket*) data.constData();
-                timeOffset=GETTIME()-pingOffset-checkTimePacket->timestamp;
+                pingOffset=(GETTIME() - checkTimePacket->clientTime);
+                timeOffset=GETTIME()-(pingOffset/2)-checkTimePacket->serverTime;
+                emit pingChange(pingOffset);
 
                 break;
             }
@@ -207,9 +201,9 @@ void PlayScreen::askQuit()
 
 void PlayScreen::ping()
 {
-    CheckDelayPacket packet;
-    packet.timestamp=GETTIME();
-    QByteArray data((char*)&packet, packetSize[CHECKDELAY]);
+    CheckTimePacket packet;
+    packet.clientTime=GETTIME();
+    QByteArray data((char*)&packet, packetSize[CHECKTIME]);
     qSocket.writeDatagram(data,serverHost,serverPort);
 }
 

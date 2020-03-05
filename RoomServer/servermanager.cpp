@@ -69,15 +69,10 @@ void ServerManager::handlePackets()
                 refreshServers();
                 break;
             }
-            case CHECKDELAY:
-            {
-                qSocket.writeDatagram(datagram.data(),datagram.senderAddress(),datagram.senderPort());
-                break;
-            }
             case CHECKTIME:
             {
                 CheckTimePacket *packet=(CheckTimePacket*) datagram.data().constData();
-                packet->timestamp=GETTIME();
+                packet->serverTime=GETTIME();
                 qSocket.writeDatagram(datagram.data(),datagram.senderAddress(),datagram.senderPort());
                 break;
             }

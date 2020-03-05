@@ -40,6 +40,7 @@ private slots:
 
 signals:
     void switchScreen(Mode mode);
+    void pingChange(int ping);
 
 private:    //methods
     static void handleMidiIn( double timeStamp, std::vector<unsigned char> *message, void *userData );

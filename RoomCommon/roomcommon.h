@@ -1,7 +1,7 @@
 #ifndef ROOMCOMMON_H
 #define ROOMCOMMON_H
 
-#define VERSION 5   //increment every time the api changes in a breaking way
+#define VERSION 6   //increment every time the api changes in a breaking way
 
 #include <QMetaEnum>
 
@@ -32,7 +32,6 @@ namespace RoomCommon
         DISABLE,ENABLE,    //notification of a client being enabled or disabled
         DISCONNECT,        //sent to inform a player they have been disconnected
         CLOSESERVER,       //can be sent by the owner to close the server
-        CHECKDELAY,        //If sent server should respond immediately
         CHECKTIME,         //return local time
         WHOOPSIE=-1,       //if something goes really wrong | apparantly windows.h defines an enum called error
         PING=-2,           //sent by the httpapi to check if the server is alive
@@ -113,16 +112,11 @@ namespace RoomCommon
         quint32 secretId;
     };
 
-    struct CheckDelayPacket
-    {
-        PacketType packetType=CHECKDELAY;
-        qint64 timestamp;
-    };
-
     struct CheckTimePacket
     {
         PacketType packetType=CHECKTIME;
-        qint64 timestamp=0;
+        qint64 clientTime;
+        qint64 serverTime=0;
     };
 
     struct WhoopsiePacket
@@ -151,7 +145,6 @@ namespace RoomCommon
         {ENABLE, sizeof (EnablePacket)},
         {DISCONNECT, sizeof (DisconnectPacket)},
         {CLOSESERVER, sizeof (CloseServerPacket)},
-        {CHECKDELAY,sizeof (CheckDelayPacket)},
         {CHECKTIME,sizeof (CheckTimePacket)},
         {WHOOPSIE, sizeof (WhoopsiePacket)},
         {PING, sizeof (PingPacket)},
