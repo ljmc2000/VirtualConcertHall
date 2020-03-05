@@ -1,3 +1,4 @@
+import requests
 from azure.common.client_factory import get_client_from_cli_profile
 from azure.mgmt.containerinstance import ContainerInstanceManagementClient
 from azure.mgmt.containerinstance.models import *
@@ -94,6 +95,14 @@ def create(*args):
 	token.save()
 	roomserver.save()
 
+def mkuser(*args):
+	username=args[0]
+	password=args[1]
+
+	r=requests.post(url=HTTPAPIURL+'/register',
+			json={"username":username,"password":password})
+	print(r.text)
+
 def destroy(*args):
 	CONTAINER_GROUP_NAME=args[0]
 	server=RoomServer.objects.get(containerName=CONTAINER_GROUP_NAME)
@@ -106,6 +115,7 @@ def destroy(*args):
 
 functions={
 	"create":create,
+	"mkuser":mkuser,
 	"destroy":destroy,
 }
 
