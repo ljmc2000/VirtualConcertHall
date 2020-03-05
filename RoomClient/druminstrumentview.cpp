@@ -1,7 +1,6 @@
 #include "druminstrumentview.h"
 
 #include "roomcommon.h"
-#include <QDebug>
 
 using namespace RoomCommon;
 
@@ -25,8 +24,6 @@ void DrumInstrumentView::updateInstrument()
                     )
         );
     }
-
-    qDebug() << pads;
 }
 
 void DrumInstrumentView::paintGL()
