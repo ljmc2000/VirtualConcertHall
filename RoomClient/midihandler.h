@@ -54,6 +54,7 @@ private:
     quint64 instrumentArgs=0;
 
     static QMetaEnum instrumentTypeEnum;
+    static QHash<InstrumentType,quint16> InstrumentSounds;
 };
 
 #endif // MIDIHANDLER_H

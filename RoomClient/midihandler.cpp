@@ -86,6 +86,12 @@ void MidiHandler::setSoundFont(QString soundfont)
 }
 
 QMetaEnum MidiHandler::instrumentTypeEnum=QMetaEnum::fromType<InstrumentType>();
+QHash<InstrumentType,quint16> MidiHandler::InstrumentSounds
+{
+    {PIANO,0},  //0 0
+    {GUITAR,25},    //0 25
+    {DRUM,32768},   //128 0
+};
 
 void MidiHandler::setInstrumentArgs(QSettings *prefs, InstrumentType type, instrument_args_t args)
 {
@@ -115,6 +121,7 @@ instrument_args_t MidiHandler::getDefaultInstrumentArgs(InstrumentType type)
     {
     CASEFOR(PIANO,PianoArgs);
     CASEFOR(GUITAR,GuitarArgs);
+    CASEFOR(DRUM,DrumArgs);
     }
 
     return args;
@@ -229,13 +236,39 @@ void MidiHandler::addChannel(quint32 clientId, InstrumentType instrument, instru
             if(!channelMap.value_contains(i))
             {
                 channelMap.set(clientId,i);
-
+                {
+                    int ichannel=((i%16)<<4);
+                    quint16 isound=InstrumentSounds[instrument];
+                    quint8 *esound=(quint8*)&isound;
+                    qint32 sfont_id;
+                    fluid_synth_t *synth=synths[synths.size()-1];
+                    for(int j=ichannel; j<ichannel+16; j++)
+                    {
+                        int a,b;
+                        fluid_synth_get_program(synth,j,&sfont_id,&a,&b);
+                        fluid_synth_program_select(synth,j,sfont_id,esound[1],esound[0]);
+                    }
+                }
                 return;
             }
         }
 
         addSynth();
         channelMap.set(clientId,SIZE);
+        {
+            int ichannel=((SIZE%16)<<4);
+            quint16 isound=InstrumentSounds[instrument];
+            quint8 *esound=(quint8*)&isound;
+            qint32 sfont_id;
+            qDebug() << esound[0] << esound[1];
+            fluid_synth_t *synth=synths[synths.size()-1];
+            for(int j=ichannel; j<ichannel+16; j++)
+            {
+                int a,b;
+                fluid_synth_get_program(synth,j,&sfont_id,&a,&b);
+                fluid_synth_program_select(synth,j,sfont_id,esound[1],esound[0]);
+            }
+        }
     }
 }
 
