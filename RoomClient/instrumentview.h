@@ -10,7 +10,7 @@
 
 #include "roomcommon.h"
 
-#define TIMEOUT 4000
+#define NOTE_TIMEOUT 4000
 
 
 using namespace RoomCommon;

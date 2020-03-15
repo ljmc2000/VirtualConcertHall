@@ -179,7 +179,7 @@ HttpAPIClient::HttpAPIClient()
     this->httpAPIurl=url.size()!=0? url:HTTPAPIURL;
 }
 
-quint32 HttpAPIClient::getClientId(quint32 secretId, room_id_t roomId)
+client_id_t HttpAPIClient::getClientId(client_id_t secretId, room_id_t roomId)
 {
     QJsonObject requestParams;
     requestParams.insert("secretId",QString::number(secretId));

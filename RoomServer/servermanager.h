@@ -11,7 +11,7 @@ public:
     explicit ServerManager();
     ~ServerManager();
 
-    void addServer(room_id_t roomID, quint32 owner), removeServer(room_id_t roomID);
+    void addServer(room_id_t roomID, client_id_t owner), removeServer(room_id_t roomID);
 
 public slots:
     void refreshServers();

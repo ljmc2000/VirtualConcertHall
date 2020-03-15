@@ -9,7 +9,7 @@ qSocket->writeDatagram(datagram1);
 
 using namespace RoomCommon;
 
-Room::Room(room_id_t roomID, quint32 owner, QUdpSocket *qSocket, HttpAPIClient *httpapicli,QObject *parent): QObject(parent)
+Room::Room(room_id_t roomID, client_id_t owner, QUdpSocket *qSocket, HttpAPIClient *httpapicli, QObject *parent): QObject(parent)
 {
     this->roomID=roomID;
     this->hapicli=httpapicli;
@@ -162,7 +162,7 @@ bool Room::addClient(const QNetworkDatagram &joinRequest)
 {
     QByteArray joinRequestData = joinRequest.data();
     ConnectPacket *connectPacket=(ConnectPacket*) joinRequestData.constData();
-    quint32 clientId=hapicli->getClientId(connectPacket->secretId,roomID);
+    client_id_t clientId=hapicli->getClientId(connectPacket->secretId,roomID);
 
     if(clientId!=0)
     {

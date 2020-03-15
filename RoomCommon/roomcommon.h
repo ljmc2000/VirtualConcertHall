@@ -18,6 +18,7 @@
 
 typedef quint16 instrument_args_t;
 typedef qint32 room_id_t;
+typedef quint32 client_id_t;
 
 namespace RoomCommon
 {
@@ -57,7 +58,7 @@ namespace RoomCommon
     {
         PacketType packetType=CONNECT;
         quint16 version=VERSION;
-        quint32 secretId;
+        client_id_t secretId;
         InstrumentType instrument;
         instrument_args_t instrumentArgs;
     };
@@ -65,20 +66,20 @@ namespace RoomCommon
     struct InitPacket
     {
         PacketType packetType=INIT;
-        quint32 clientId;
+        client_id_t clientId;
         qint64 timestamp;
     };
 
     struct HeartbeatPacket
     {
         PacketType packetType=HEARTBEAT;
-        quint32 secretId=-1;
+        client_id_t secretId=-1;
     };
 
     struct MidiPacket
     {
         PacketType packetType=MIDI;
-        quint32 clientId;
+        client_id_t clientId;
         qint64 timestamp;
         quint8 message[3] = {0,0,0};
     };
@@ -86,13 +87,13 @@ namespace RoomCommon
     struct DisablePacket
     {
         PacketType packetType=DISABLE;
-        quint32 clientId;
+        client_id_t clientId;
     };
 
     struct EnablePacket
     {
         PacketType packetType=ENABLE;
-        quint32 clientId;
+        client_id_t clientId;
         InstrumentType instrument;
         instrument_args_t instrumentArgs=0;     //use of fields will vary by instrament.
                                                 //for example 0 and 1 will be min and max note for piano,
@@ -103,13 +104,13 @@ namespace RoomCommon
     struct DisconnectPacket
     {
         PacketType packetType=DISCONNECT;
-        quint32 secretId;
+        client_id_t secretId;
     };
 
     struct CloseServerPacket
     {
         PacketType packetType=CLOSESERVER;
-        quint32 secretId;
+        client_id_t secretId;
     };
 
     struct CheckTimePacket

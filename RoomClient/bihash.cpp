@@ -1,4 +1,5 @@
 #include "bihash.h"
+#include "roomcommon.h"
 
 template<typename T1,typename T2>
 T2 BiHash<T1,T2>::get(T1 key)
@@ -52,4 +53,4 @@ bool BiHash<T1,T2>::value_contains(T2 value)
     return second.contains(value);
 }
 
-template class BiHash<quint32,quint8>;
+template class BiHash<client_id_t,quint8>;

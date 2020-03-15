@@ -63,7 +63,7 @@ private:
     QTimer reconnectClock;
     QTimer pingOffsetSyncClock;
     qint16 timeOffset=0,pingOffset=0;
-    quint32 clientId=-1,secretId;
+    client_id_t clientId=-1,secretId;
     quint8 reconnectAttempts=MAXCONNECTATTEMPTS;
 
     bool owner;

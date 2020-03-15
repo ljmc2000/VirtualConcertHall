@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2"/>
+  <layout class="QGridLayout" name="flowLayout"/>
  </widget>
  <resources/>
  <connections/>

@@ -75,11 +75,11 @@ void PianoInstrumentView::paintGL()
         if(n->note>maxNote || n->note<minNote) continue;
 
         QRectF dimensions=keys[n->note].dim;
-        QPointF h(dimensions.x(),dimensions.y()+(size().height()*.666666666f)*(-n->age/(float)TIMEOUT));
+        QPointF h(dimensions.x(),dimensions.y()+(size().height()*.666666666f)*(-n->age/(float)NOTE_TIMEOUT));
         dimensions.moveTo(h);
 
         noteRenderer.render(&painter,dimensions);
-        if(n->age<TIMEOUT)n->age+=100;
+        if(n->age<NOTE_TIMEOUT)n->age+=100;
         else notes.removeAt(i);
     }
 

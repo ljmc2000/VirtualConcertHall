@@ -36,7 +36,7 @@ struct RoomConnectionInfo
     QString roomIp;
     quint16 roomPort;
     room_id_t roomId;
-    quint32 secretId;
+    client_id_t secretId;
     bool owner=false;
 };
 
@@ -57,7 +57,7 @@ public:
     {
         UpdateType type;
         room_id_t roomId;
-        quint32 owner;
+        client_id_t owner;
     };
 
 public slots:   //common
@@ -83,7 +83,7 @@ signals:
     void playerStateChange();
 #else
 public slots:   //server
-    quint32 getClientId(quint32 secretId, room_id_t roomId);
+    client_id_t getClientId(client_id_t secretId, room_id_t roomId);
     void closeRoom(room_id_t roomId, StopReason reason);
     void refreshRooms(QList<room_id_t> rooms, QList<RoomUpdate> *updated);
 #endif

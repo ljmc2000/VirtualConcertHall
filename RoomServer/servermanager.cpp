@@ -101,7 +101,7 @@ void ServerManager::handlePackets()
     }
 }
 
-void ServerManager::addServer(room_id_t roomID, quint32 owner)
+void ServerManager::addServer(room_id_t roomID, client_id_t owner)
 {
     rooms.insert(roomID, new Room(roomID, owner, &qSocket, &httpapicli, this));
     qDebug() << "Room" << roomID << "has opened";

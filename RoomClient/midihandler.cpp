@@ -2,6 +2,8 @@
 #include "ui_midihandler.h"
 
 #include <QDebug>
+#include <QPushButton>
+#include <math.h>
 
 using namespace RoomCommon;
 
@@ -28,7 +30,12 @@ MidiHandler::~MidiHandler()
     delete ui;
 }
 
-void MidiHandler::handleMidi(quint32 clientId, quint8 *midiMessage, qint16 latency)
+void MidiHandler::resizeEvent(QResizeEvent *event)
+{
+    reorganizeInstrumentViews();
+}
+
+void MidiHandler::handleMidi(client_id_t clientId, quint8 *midiMessage, qint16 latency)
 {
     quint8 channelMapping=channelMap.get(clientId);
     quint8 channel=((channelMapping%16)<<4)+midiMessage[0]%16;
@@ -83,6 +90,25 @@ void MidiHandler::setSoundFont(QString soundfont)
     this->soundfont=soundfont;
     for(fluid_synth_t *synth: synths)
         fluid_synth_sfload(synth,soundfont.toUtf8().constData(),true);
+}
+
+void MidiHandler::reorganizeInstrumentViews()
+{
+    QSizeF syze=size();
+    int x=0,y=0;
+    //int perSide=(syze.width()/syze.height())*instrumentViews.size();
+    int perSide=sqrt(instrumentViews.size());
+
+    for(InstrumentView *view: instrumentViews)
+    {
+        if(x==perSide)
+        {
+            y++;
+            x=0;
+        }
+        ui->flowLayout->addWidget(view,x,y);
+        x++;
+    }
 }
 
 QMetaEnum MidiHandler::instrumentTypeEnum=QMetaEnum::fromType<InstrumentType>();
@@ -178,7 +204,7 @@ void MidiHandler::deleteSynth()
             {
                 if(!channelMap.value_contains(j))
                 {
-                    quint32 clientid=channelMap.xget(i);
+                    client_id_t clientid=channelMap.xget(i);
                     channelMap.remove(clientid);
                     channelMap.set(clientid,j);
 
@@ -210,7 +236,7 @@ void MidiHandler::deleteAllSynth()
     channelMap.clear();
 }
 
-void MidiHandler::addChannel(quint32 clientId, InstrumentType instrument, instrument_args_t args, QWidget *parent)
+void MidiHandler::addChannel(client_id_t clientId, InstrumentType instrument, instrument_args_t args, QWidget *parent)
 {
     InstrumentView *v;
 
@@ -218,13 +244,15 @@ void MidiHandler::addChannel(quint32 clientId, InstrumentType instrument, instru
     if(!instrumentViews.contains(clientId)) {
         v=InstrumentView::getInstrumentView(instrument,args,this);
         v->updateInstrument();
-        ui->gridLayout_2->addWidget(v);
+
+        ui->flowLayout->addWidget(v,1,1);
 
         instrumentViews.insert(clientId,v);
     } else {
         v=instrumentViews[clientId];
     }
     v->show();
+    reorganizeInstrumentViews();
 
     //add audio
     if(!channelMap.key_contains(clientId))
@@ -272,11 +300,12 @@ void MidiHandler::addChannel(quint32 clientId, InstrumentType instrument, instru
     }
 }
 
-void MidiHandler::delChannel(quint32 clientId)
+void MidiHandler::delChannel(client_id_t clientId)
 {
     InstrumentView *v = instrumentViews[clientId];
-    if(v!=nullptr) v->hide();
+    if(v!=nullptr) v->deleteLater();
     instrumentViews.remove(clientId);
 
     channelMap.remove(clientId);
+    reorganizeInstrumentViews();
 }

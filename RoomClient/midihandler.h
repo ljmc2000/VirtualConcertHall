@@ -25,10 +25,12 @@ class MidiHandler: public QWidget
 public:
     MidiHandler(QWidget *parent=nullptr);
     ~MidiHandler();
+    void resizeEvent(QResizeEvent *event) override;
 
-    void addChannel(quint32 clientId, InstrumentType instrument, instrument_args_t args, QWidget *parent=nullptr),delChannel(quint32 clientId);
-    void handleMidi(quint32 clientId, quint8* midiMessage, qint16 latency);
+    void addChannel(client_id_t clientId, InstrumentType instrument, instrument_args_t args, QWidget *parent=nullptr),delChannel(client_id_t clientId);
+    void handleMidi(client_id_t clientId, quint8* midiMessage, qint16 latency);
     void setSoundFont(QString soundfont), setAudioDriver(QString audioDriver);
+    void reorganizeInstrumentViews();
 
     static void setInstrumentArgs(QSettings *prefs, InstrumentType type, instrument_args_t args);
     static instrument_args_t getInstrumentArgs(QSettings *prefs, InstrumentType type);
@@ -44,14 +46,14 @@ private:
 
     QList<fluid_synth_t*> synths;
     QList<fluid_audio_driver_t*> soundout;
-    BiHash<quint32,quint8> channelMap;
-    QHash<quint32,InstrumentView*> instrumentViews;
+    BiHash<client_id_t,quint8> channelMap;
+    QHash<client_id_t,InstrumentView*> instrumentViews;
 
     QString soundfont;
     QString audioDriver;
 
     InstrumentType insturmentType;
-    quint64 instrumentArgs=0;
+    instrument_args_t instrumentArgs=0;
 
     static QMetaEnum instrumentTypeEnum;
     static QHash<InstrumentType,quint16> InstrumentSounds;
