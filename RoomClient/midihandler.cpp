@@ -40,6 +40,9 @@ void MidiHandler::handleMidi(client_id_t clientId, quint8 *midiMessage, qint16 l
     quint8 channelMapping=channelMap.get(clientId);
     quint8 channel=((channelMapping%16)<<4)+midiMessage[0]%16;
     fluid_synth_t *synth=synths[channelMapping>>4];
+    UserView *u = instrumentViews[clientId];
+
+    u->setLatency(latency);
 
     switch(midiMessage[0]>>4)
     {
@@ -53,7 +56,6 @@ void MidiHandler::handleMidi(client_id_t clientId, quint8 *midiMessage, qint16 l
         } else if(latency>maxLatency) {
             qDebug() << "Midi packet dropped from" << clientId;
         } else {
-            UserView *u = instrumentViews[clientId];
             fluid_synth_noteon(synth,channel,midiMessage[1],u->volume*midiMessage[2]);
             u->playNote(midiMessage[1]);
         }

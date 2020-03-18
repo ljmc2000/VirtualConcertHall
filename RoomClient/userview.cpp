@@ -12,6 +12,8 @@ UserView::UserView(InstrumentView *v, QWidget *parent) :
 
     connect(ui->volumeSlider, &QSlider::valueChanged,
             [=](){this->volume=ui->volumeSlider->value()/100.0f;});
+
+    ui->pingLabel->setText("?ms");
 }
 
 UserView::~UserView()
@@ -22,4 +24,9 @@ UserView::~UserView()
 void UserView::playNote(quint8 midiMessage)
 {
     instrumentView->playNote(midiMessage);
+}
+
+void UserView::setLatency(qint16 latency)
+{
+    ui->pingLabel->setText(QString::number(latency)+" ms");
 }

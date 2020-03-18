@@ -17,6 +17,7 @@ public:
     ~UserView();
 
     void playNote(quint8 midiMessage);
+    void setLatency(qint16 latency);
 
     float volume=1;
 
