@@ -1,7 +1,7 @@
 #include "userview.h"
 #include "ui_userview.h"
 
-UserView::UserView(InstrumentView *v, QWidget *parent) :
+UserView::UserView(InstrumentView *v, QString username, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::UserView)
 {
@@ -13,6 +13,7 @@ UserView::UserView(InstrumentView *v, QWidget *parent) :
     connect(ui->volumeSlider, &QSlider::valueChanged,
             [=](){this->volume=ui->volumeSlider->value()/100.0f;});
 
+    ui->usernameLabel->setText(username);
     ui->pingLabel->setText("?ms");
 }
 

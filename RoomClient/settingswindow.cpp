@@ -56,7 +56,7 @@ SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
 
     ui->midiHandler->setAudioDriver(audioDriver);
     ui->midiHandler->setSoundFont(soundfont);
-    ui->midiHandler->addChannel(0,instrumentType,instrumentArgs);
+    ui->midiHandler->addChannel(0,username,instrumentType,instrumentArgs);
 
     showInstrumentConfig();
 }
@@ -139,7 +139,7 @@ void SettingsWindow::logout()
 
 void SettingsWindow::refreshUsername()
 {
-    QString username = httpApiClient->getUsername();
+    username = httpApiClient->getUsername();
     if(username.size()!=0)
     {
         ui->signinLabel->setText("signed in as "+username);
@@ -247,7 +247,7 @@ void SettingsWindow::clearInstrumentConfig()
 void SettingsWindow::redrawInstrument()
 {
     ui->midiHandler->delChannel(0);
-    ui->midiHandler->addChannel(0,instrumentType,instrumentArgs);
+    ui->midiHandler->addChannel(0,username,instrumentType,instrumentArgs);
 }
 
 void SettingsWindow::midiHandler(double timeStamp, std::vector<unsigned char> *message, void *userData)

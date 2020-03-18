@@ -86,6 +86,23 @@ QString HttpAPIClient::getUsername()
     return json["status"].toString() == "success" ? json["username"].toString():"";
 }
 
+QString HttpAPIClient::getUsername(client_id_t clientId)
+{
+    QJsonObject requestParams;
+    requestParams.insert("clientId",QString::number(clientId));
+    QJsonObject json = postRequest("/getUsername",requestParams);
+
+    if(json["status"].toString()=="success")
+    {
+        return json["username"].toString();
+    }
+
+    else
+    {
+        return "[error fetching username]";
+    }
+}
+
 QString HttpAPIClient::createRoom(QString name, QString description, QString password, bool isprivate)
 {
     QJsonObject requestParams;

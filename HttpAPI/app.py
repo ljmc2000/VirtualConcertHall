@@ -108,6 +108,18 @@ def getUsername():
 	except Exception as e:
 		return jsonify(handleException(app,e,'/getUsername'))
 
+@app.route("/getUsername",methods=['POST'])
+def getUsernameByClientId():
+	try:
+		getUserByToken(request.headers['loginToken'])
+		r=request.get_json()
+		player=Player.objects.get(clientId=int(r['clientId']))
+
+		return jsonify({'status':'success','username':player.user.username})
+
+	except Exception as e:
+		return jsonify(handleException(app,e,'/getUsername(byClientId)'))
+
 @app.route("/createRoom",methods=['POST'])
 def createRoom():
 	try:

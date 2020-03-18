@@ -239,7 +239,7 @@ void MidiHandler::deleteAllSynth()
     channelMap.clear();
 }
 
-void MidiHandler::addChannel(client_id_t clientId, InstrumentType instrument, instrument_args_t args, QWidget *parent)
+void MidiHandler::addChannel(client_id_t clientId, QString username, InstrumentType instrument, instrument_args_t args, QWidget *parent)
 {
     InstrumentView *v;
     UserView *u;
@@ -249,7 +249,7 @@ void MidiHandler::addChannel(client_id_t clientId, InstrumentType instrument, in
         v=InstrumentView::getInstrumentView(instrument,args,this);
         v->updateInstrument();
 
-        u=new UserView(v,this);
+        u=new UserView(v,username,this);
         instrumentViews.insert(clientId,u);
     } else {
         u=instrumentViews[clientId];

@@ -59,6 +59,7 @@ private:
     InstrumentType instrumentType=PIANO;
     instrument_args_t instrumentArgs=0; quint8* changeAttr=0;
     QString audioDriver,soundfont;
+    QString username;
 
     GuitarUtils guitarUtils;
     QMetaEnum tunings=QMetaEnum::fromType<GuitarTuning>();

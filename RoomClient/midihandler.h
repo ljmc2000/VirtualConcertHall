@@ -27,7 +27,7 @@ public:
     ~MidiHandler();
     void resizeEvent(QResizeEvent *event) override;
 
-    void addChannel(client_id_t clientId, InstrumentType instrument, instrument_args_t args, QWidget *parent=nullptr),delChannel(client_id_t clientId);
+    void addChannel(client_id_t clientId, QString username, InstrumentType instrument, instrument_args_t args, QWidget *parent=nullptr),delChannel(client_id_t clientId);
     void handleMidi(client_id_t clientId, quint8* midiMessage, qint16 latency);
     void setSoundFont(QString soundfont), setAudioDriver(QString audioDriver);
     void reorganizeInstrumentViews();

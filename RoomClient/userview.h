@@ -13,7 +13,7 @@ class UserView : public QWidget
     Q_OBJECT
 
 public:
-    explicit UserView(InstrumentView *v, QWidget *parent = nullptr);
+    explicit UserView(InstrumentView *v, QString username, QWidget *parent = nullptr);
     ~UserView();
 
     void playNote(quint8 midiMessage);

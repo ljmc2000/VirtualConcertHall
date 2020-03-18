@@ -70,6 +70,7 @@ public slots:   //client
     bool signin(QString username,QString password);
     void signout();
     QString getUsername();
+    QString getUsername(client_id_t clientId);
     QString createRoom(QString name, QString description=nullptr, QString password=nullptr, bool isprivate=false);
     RoomList listRooms(int page,int perPage);
     RoomConnectionInfo getCurrentRoom();
