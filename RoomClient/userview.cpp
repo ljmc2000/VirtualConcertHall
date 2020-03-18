@@ -11,7 +11,7 @@ UserView::UserView(InstrumentView *v, QString username, QWidget *parent) :
     ui->instrumentView->addWidget(v);
 
     connect(ui->volumeSlider, &QSlider::valueChanged,
-            [=](){this->volume=ui->volumeSlider->value()/100.0f;});
+            [=](){this->volume=ui->volumeSlider->value()/127.0f;});
 
     ui->usernameLabel->setText(username);
     ui->pingLabel->setText("?ms");
