@@ -8,7 +8,7 @@
 #include <fluidsynth.h>
 
 #include "bihash.h"
-#include "instrumentview.h"
+#include "userview.h"
 #include "roomcommon.h"
 
 
@@ -47,7 +47,7 @@ private:
     QList<fluid_synth_t*> synths;
     QList<fluid_audio_driver_t*> soundout;
     BiHash<client_id_t,quint8> channelMap;
-    QHash<client_id_t,InstrumentView*> instrumentViews;
+    QHash<client_id_t,UserView*> instrumentViews;
 
     QString soundfont;
     QString audioDriver;

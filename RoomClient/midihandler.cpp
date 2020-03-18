@@ -24,8 +24,8 @@ MidiHandler::~MidiHandler()
 {
     deleteAllSynth();
 
-    for(InstrumentView *v: instrumentViews)
-        delete v;
+    for(UserView *u: instrumentViews)
+        delete u;
 
     delete ui;
 }
@@ -53,8 +53,9 @@ void MidiHandler::handleMidi(client_id_t clientId, quint8 *midiMessage, qint16 l
         } else if(latency>maxLatency) {
             qDebug() << "Midi packet dropped from" << clientId;
         } else {
-            fluid_synth_noteon(synth,channel,midiMessage[1],midiMessage[2]);
-            instrumentViews[clientId]->playNote(midiMessage[1]);
+            UserView *u = instrumentViews[clientId];
+            fluid_synth_noteon(synth,channel,midiMessage[1],u->volume*midiMessage[2]);
+            u->playNote(midiMessage[1]);
         }
         break;
 
@@ -99,7 +100,7 @@ void MidiHandler::reorganizeInstrumentViews()
     //int perSide=(syze.width()/syze.height())*instrumentViews.size();
     int perSide=sqrt(instrumentViews.size());
 
-    for(InstrumentView *view: instrumentViews)
+    for(UserView *view: instrumentViews)
     {
         if(x==perSide)
         {
@@ -239,19 +240,19 @@ void MidiHandler::deleteAllSynth()
 void MidiHandler::addChannel(client_id_t clientId, InstrumentType instrument, instrument_args_t args, QWidget *parent)
 {
     InstrumentView *v;
+    UserView *u;
 
     //add visual
     if(!instrumentViews.contains(clientId)) {
         v=InstrumentView::getInstrumentView(instrument,args,this);
         v->updateInstrument();
 
-        ui->flowLayout->addWidget(v,1,1);
-
-        instrumentViews.insert(clientId,v);
+        u=new UserView(v,this);
+        instrumentViews.insert(clientId,u);
     } else {
-        v=instrumentViews[clientId];
+        u=instrumentViews[clientId];
     }
-    v->show();
+    u->show();
     reorganizeInstrumentViews();
 
     //add audio
@@ -302,8 +303,8 @@ void MidiHandler::addChannel(client_id_t clientId, InstrumentType instrument, in
 
 void MidiHandler::delChannel(client_id_t clientId)
 {
-    InstrumentView *v = instrumentViews[clientId];
-    if(v!=nullptr) v->deleteLater();
+    UserView *u = instrumentViews[clientId];
+    if(u!=nullptr) u->deleteLater();
     instrumentViews.remove(clientId);
 
     channelMap.remove(clientId);

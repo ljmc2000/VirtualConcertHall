@@ -41,7 +41,8 @@ SOURCES += \
     guitarutils.cpp \
     pianoinstrumentview.cpp \
     druminstrumentview.cpp \
-    drumpad_templates.cpp
+    drumpad_templates.cpp \
+    userview.cpp
 
 HEADERS += \
     midihandler.h \
@@ -61,7 +62,8 @@ HEADERS += \
     bihash.h \
     guitarutils.h \
     pianoinstrumentview.h \
-    druminstrumentview.h
+    druminstrumentview.h \
+    userview.h
 
 FORMS += \
     settingswindow.ui \
@@ -73,7 +75,8 @@ FORMS += \
     roombrowser.ui \
     roomcreator.ui \
     instrumentview.ui \
-    midihandler.ui
+    midihandler.ui \
+    userview.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
