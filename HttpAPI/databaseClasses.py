@@ -50,7 +50,7 @@ class LoginToken(Document):
 	def expired(self):
 		return self.expires < datetime.datetime.now()
 
-class RoomServer(Document,WithPassword):
+class RoomServer(Document):
 	containerName=StringField(primary_key=True)
 	ip = StringField()
 	port = IntField()
@@ -68,7 +68,7 @@ def getLeastLoadedServer():
 	else:
 		raise NoRoomServerAvailable("There are no servers available at this time")
 
-class Room(Document):
+class Room(Document,WithPassword):
 	roomId = IntField(primary_key=True, default=lambda: int(secrets.token_hex(4),16)-2**31)
 	server = ReferenceField(RoomServer, default=getLeastLoadedServer, required=True, reverse_delete_rule=CASCADE)
 	roomname = StringField(required=True)
