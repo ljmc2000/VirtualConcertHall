@@ -2,7 +2,7 @@
 #include "ui_userview.h"
 
 UserView::UserView(InstrumentView *v, QString username, QWidget *parent) :
-    QWidget(parent),
+    QFrame(parent),
     ui(new Ui::UserView)
 {
     ui->setupUi(this);

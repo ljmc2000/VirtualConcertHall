@@ -1,14 +1,14 @@
 #ifndef USERVIEW_H
 #define USERVIEW_H
 
-#include <QWidget>
+#include <QFrame>
 #include "instrumentview.h"
 
 namespace Ui {
 class UserView;
 }
 
-class UserView : public QWidget
+class UserView : public QFrame
 {
     Q_OBJECT
 
