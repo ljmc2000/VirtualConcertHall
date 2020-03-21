@@ -1,3 +1,9 @@
+# Dependencies
+* http://www.fluidsynth.org/ -- convert midi to audible tones
+* https://github.com/thestk/rtmidi -- midi input and output
+* https://www.qt.io/ -- build native looking user interfaces easily
+* http://mxe.cc -- build on linux, run on windows
+
 # Building Instructions
 
 * Clone submodules with git submodule init and build using the script buildDeps.sh
