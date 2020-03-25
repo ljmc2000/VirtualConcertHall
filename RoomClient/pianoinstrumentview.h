@@ -1,7 +1,7 @@
 #ifndef PIANOVIEW_H
 #define PIANOVIEW_H
 
-#include <instrumentview.h>
+#include "instrumentview.h"
 
 struct PianoKey
 {

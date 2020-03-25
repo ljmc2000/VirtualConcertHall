@@ -18,3 +18,19 @@ GuitarPrefs & GuitarUtils::getInstrumentArgs(GuitarTuning tuning)
         return dadgad;
     }
 }
+
+void GuitarUtils::getFretDistances(int numFrets, float scale, QList<float> *distances)
+//based on https://buildyourguitar.com/resources/tips/fretdist.htm C-program for calculating fret
+//distances for any scale length Written by Chris St. Pierre
+{
+    float distance=0, scaling_factor=0, location;
+    distances->clear();
+
+    for (int fret = 1; fret <= numFrets; fret++)
+    {
+       location = scale - distance;
+       scaling_factor = location / 17.817;
+       distance += scaling_factor;
+       distances->append(distance);
+    }
+}

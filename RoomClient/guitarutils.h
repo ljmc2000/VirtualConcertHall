@@ -17,6 +17,7 @@ class GuitarUtils
 {
 public:
     static GuitarPrefs & getInstrumentArgs(GuitarTuning tuning);
+    static void getFretDistances(int numFrets, float scale, QList<float> *distances);
 private:
     static GuitarPrefs standard,dadgad;
 };

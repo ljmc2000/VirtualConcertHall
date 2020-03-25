@@ -5,6 +5,7 @@
 #include <QOpenGLFunctions>
 
 #include <pianoinstrumentview.h>
+#include <guitarinstrumentview.h>
 #include <druminstrumentview.h>
 
 static QString quaver="<svg width=\"280\" height=\"430\">\
@@ -38,6 +39,12 @@ InstrumentView* InstrumentView::getInstrumentView(InstrumentType type, instrumen
         {
             PianoArgs *pargs=(PianoArgs*)&args;
             return new PianoInstrumentView(pargs->minNote,pargs->maxNote,parent);
+        }
+
+        case GUITAR:
+        {
+            GuitarArgs *gargs=(GuitarArgs*)&args;
+            return new GuitarInstrumentView(gargs->tuning,parent);
         }
 
         case DRUM:
