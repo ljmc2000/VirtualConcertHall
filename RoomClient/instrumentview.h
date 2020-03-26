@@ -42,6 +42,7 @@ public slots:
 protected:
     void initializeGL();
     void resizeGL(int w, int h);
+    void drawNotes(QHash<quint8,QRectF> *noteSource);
 
     QPainter painter;
     QSvgRenderer noteRenderer;

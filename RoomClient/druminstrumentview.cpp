@@ -22,7 +22,7 @@ void DrumInstrumentView::updateInstrument()
                         QPointF(temp.px*sx,temp.py*sy),
                         QSizeF(temp.rx*sx,temp.ry*sy)
                     )
-        );
+        );   
     }
 }
 
@@ -38,19 +38,7 @@ void DrumInstrumentView::paintGL()
         painter.drawEllipse(pad);
     }
 
-    for(int i=0; i<notes.size(); i++)
-    {
-        Note *n=&notes[i];
-        if(!pads.contains(n->note)) continue;
-
-        QRectF dimensions=pads.value(n->note);
-        QPointF h(dimensions.x(),dimensions.y()+(size().height()*.666666666f)*(-n->age/(float)NOTE_TIMEOUT));
-        dimensions.moveTo(h);
-
-        noteRenderer.render(&painter,dimensions);
-        if(n->age<NOTE_TIMEOUT)n->age+=100;
-        else notes.removeAt(i);
-    }
+    drawNotes(&pads);
 
     painter.end();
 }

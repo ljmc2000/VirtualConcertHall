@@ -79,3 +79,22 @@ void InstrumentView::resizeGL(int w, int h)
 {
     updateInstrument();
 }
+
+void InstrumentView::drawNotes(QHash<quint8,QRectF> *noteSource)
+{
+    QRectF dimensions;
+
+    for(int i=0; i<notes.size(); i++)
+    {
+        Note *n=&notes[i];
+        if(!noteSource->contains(n->note)) continue;
+
+        dimensions=noteSource->value(n->note);
+        QPointF h(dimensions.x(),dimensions.y()+(size().height()*.666666666f)*(-n->age/(float)NOTE_TIMEOUT));
+        dimensions.moveTo(h);
+
+        noteRenderer.render(&painter,dimensions);
+        if(n->age<NOTE_TIMEOUT)n->age+=100;
+        else notes.removeAt(i);
+    }
+}

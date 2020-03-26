@@ -33,12 +33,12 @@ void PianoInstrumentView::updateInstrument()
         case 6:
         case 8:
         case 10:
+            k=QRectF(position-boffset,bKeySize);
             k.color=Qt::black;
-            k.dim=QRectF(position-boffset,bKeySize);
             break;
         default:
+            k=QRectF(position,wKeySize);
             k.color=Qt::white;
-            k.dim=QRectF(position,wKeySize);
             position += woffset;
             break;
         }
@@ -59,29 +59,17 @@ void PianoInstrumentView::paintGL()
     for(PianoKey k: keys)
     {
         if(k.color==Qt::white)
-            painter.drawRect(k.dim);
+            painter.drawRect(k);
     }
 
     painter.setBrush(QBrush(Qt::black));
     for(PianoKey k: keys)
     {
         if(k.color==Qt::black)
-            painter.drawRect(k.dim);
+            painter.drawRect(k);
     }
 
-    for(int i=notes.size()-1; i>=0; i--)
-    {
-        Note *n=&notes[i];
-        if(n->note>maxNote || n->note<minNote) continue;
-
-        QRectF dimensions=keys[n->note].dim;
-        QPointF h(dimensions.x(),dimensions.y()+(size().height()*.666666666f)*(-n->age/(float)NOTE_TIMEOUT));
-        dimensions.moveTo(h);
-
-        noteRenderer.render(&painter,dimensions);
-        if(n->age<NOTE_TIMEOUT)n->age+=100;
-        else notes.removeAt(i);
-    }
+    drawNotes((QHash<quint8,QRectF>*)&keys);
 
     painter.end();
 }

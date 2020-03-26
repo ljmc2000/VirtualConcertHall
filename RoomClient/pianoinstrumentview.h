@@ -3,10 +3,10 @@
 
 #include "instrumentview.h"
 
-struct PianoKey
+struct PianoKey: public QRectF
 {
-    QRectF dim;
     QColor color;
+    PianoKey& operator=(QRectF rect){QRectF::operator=(rect);return *this;};
 };
 
 class PianoInstrumentView : public InstrumentView
