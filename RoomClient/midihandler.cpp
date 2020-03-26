@@ -215,7 +215,7 @@ void MidiHandler::deleteSynth()
                 }
             }
 
-            qDebug() << "Cannot shrink synth pool: too many orpheans created";
+            qDebug() << "Cannot shrink synth pool: too many orphans created";
             return;
         }
     }
