@@ -40,6 +40,7 @@ public slots:
     void playNote(quint8 note);
 
 protected:
+    virtual void paintGL()=0;
     void initializeGL();
     void resizeGL(int w, int h);
     void drawNotes(QHash<quint8,QRectF> *noteSource);
