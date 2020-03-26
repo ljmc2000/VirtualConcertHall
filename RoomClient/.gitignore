@@ -2,7 +2,7 @@ Client
 Client.exe
 Makefile*
 .qmake.stash
-Client.pro.user
+RoomClient.pro.user
 client_plugin_import.cpp
 
 *.o
