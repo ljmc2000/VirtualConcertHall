@@ -1,0 +1,63 @@
+X:1
+T:Star of County Down
+M:4/4
+L:1/8
+C:Irish
+K:C
+E/G/|AAAG/A/ cc dc/d/|ed/c/ AG/E/ G2 z E/G/|AA AG/A/ cc dc/d/|
+ed/c/ AA A2z e/e/|ge ed/c/ dd dc/d/| ed/c/ AG/E/ G2 z E/G/|
+AA AG/A/ cc dc/d/|cB/A/ AAA2 z e/e/|ge ed/c/ dd dc/d/|
+ed/c/ AG/E/ G2 z E/G/|AA AG/A/ cc dc/d/|ed/c/ AA A2 z||
+
+X:2
+T:Star of County Down Harmony
+M:4/4
+L:1/8
+C:Irish
+K:C
+z|z2 z E/E/ AA BA/B/|cB/A/ EE E2z2|z2zE/E/ AA BA/B/|
+cB/A/ DD A2 z G|cc cG BB BA/B/|cB/A/ EE E2 z2|
+z2 z E/E/ AA BA/B/|cB/A/ DDA2zG|cc cG BB BA/B/|
+cB/A/ EE E2 z2|z2z E/E/ AA BA/B/|cB/A/ DD A2 z|
+
+X:3
+T:Star of County Down Drums
+M:4/4
+L:1/8
+C:Irish
+K:C
+A,,/A,,/A,,A,,D,, A,,/A,,/A,,A,,D,, | A,,/A,,/A,,A,,D,, A,,/A,,/A,,A,,D,, | A,,/A,,/A,,A,,D,, A,,/A,,/A,,A,,D,, |
+A,,/A,,/A,,A,,D,, A,,/A,,/A,,A,,D,, |A,,/A,,/A,,A,,D,, A,,/A,,/A,,A,,D,, |A,,/A,,/A,,A,,D,, A,,/A,,/A,,A,,D,, |
+A,,/A,,/A,,A,,D,, A,,/A,,/A,,A,,D,, |A,,/A,,/A,,A,,D,, A,,/A,,/A,,A,,D,, |A,,/A,,/A,,A,,D,, A,,/A,,/A,,A,,D,, |
+A,,/A,,/A,,A,,D,, A,,/A,,/A,,A,,D,, |A,,/A,,/A,,A,,D,, A,,/A,,/A,,A,,D,, |A,,/A,,/A,,A,,D,, A,,/A,,/A,,A,,D,, |
+
+X:4
+T:Star of County Down Guitar
+M:2/4
+L:1/8
+C:Irish
+K:C
+[E,,A,,E,A,CE]/ [E,,A,,E,A,CE]/ [E,,A,,E,A,CE] [E,,A,,E,A,CE] [E,,A,,E,A,CE] |
+[G,,B,,D,G,B,G]/ [G,,B,,D,G,B,G]/ [G,,B,,D,G,B,G] [G,,B,,D,G,B,G] [G,,B,,D,G,B,G] |
+[F,,C,F,A,CF]/ [F,,C,F,A,CF]/ [F,,C,F,A,CF] [G,,B,,D,G,B,G]/ [G,,B,,D,G,B,G]/ [G,,B,,D,G,B,G] |
+[E,,A,,E,A,CE]/ [E,,A,,E,A,CE]/ [E,,A,,E,A,CE]3 |
+[E,,A,,E,A,CE]/ [E,,A,,E,A,CE]/ [E,,A,,E,A,CE] [E,,A,,E,A,CE] [E,,A,,E,A,CE] |
+[G,,B,,D,G,B,G]/ [G,,B,,D,G,B,G]/ [G,,B,,D,G,B,G] [G,,B,,D,G,B,G] [G,,B,,D,G,B,G] |
+[F,,C,F,A,CF]/ [F,,C,F,A,CF]/ [F,,C,F,A,CF] [G,,B,,D,G,B,G]/ [G,,B,,D,G,B,G]/ [G,,B,,D,G,B,G] |
+[E,,A,,E,A,CE]/ [E,,A,,E,A,CE]/ [E,,A,,E,A,CE]3 |
+[E,,C,E,G,CE]/ [E,,C,E,G,CE]/ [E,,C,E,G,CE] [E,,C,E,G,CE] [E,,C,E,G,CE] |
+[G,,B,,D,G,B,G]/ [G,,B,,D,G,B,G]/ [G,,B,,D,G,B,G] [G,,B,,D,G,B,G] [G,,B,,D,G,B,G] |
+[E,,A,,E,A,CE]/ [E,,A,,E,A,CE]/ [E,,A,,E,A,CE] [F,,C,F,A,CF]/ [F,,C,F,A,CF]/ [F,,C,F,A,CF]|
+[G,,B,,D,G,B,G] [G,,B,,D,G,B,G]3|
+[E,,A,,E,A,CE]/ [E,,A,,E,A,CE]/ [E,,A,,E,A,CE] [E,,A,,E,A,CE] [E,,A,,E,A,CE] |
+[G,,B,,D,G,B,G]/ [G,,B,,D,G,B,G]/ [G,,B,,D,G,B,G] [G,,B,,D,G,B,G] [G,,B,,D,G,B,G] |
+[F,,C,F,A,CF]/ [F,,C,F,A,CF]/ [F,,C,F,A,CF] [G,,B,,D,G,B,G]/ [G,,B,,D,G,B,G]/ [G,,B,,D,G,B,G] |
+[E,,A,,E,A,CE]/ [E,,A,,E,A,CE]/ [E,,A,,E,A,CE]3 |
+[E,,C,E,G,CE]/ [E,,C,E,G,CE]/ [E,,C,E,G,CE] [E,,C,E,G,CE] [E,,C,E,G,CE] |
+[G,,B,,D,G,B,G]/ [G,,B,,D,G,B,G]/ [G,,B,,D,G,B,G] [G,,B,,D,G,B,G] [G,,B,,D,G,B,G] |
+[E,,A,,E,A,CE]/ [E,,A,,E,A,CE]/ [E,,A,,E,A,CE] [F,,C,F,A,CF]/ [F,,C,F,A,CF]/ [F,,C,F,A,CF]|
+[G,,B,,D,G,B,G] [G,,B,,D,G,B,G]3|
+[E,,A,,E,A,CE]/ [E,,A,,E,A,CE]/ [E,,A,,E,A,CE] [E,,A,,E,A,CE] [E,,A,,E,A,CE] |
+[G,,B,,D,G,B,G]/ [G,,B,,D,G,B,G]/ [G,,B,,D,G,B,G] [G,,B,,D,G,B,G] [G,,B,,D,G,B,G] |
+[F,,C,F,A,CF]/ [F,,C,F,A,CF]/ [F,,C,F,A,CF] [G,,B,,D,G,B,G]/ [G,,B,,D,G,B,G]/ [G,,B,,D,G,B,G] |
+[E,,A,,E,A,CE]/ [E,,A,,E,A,CE]/ [E,,A,,E,A,CE]3 |

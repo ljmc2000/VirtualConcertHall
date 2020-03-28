@@ -1,0 +1,4 @@
+john p@SSw0rd PIANO john.mid
+george p@SSw0rd PIANO george.mid
+paul p@SSw0rd GUITAR paul.mid
+ringo p@SSw0rd DRUM ringo.mid

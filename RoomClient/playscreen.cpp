@@ -27,6 +27,7 @@ PlayScreen::PlayScreen(RoomConnectionInfo r,HttpAPIClient *httpApiClient,QWidget
     unsigned int midiInPort = prefs.value("midiInPort").toUInt();
     midiin.openPort(midiInPort<midiin.getPortCount() ? midiInPort:0);
     midiin.setClientName("VirtualConcertHallClient");
+    midiin.setPortName(httpApiClient->getUsername().toUtf8().constData());
     midiin.setCallback(&handleMidiIn,this);
 
     connect(ui->exitButton, SIGNAL(clicked()),
