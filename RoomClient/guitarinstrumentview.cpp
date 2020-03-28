@@ -36,10 +36,6 @@ void GuitarInstrumentView::updateInstrument()
 
     frets.clear();
     GuitarUtils::getFretDistances(prefs.fretCount,scale,&fretDistances);
-    frets.append(QLineF(
-                       QPointF(scale,fretboard_top),
-                       QPointF(scale,fretboard_bottom)
-    ));
     for(float dist: fretDistances)
     {
         frets.append(QLineF(
@@ -59,12 +55,13 @@ void GuitarInstrumentView::updateInstrument()
         ));
 
         quint8 start=prefs.strings[str];
+        noteSource.remove(start);
         for(int i=0; i<frets.size()-1; i++)
         {
             QRectF noteBox(frets[i+1].p2(),frets[i].p1());
             float offset=noteBox.height()*.45f;
             noteBox.moveBottom(y+offset);
-            noteSource[start+i]=noteBox;
+            noteSource[1+start+i]=noteBox;
         }
         str++;
     }
