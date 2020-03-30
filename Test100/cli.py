@@ -78,6 +78,7 @@ def openApp(args):
 
 		j=r.json()
 		if j["status"]=="success":
+			print("spawning process for",player["username"])
 			subprocess.Popen(["../MockClient/MockClient",
 									j["roomIp"],
 									str(j["roomPort"]),

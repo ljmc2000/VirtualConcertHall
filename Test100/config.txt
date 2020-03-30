@@ -1,13 +1,13 @@
-john p@SSw0rd PIANO 6024 john.mid
-george p@SSw0rd PIANO 6024 george.mid
+john p@SSw0rd PIANO 543C john.mid
+george p@SSw0rd PIANO 543C george.mid
 paul p@SSw0rd GUITAR 0 paul.mid
 ringo p@SSw0rd DRUM 0 ringo.mid
 alfred p@SSw0rd PIANO 3C24 alfred.mid #-24
 dolores p@SSw0rd PIANO 4830 dolores.mid #-12
-micheal p@SSw0rd PIANO 6C54 micheal.mid #12
-marcus p@SSw0rd PIANO 7860 marcus.mid #24
+micheal p@SSw0rd PIANO 6048 micheal.mid #12
+marcus p@SSw0rd PIANO 6C54 marcus.mid #24
 avicci p@SSw0rd PIANO 3C24 avicci.mid #-24
 deadmau5 p@SSw0rd PIANO 4830 deadmau5.mid #-12
-thomas p@SSw0rd PIANO 6C54 thomas.mid #12
-amilia p@ssW0rd PIANO 7860 amilia.mid #24
+thomas p@SSw0rd PIANO 6048 thomas.mid #12
+amilia p@ssW0rd PIANO 6C54 amilia.mid #24
 tuomas p@SSw0rd GUITAR 0 tuomas.mid
