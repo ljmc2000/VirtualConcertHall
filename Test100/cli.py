@@ -66,31 +66,43 @@ def listRooms(args):
 		json={"page":page,"perPage":perPage})
 	print(r.text)
 
+def openApp0(player):
+	if player["username"] in ports.keys():
+		print("instance already exists for",player["username"])
+		return
+
+	env={"LD_LIBRARY_PATH":"../RoomClient/rtmidiLinux","HTTPAPIURL":HTTPAPIURL}
+	for var in environ.keys():
+		if not(env.get(var)):
+			env[var]=environ[var]
+
+	r=requests.get(url=HTTPAPIURL+'/getCurrentRoom',
+		headers={"loginToken":tokens[player["username"]]})
+
+	j=r.json()
+	if j["status"]=="success":
+		print("spawning process for",player["username"])
+		subprocess.Popen(["../MockClient/MockClient",
+								j["roomIp"],
+								str(j["roomPort"]),
+								str(j["roomId"]),
+								j["secretId"],
+								player["username"],
+								player["instrument"],
+								player["instrumentArgs"],
+								],env=env)
+	else:
+		print(player["username"],"did not spawn process:",j["reason"])
+
+
 def openApp(args):
-	for player in players:
-		env={"LD_LIBRARY_PATH":"../RoomClient/rtmidiLinux","HTTPAPIURL":HTTPAPIURL}
-		for var in environ.keys():
-			if not(env.get(var)):
-				env[var]=environ[var]
-
-		r=requests.get(url=HTTPAPIURL+'/getCurrentRoom',
-			headers={"loginToken":tokens[player["username"]]})
-
-		j=r.json()
-		if j["status"]=="success":
-			print("spawning process for",player["username"])
-			subprocess.Popen(["../MockClient/MockClient",
-									j["roomIp"],
-									str(j["roomPort"]),
-									str(j["roomId"]),
-									j["secretId"],
-									player["username"],
-									player["instrument"],
-									player["instrumentArgs"],
-									],env=env)
-		else:
-			print(player["username"],"did not spawn process:",j["reason"])
-
+	if len(args)==0:
+		for player in players:
+			openApp0(player)
+	else:
+		for i in args:
+			openApp0(players[int(i)])
+		
 def play(args):
 	for player in players:
 		if(ports.get(player["username"])):

@@ -1,5 +1,5 @@
-john p@SSw0rd PIANO 543C john.mid
 george p@SSw0rd PIANO 543C george.mid
+john p@SSw0rd PIANO 543C john.mid
 paul p@SSw0rd GUITAR 0 paul.mid
 ringo p@SSw0rd DRUM 0 ringo.mid
 alfred p@SSw0rd PIANO 3C24 alfred.mid #-24

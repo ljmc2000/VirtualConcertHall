@@ -9,8 +9,8 @@ int main(int argc, char *argv[])
         RoomConnectionInfo r;
         r.roomIp=argv[1];
         r.roomPort=QString(argv[2]).toUShort();
-        r.roomId=QString(argv[3]).toULong();
-        r.secretId=QString(argv[4]).toLong();
+        r.roomId=QString(argv[3]).toLong();
+        r.secretId=QString(argv[4]).toULong();
         QString username(argv[5]);
         InstrumentType instrumentType=(InstrumentType) QString(argv[6]).toUShort();
         instrument_args_t instrumentArgs=QString(argv[7]).toInt(nullptr,16);
