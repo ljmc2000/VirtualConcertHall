@@ -1,12 +1,13 @@
 #include "client.h"
 #include <QDateTime>
 #include <QNetworkDatagram>
+#include <QHostInfo>
 
 using namespace RoomCommon;
 
-Client::Client(RoomConnectionInfo & r, QString & username, InstrumentType instrument, instrument_args_t instrumentArgs):
-    serverHost(r.roomIp)
+Client::Client(RoomConnectionInfo & r, QString & username, InstrumentType instrument, instrument_args_t instrumentArgs)
 {
+    this->serverHost=QHostInfo::fromName(r.roomIp).addresses().first();
     this->serverPort=r.roomPort;
     this->secretId=r.secretId;
     this->roomId=r.roomId;
