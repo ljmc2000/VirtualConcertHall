@@ -1,0 +1,4 @@
+moc*
+*.o
+.qmake.stash
+MockClient.pro.user
