@@ -9,5 +9,5 @@ WINEPATH=$WINEPATH\;$(winepath -w $MXE_PREFIX/lib/)
 WINEPATH=$WINEPATH\;$(winepath -w $PWD/rtmidiWindows)
 export WINEPATH
 
-wine Client.exe
+wine release/Client.exe
 
