@@ -28,10 +28,10 @@ def inspectFile(name,found=[],locations=[]):
 
 subprocess.run(('mkdir',BUILD_DIR))
 
-for dependency in inspectFile('Client.exe'):
+for dependency in inspectFile('release/Client.exe'):
 	subprocess.run(('cp',dependency,BUILD_DIR))
 
-subprocess.run('cp Client.exe *.svg %s' % BUILD_DIR, shell=True)
+subprocess.run('cp release/Client.exe *.svg %s' % BUILD_DIR, shell=True)
 subprocess.run(('cp', '-r', MXE_PREFIX+'/qt5/plugins/platforms', BUILD_DIR))
 subprocess.run(('zip', '-r', 'RoomClientWindows.zip', '.'), cwd=BUILD_DIR)
 subprocess.run(('cp', BUILD_DIR+'/RoomClientWindows.zip', '.'))
