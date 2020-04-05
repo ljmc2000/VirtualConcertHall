@@ -173,6 +173,21 @@ void MidiHandler::setAudioDriver(QString audioDriver)
 
 }
 
+void MidiHandler::setAudioDevice(QString audioDevice)
+{
+    this->audioDevice=audioDevice;
+
+    if(audioDevice.length()!=0)
+    {
+        QString driverDotDevice("audio."+audioDriver+".device");
+        for(fluid_synth_t *synth: synths)
+        {
+            fluid_settings_t* fluidSettings = fluid_synth_get_settings(synth);
+            fluid_settings_setstr(fluidSettings,driverDotDevice.toUtf8().constData(),audioDevice.toUtf8().constData());
+        }
+    }
+}
+
 void MidiHandler::addSynth()
 {
     fluid_audio_driver_t* driver;
@@ -183,6 +198,13 @@ void MidiHandler::addSynth()
     fluid_settings_setstr(fluidSettings,"audio.jack.id","VirtualConcertHall");
     fluid_settings_setint(fluidSettings,"synth.midi-channels",256); //16 users per synth with 16 channels each
     fluid_settings_setint(fluidSettings,"synth.polyphony",65535);   //so there are enough notes to go around
+
+    if(audioDevice.length()!=0)
+    {
+        QString driverDotDevice("audio."+audioDriver+".device");
+        fluid_settings_setstr(fluidSettings,driverDotDevice.toUtf8().constData(),audioDevice.toUtf8().constData());
+    }
+
     synth=new_fluid_synth(fluidSettings);
     driver=new_fluid_audio_driver(fluidSettings,synth);
     fluid_synth_sfload(synth,soundfont.toUtf8().constData(),true);

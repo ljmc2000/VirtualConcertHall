@@ -29,7 +29,7 @@ public:
 
     void addChannel(client_id_t clientId, QString username, InstrumentType instrument, instrument_args_t args, QWidget *parent=nullptr),delChannel(client_id_t clientId);
     void handleMidi(client_id_t clientId, quint8* midiMessage, qint16 latency);
-    void setSoundFont(QString soundfont), setAudioDriver(QString audioDriver);
+    void setSoundFont(QString soundfont), setAudioDriver(QString audioDriver), setAudioDevice(QString audioDevice);
     void reorganizeInstrumentViews();
 
     static void setInstrumentArgs(QSettings *prefs, InstrumentType type, instrument_args_t args);
@@ -50,7 +50,7 @@ private:
     QHash<client_id_t,UserView*> instrumentViews;
 
     QString soundfont;
-    QString audioDriver;
+    QString audioDriver,audioDevice;
 
     InstrumentType insturmentType;
     instrument_args_t instrumentArgs=0;

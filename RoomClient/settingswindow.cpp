@@ -23,14 +23,18 @@ SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
         ui->midiHandler->setInstrumentArgs(&prefs,instrumentType,instrumentArgs);
     }
     audioDriver=prefs.value("audioDriver").toString();
+    audioDevice=prefs.value("audioDevice").toString();
+    QString driverDotDevice="audio."+audioDriver+".device";
     soundfont=prefs.value("soundfont").toString();
 
     setMidiPortsList();
 
     fluid_settings_t *settings=new_fluid_settings();
     fluid_settings_foreach_option(settings,"audio.driver",this,&SettingsWindow::setDriverList);
+    fluid_settings_foreach_option(settings,driverDotDevice.toUtf8().constData(),this,&SettingsWindow::setDeviceList);
     delete_fluid_settings(settings);
     ui->audioDriverBox->setCurrentText(audioDriver);
+    ui->audioDeviceBox->setCurrentText(audioDevice);
 
     ui->pickSfButton->setText(soundfont);
 
@@ -51,10 +55,14 @@ SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
     connect(ui->audioDriverBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(setAudioDriver()));
 
+    connect(ui->audioDeviceBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(setAudioDevice()));
+
     connect(this, SIGNAL(instrumentUpdate()),
             this, SLOT(redrawInstrument()));
 
     ui->midiHandler->setAudioDriver(audioDriver);
+    ui->midiHandler->setAudioDevice(audioDevice);
     ui->midiHandler->setSoundFont(soundfont);
     ui->midiHandler->addChannel(0,username,instrumentType,instrumentArgs);
 
@@ -127,8 +135,21 @@ void SettingsWindow::setInstrumentType()
 
 void SettingsWindow::setAudioDriver()
 {
-    prefs.setValue("audioDriver",ui->audioDriverBox->currentText());
-    ui->midiHandler->setAudioDriver(ui->audioDriverBox->currentText());
+    audioDriver=ui->audioDriverBox->currentText();
+    prefs.setValue("audioDriver",audioDriver);
+    ui->midiHandler->setAudioDriver(audioDriver);
+
+    if(audioDriver=="portaudio")
+    {
+        setAudioDevice();
+    }
+}
+
+void SettingsWindow::setAudioDevice()
+{
+    QString audioDevice=ui->audioDeviceBox->currentText();
+    prefs.setValue("audioDevice",audioDevice);
+    ui->midiHandler->setAudioDevice(audioDevice);
 }
 
 void SettingsWindow::logout()
@@ -261,6 +282,12 @@ void SettingsWindow::setDriverList(void *data, const char *name, const char* val
     SettingsWindow *self=(SettingsWindow*)data;
     QString file="file";
     if(value != file)self->ui->audioDriverBox->addItem(value);
+}
+
+void SettingsWindow::setDeviceList(void *data, const char *name, const char *value)
+{
+    SettingsWindow *self=(SettingsWindow*)data;
+    self->ui->audioDeviceBox->addItem(value);
 }
 
 void SettingsWindow::setDefaults()
