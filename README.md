@@ -1,4 +1,7 @@
+Just in case corrections are still in progress, the version of the application as it existed on the submission deadline may be found [here](https://github.com/fmtovland/VirtualConcertHall/tree/086616f5b41a545fb2acc43d95dcdf77697aa411)
+
 # Summary
+
 My project is a realtime networking application. 
 It is the goal of my project to create a virtual space where musicians can play together in realtime. 
 The users will be divided into “rooms” and users in the same room will able to hear one another as well as see what notes the other players are pressing. 
@@ -14,6 +17,7 @@ Microsoft CosmosDB can be used seemlessly in it's place.
 # Deployment instructions
 
 Local
+
 * Run the buildDocker.sh script in RoomServer. 
 * Ensure mongodb is running locally. Alternatively set the MONGO_URL environment variable.
 * Change directory to HttpAPI and run flask run --host ::
@@ -24,6 +28,7 @@ Local
   * ./buildLGPLCompliantWindows will make a non LGPL violating windows build.
 
 On Azure
+
 * Create a CosmosDB instance on azure. Make a note of your connection string.
 * Create an azure container registry. Make a note of all authentication details.
 * On your computer, login to your new container registry. docker login $FOO.azurecr.io, username=$FOO, password can be gotten from azure
