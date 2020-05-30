@@ -3,3 +3,4 @@ moc*
 .qmake.stash
 MockClient.pro.user
 MockClient
+Makefile

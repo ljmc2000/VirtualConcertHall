@@ -17,12 +17,12 @@ MidiHandler::MidiHandler(QWidget *parent):
     soundfont=prefs.value("soundfont").toString();
     audioDriver=prefs.value("audioDriver").toString();
 
-    addSynth();
+    initSynth();
 }
 
 MidiHandler::~MidiHandler()
 {
-    deleteAllSynth();
+    deleteSynth();
 
     for(UserView *u: instrumentViews)
         delete u;
@@ -37,9 +37,7 @@ void MidiHandler::resizeEvent(QResizeEvent *event)
 
 void MidiHandler::handleMidi(client_id_t clientId, quint8 *midiMessage, qint16 latency)
 {
-    quint8 channelMapping=channelMap.get(clientId);
-    quint8 channel=((channelMapping%16)<<4)+midiMessage[0]%16;
-    fluid_synth_t *synth=synths[channelMapping>>4];
+    quint8 channel=channelMap.get(clientId);
     UserView *u = instrumentViews[clientId];
 
     u->setLatency(latency);
@@ -91,8 +89,7 @@ void MidiHandler::handleMidi(client_id_t clientId, quint8 *midiMessage, qint16 l
 void MidiHandler::setSoundFont(QString soundfont)
 {
     this->soundfont=soundfont;
-    for(fluid_synth_t *synth: synths)
-        fluid_synth_sfload(synth,soundfont.toUtf8().constData(),true);
+    fluid_synth_sfload(synth,soundfont.toUtf8().constData(),true);
 }
 
 void MidiHandler::reorganizeInstrumentViews()
@@ -159,18 +156,9 @@ instrument_args_t MidiHandler::getDefaultInstrumentArgs(InstrumentType type)
 void MidiHandler::setAudioDriver(QString audioDriver)
 {
     this->audioDriver=audioDriver;
-    for(fluid_audio_driver_t *driver: soundout)
-        delete_fluid_audio_driver(driver);
-
-    soundout.clear();
-
-    for(fluid_synth_t *synth: synths)
-    {
-        fluid_settings_t* fluidSettings = fluid_synth_get_settings(synth);
-        fluid_audio_driver_t* driver = new_fluid_audio_driver(fluidSettings,synth);
-        soundout.append(driver);
-    }
-
+    fluid_settings_t* fluidSettings = fluid_synth_get_settings(synth);
+    delete_fluid_audio_driver(soundout);
+    soundout = new_fluid_audio_driver(fluidSettings,synth);
 }
 
 void MidiHandler::setAudioDevice(QString audioDevice)
@@ -180,18 +168,13 @@ void MidiHandler::setAudioDevice(QString audioDevice)
     if(audioDevice.length()!=0)
     {
         QString driverDotDevice("audio."+audioDriver+".device");
-        for(fluid_synth_t *synth: synths)
-        {
-            fluid_settings_t* fluidSettings = fluid_synth_get_settings(synth);
-            fluid_settings_setstr(fluidSettings,driverDotDevice.toUtf8().constData(),audioDevice.toUtf8().constData());
-        }
+        fluid_settings_t* fluidSettings = fluid_synth_get_settings(synth);
+        fluid_settings_setstr(fluidSettings,driverDotDevice.toUtf8().constData(),audioDevice.toUtf8().constData());
     }
 }
 
-void MidiHandler::addSynth()
+void MidiHandler::initSynth()
 {
-    fluid_audio_driver_t* driver;
-    fluid_synth_t* synth;
     fluid_settings_t* fluidSettings=new_fluid_settings();
 
     fluid_settings_setstr(fluidSettings,"audio.driver",audioDriver.toUtf8().constData());
@@ -206,59 +189,16 @@ void MidiHandler::addSynth()
     }
 
     synth=new_fluid_synth(fluidSettings);
-    driver=new_fluid_audio_driver(fluidSettings,synth);
+    soundout=new_fluid_audio_driver(fluidSettings,synth);
     fluid_synth_sfload(synth,soundfont.toUtf8().constData(),true);
-
-    synths.append(synth);
-    soundout.append(driver);
 }
 
 void MidiHandler::deleteSynth()
 {
-    int synthIndex=synths.size()-1;
-    fluid_audio_driver_t* driver=soundout.last();
-    fluid_synth_t* synth=synths.last();
-    fluid_settings_t* fluidSettings=fluid_synth_get_settings(synth);
-
-    quint8 SIZE=16*synths.size();
-    for(quint8 i=SIZE; i<16; i++)
-    {
-        if(channelMap.value_contains(i))
-        {
-            for(quint8 j=0; i<SIZE; i++)
-            {
-                if(!channelMap.value_contains(j))
-                {
-                    client_id_t clientid=channelMap.xget(i);
-                    channelMap.remove(clientid);
-                    channelMap.set(clientid,j);
-
-                    break;
-                }
-            }
-
-            qDebug() << "Cannot shrink synth pool: too many orphans created";
-            return;
-        }
-    }
-
-    delete_fluid_audio_driver(driver);
+    delete_fluid_audio_driver(soundout);
+    fluid_settings_t* settings=fluid_synth_get_settings(synth);
     delete_fluid_synth(synth);
-    delete_fluid_settings(fluidSettings);
-}
-
-void MidiHandler::deleteAllSynth()
-{
-    for(fluid_audio_driver_t* driver: soundout)
-        delete_fluid_audio_driver(driver);
-    for(fluid_synth_t* synth: synths)
-    {
-        fluid_settings_t* settings=fluid_synth_get_settings(synth);
-        delete_fluid_synth(synth);
-        delete_fluid_settings(settings);
-    }
-
-    channelMap.clear();
+    delete_fluid_settings(settings);
 }
 
 void MidiHandler::addChannel(client_id_t clientId, QString username, InstrumentType instrument, instrument_args_t args, QWidget *parent)
@@ -282,46 +222,31 @@ void MidiHandler::addChannel(client_id_t clientId, QString username, InstrumentT
     //add audio
     if(!channelMap.key_contains(clientId))
     {
-        int SIZE=16*synths.size();
-
-        for(int i=0; i<SIZE; i++)
+        for(int j=16; j>0; j/=2)
         {
-            if(!channelMap.value_contains(i))
+            for(int i=j; i<256; i+=j)
             {
-                channelMap.set(clientId,i);
+                if(!channelMap.value_contains(i-j))
                 {
-                    int ichannel=((i%16)<<4);
-                    quint16 isound=InstrumentSounds[instrument];
-                    quint8 *esound=(quint8*)&isound;
-                    qint32 sfont_id;
-                    fluid_synth_t *synth=synths[synths.size()-1];
-                    for(int j=ichannel; j<ichannel+16; j++)
+                    channelMap.set(clientId,i);
                     {
-                        int a,b;
-                        fluid_synth_get_program(synth,j,&sfont_id,&a,&b);
-                        fluid_synth_program_select(synth,j,sfont_id,esound[1],esound[0]);
+                        int ichannel=(i-j);
+                        quint16 isound=InstrumentSounds[instrument];
+                        quint8 *esound=(quint8*)&isound;
+                        qint32 sfont_id;
+                        for(int k=ichannel; k<ichannel+16; k++)
+                        {
+                            int a,b;
+                            fluid_synth_get_program(synth,j,&sfont_id,&a,&b);
+                            fluid_synth_program_select(synth,j,sfont_id,esound[1],esound[0]);
+                        }
                     }
+                    return;
                 }
-                return;
             }
         }
 
-        addSynth();
-        channelMap.set(clientId,SIZE);
-        {
-            int ichannel=((SIZE%16)<<4);
-            quint16 isound=InstrumentSounds[instrument];
-            quint8 *esound=(quint8*)&isound;
-            qint32 sfont_id;
-            qDebug() << esound[0] << esound[1];
-            fluid_synth_t *synth=synths[synths.size()-1];
-            for(int j=ichannel; j<ichannel+16; j++)
-            {
-                int a,b;
-                fluid_synth_get_program(synth,j,&sfont_id,&a,&b);
-                fluid_synth_program_select(synth,j,sfont_id,esound[1],esound[0]);
-            }
-        }
+        qDebug() << "Ran out of usable channels";
     }
 }
 

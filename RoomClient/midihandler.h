@@ -39,13 +39,13 @@ public:
     qint16 maxLatency = 50;
 
 private:    //methods
-    void addSynth(), deleteSynth(), deleteAllSynth();
+    void initSynth(), deleteSynth();
 
 private:
     Ui::MidiHandler *ui;
 
-    QList<fluid_synth_t*> synths;
-    QList<fluid_audio_driver_t*> soundout;
+    fluid_synth_t* synth;
+    fluid_audio_driver_t* soundout;
     BiHash<client_id_t,quint8> channelMap;
     QHash<client_id_t,UserView*> instrumentViews;
 
