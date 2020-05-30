@@ -115,7 +115,7 @@ void PlayScreen::handleDataFromServer()
             {
                 EnablePacket *enablePacket=(EnablePacket*) data.constData();
                 qDebug() << "player" << enablePacket->clientId << "has awoken";
-                ui->midiout->addChannel(enablePacket->clientId, httpApiClient->getUsername(enablePacket->clientId), enablePacket->instrument, enablePacket->instrumentArgs);
+                ui->midiout->addChannel(enablePacket->clientId, "", enablePacket->instrument, enablePacket->instrumentArgs);
                 break;
             }
 
