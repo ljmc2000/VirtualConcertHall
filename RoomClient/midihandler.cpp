@@ -37,7 +37,7 @@ void MidiHandler::resizeEvent(QResizeEvent *event)
 
 void MidiHandler::handleMidi(client_id_t clientId, quint8 *midiMessage, qint16 latency)
 {
-    quint8 channel=channelMap.get(clientId);
+    quint8 channel=channelMap.get(clientId)+(midiMessage[0]%16);
     UserView *u = instrumentViews[clientId];
 
     u->setLatency(latency);
@@ -226,19 +226,20 @@ void MidiHandler::addChannel(client_id_t clientId, QString username, InstrumentT
         {
             for(int i=j; i<256; i+=j)
             {
-                if(!channelMap.value_contains(i-j))
+                int channel=i-j;
+
+                if(!channelMap.value_contains(channel))
                 {
-                    channelMap.set(clientId,i);
+                    channelMap.set(clientId,channel);
                     {
-                        int ichannel=(i-j);
                         quint16 isound=InstrumentSounds[instrument];
                         quint8 *esound=(quint8*)&isound;
                         qint32 sfont_id;
-                        for(int k=ichannel; k<ichannel+16; k++)
+                        for(int k=channel; k<channel+16; k++)
                         {
                             int a,b;
-                            fluid_synth_get_program(synth,j,&sfont_id,&a,&b);
-                            fluid_synth_program_select(synth,j,sfont_id,esound[1],esound[0]);
+                            fluid_synth_get_program(synth,k,&sfont_id,&a,&b);
+                            fluid_synth_program_select(synth,k,sfont_id,esound[1],esound[0]);
                         }
                     }
                     return;
