@@ -31,6 +31,7 @@ public:
     void handleMidi(client_id_t clientId, quint8* midiMessage, qint16 latency);
     void setSoundFont(QString soundfont), setAudioDriver(QString audioDriver), setAudioDevice(QString audioDevice);
     void reorganizeInstrumentViews();
+    void setUsername(client_id_t clientId, QString username);
 
     static void setInstrumentArgs(QSettings *prefs, InstrumentType type, instrument_args_t args);
     static instrument_args_t getInstrumentArgs(QSettings *prefs, InstrumentType type);

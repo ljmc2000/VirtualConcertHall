@@ -1,6 +1,8 @@
 #include "userview.h"
 #include "ui_userview.h"
 
+#include <QtConcurrent/QtConcurrent>
+
 UserView::UserView(InstrumentView *v, QString username, QWidget *parent) :
     QFrame(parent),
     ui(new Ui::UserView)
@@ -30,4 +32,9 @@ void UserView::playNote(quint8 midiMessage)
 void UserView::setLatency(qint16 latency)
 {
     ui->pingLabel->setText(QString::number(latency)+" ms");
+}
+
+void UserView::setUsername(QString username)
+{
+    ui->usernameLabel->setText(username);
 }

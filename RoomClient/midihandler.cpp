@@ -260,3 +260,9 @@ void MidiHandler::delChannel(client_id_t clientId)
     channelMap.remove(clientId);
     reorganizeInstrumentViews();
 }
+
+void MidiHandler::setUsername(client_id_t clientId, QString username)
+{
+    UserView *u=instrumentViews[clientId];
+    u->setUsername(username);
+}

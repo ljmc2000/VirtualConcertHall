@@ -2,6 +2,7 @@
 #define USERVIEW_H
 
 #include <QFrame>
+#include "httpapiclient.h"
 #include "instrumentview.h"
 
 namespace Ui {
@@ -20,6 +21,9 @@ public:
     void setLatency(qint16 latency);
 
     float volume=1;
+
+public slots:
+    void setUsername(QString username);
 
 private:
     Ui::UserView *ui;

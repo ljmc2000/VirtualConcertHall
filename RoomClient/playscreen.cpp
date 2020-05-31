@@ -1,6 +1,7 @@
 #include "playscreen.h"
 #include "ui_playscreen.h"
 
+#include <QtConcurrent/QtConcurrent>
 #include <QMessageBox>
 #include <QHostInfo>
 
@@ -29,6 +30,9 @@ PlayScreen::PlayScreen(RoomConnectionInfo r,HttpAPIClient *httpApiClient,QWidget
     midiin.setClientName("VirtualConcertHallClient");
     midiin.setPortName(httpApiClient->getUsername().toUtf8().constData());
     midiin.setCallback(&handleMidiIn,this);
+
+    connect(this,SIGNAL(playersAwaitUsernames()),
+            this,SLOT(givePlayersUsernames()));
 
     connect(ui->exitButton, SIGNAL(clicked()),
             this, SLOT(askQuit()));
@@ -115,7 +119,8 @@ void PlayScreen::handleDataFromServer()
             {
                 EnablePacket *enablePacket=(EnablePacket*) data.constData();
                 qDebug() << "player" << enablePacket->clientId << "has awoken";
-                ui->midiout->addChannel(enablePacket->clientId, "", enablePacket->instrument, enablePacket->instrumentArgs);
+                ui->midiout->addChannel(enablePacket->clientId, "Loading...", enablePacket->instrument, enablePacket->instrumentArgs);
+                QtConcurrent::run(givePlayerUsername,enablePacket->clientId,ui,httpApiClient);
                 break;
             }
 
@@ -241,6 +246,11 @@ void PlayScreen::disconnectFromServer()
         sendPacket((char *)&disconnectPacket, DISCONNECT);
         qSocket.disconnectFromHost();
     }
+}
+
+extern void givePlayerUsername(client_id_t id, Ui::PlayScreen *ps, HttpAPIClient *httpApiClient)
+{
+    ps->midiout->setUsername(id,httpApiClient->getUsername(id));
 }
 
 void PlayScreen::attemptConnect()

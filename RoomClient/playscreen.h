@@ -2,6 +2,7 @@
 #define PLAYSCREEN_H
 
 #include <QNetworkDatagram>
+#include <QQueue>
 #include <QSettings>
 #include <QTimer>
 #include <QUdpSocket>
@@ -68,5 +69,7 @@ private:
 
     bool owner;
 };
+
+extern void givePlayerUsername(client_id_t id, Ui::PlayScreen *ps, HttpAPIClient *httpApiClient);
 
 #endif // PLAYSCREEN_H
