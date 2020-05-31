@@ -41,14 +41,16 @@ public:
 
 private:    //methods
     void initSynth(), deleteSynth();
+    void shuffleChannels();
 
 private:
     Ui::MidiHandler *ui;
 
     fluid_synth_t* synth;
     fluid_audio_driver_t* soundout;
-    BiHash<client_id_t,quint8> channelMap;
+    QHash<client_id_t,quint8> channelMap;
     QHash<client_id_t,UserView*> instrumentViews;
+    quint8 peruser;
 
     QString soundfont;
     QString audioDriver,audioDevice;

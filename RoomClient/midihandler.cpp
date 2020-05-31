@@ -37,7 +37,9 @@ void MidiHandler::resizeEvent(QResizeEvent *event)
 
 void MidiHandler::handleMidi(client_id_t clientId, quint8 *midiMessage, qint16 latency)
 {
-    quint8 channel=channelMap.get(clientId)+(midiMessage[0]%16);
+    quint8 channel=midiMessage[0]%16;
+    if(channel>peruser) return;
+    channel+=channelMap.value(clientId);
     UserView *u = instrumentViews.value(clientId);
     if(u==nullptr) return;
 
@@ -221,35 +223,7 @@ void MidiHandler::addChannel(client_id_t clientId, QString username, InstrumentT
     reorganizeInstrumentViews();
 
     //add audio
-    if(!channelMap.key_contains(clientId))
-    {
-        for(int j=16; j>0; j/=2)
-        {
-            for(int i=j; i<256; i+=j)
-            {
-                int channel=i-j;
-
-                if(!channelMap.value_contains(channel))
-                {
-                    channelMap.set(clientId,channel);
-                    {
-                        quint16 isound=InstrumentSounds[instrument];
-                        quint8 *esound=(quint8*)&isound;
-                        qint32 sfont_id;
-                        for(int k=channel; k<channel+16; k++)
-                        {
-                            int a,b;
-                            fluid_synth_get_program(synth,k,&sfont_id,&a,&b);
-                            fluid_synth_program_select(synth,k,sfont_id,esound[1],esound[0]);
-                        }
-                    }
-                    return;
-                }
-            }
-        }
-
-        qDebug() << "Ran out of usable channels";
-    }
+    shuffleChannels();
 }
 
 void MidiHandler::delChannel(client_id_t clientId)
@@ -258,8 +232,32 @@ void MidiHandler::delChannel(client_id_t clientId)
     if(u!=nullptr) u->deleteLater();
     instrumentViews.remove(clientId);
 
-    channelMap.remove(clientId);
+    shuffleChannels();
     reorganizeInstrumentViews();
+}
+
+void MidiHandler::shuffleChannels()
+{
+    channelMap.clear();
+    peruser=256/instrumentViews.size();
+    if(peruser>16) peruser=16;
+    int channel=0;
+
+    for(QHash<client_id_t,UserView*>::iterator i=instrumentViews.begin(); i!=instrumentViews.end(); i++)
+    {
+        channelMap[i.key()]=channel;
+        quint16 isound=InstrumentSounds[i.value()->getInstrumentType()];
+        quint8 *esound=(quint8*)&isound;
+        qint32 sfont_id;
+
+        for(int i=0; i<peruser; i++)
+        {
+            int a,b;
+            fluid_synth_get_program(synth,channel,&sfont_id,&a,&b);
+            fluid_synth_program_select(synth,channel,sfont_id,esound[1],esound[0]);
+            channel++;
+        }
+    }
 }
 
 void MidiHandler::setUsername(client_id_t clientId, QString username)

@@ -38,3 +38,8 @@ void UserView::setUsername(QString username)
 {
     ui->usernameLabel->setText(username);
 }
+
+InstrumentType UserView::getInstrumentType()
+{
+    return instrumentView->type;
+}

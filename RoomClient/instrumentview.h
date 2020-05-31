@@ -35,6 +35,7 @@ public:
     static InstrumentView* getInstrumentView(InstrumentType type, instrument_args_t args, QWidget *parent);
 
     virtual void updateInstrument()=0;
+    InstrumentType type;
 
 public slots:
     void playNote(quint8 note);

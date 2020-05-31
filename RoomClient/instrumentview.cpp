@@ -33,26 +33,34 @@ InstrumentView::~InstrumentView()
 
 InstrumentView* InstrumentView::getInstrumentView(InstrumentType type, instrument_args_t args, QWidget *parent)
 {
+    InstrumentView *v;
+
     switch(type)
     {
         case PIANO:
         {
             PianoArgs *pargs=(PianoArgs*)&args;
-            return new PianoInstrumentView(pargs->minNote,pargs->maxNote,parent);
+            v = new PianoInstrumentView(pargs->minNote,pargs->maxNote,parent);
+            break;
         }
 
         case GUITAR:
         {
             GuitarArgs *gargs=(GuitarArgs*)&args;
-            return new GuitarInstrumentView(gargs->tuning,parent);
+            v = new GuitarInstrumentView(gargs->tuning,parent);
+            break;
         }
 
         case DRUM:
         {
             DrumArgs *dargs = (DrumArgs*)&args;
-            return new DrumInstrumentView(dargs->layout,parent);
+            v = new DrumInstrumentView(dargs->layout,parent);
+            break;
         }
     }
+
+    v->type=type;
+    return v;
 }
 
 void InstrumentView::playNote(quint8 note)

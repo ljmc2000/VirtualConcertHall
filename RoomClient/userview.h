@@ -19,6 +19,7 @@ public:
 
     void playNote(quint8 midiMessage);
     void setLatency(qint16 latency);
+    InstrumentType getInstrumentType();
 
     float volume=1;
 
