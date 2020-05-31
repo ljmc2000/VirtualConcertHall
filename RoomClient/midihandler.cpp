@@ -38,7 +38,8 @@ void MidiHandler::resizeEvent(QResizeEvent *event)
 void MidiHandler::handleMidi(client_id_t clientId, quint8 *midiMessage, qint16 latency)
 {
     quint8 channel=channelMap.get(clientId)+(midiMessage[0]%16);
-    UserView *u = instrumentViews[clientId];
+    UserView *u = instrumentViews.value(clientId);
+    if(u==nullptr) return;
 
     u->setLatency(latency);
 
