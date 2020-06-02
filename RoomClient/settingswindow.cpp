@@ -22,19 +22,15 @@ SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
         instrumentArgs=ui->midiHandler->getDefaultInstrumentArgs(instrumentType);
         ui->midiHandler->setInstrumentArgs(&prefs,instrumentType,instrumentArgs);
     }
-    audioDriver=prefs.value("audioDriver").toString();
-    audioDevice=prefs.value("audioDevice").toString();
-    QString driverDotDevice="audio."+audioDriver+".device";
+
     soundfont=prefs.value("soundfont").toString();
 
     setMidiPortsList();
 
     fluid_settings_t *settings=new_fluid_settings();
-    fluid_settings_foreach_option(settings,"audio.driver",this,&SettingsWindow::setDriverList);
-    fluid_settings_foreach_option(settings,driverDotDevice.toUtf8().constData(),this,&SettingsWindow::setDeviceList);
+    fluid_settings_foreach_option(settings,MidiHandler::driverDotDevice,this,&SettingsWindow::setDeviceList);
     delete_fluid_settings(settings);
-    ui->audioDriverBox->setCurrentText(audioDriver);
-    ui->audioDeviceBox->setCurrentText(audioDevice);
+    ui->audioDeviceBox->setCurrentText(prefs.value("audioDevice").toString());
 
     ui->pickSfButton->setText(soundfont);
 
@@ -52,18 +48,12 @@ SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
     connect(ui->pickSfButton, SIGNAL(clicked()),
             this, SLOT(setSoundFont()));
 
-    connect(ui->audioDriverBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(setAudioDriver()));
-
     connect(ui->audioDeviceBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(setAudioDevice()));
 
     connect(this, SIGNAL(instrumentUpdate()),
             this, SLOT(redrawInstrument()));
 
-    ui->midiHandler->setAudioDriver(audioDriver);
-    ui->midiHandler->setAudioDevice(audioDevice);
-    ui->midiHandler->setSoundFont(soundfont);
     ui->midiHandler->addChannel(0,username,instrumentType,instrumentArgs);
 
     showInstrumentConfig();
@@ -131,18 +121,6 @@ void SettingsWindow::setInstrumentType()
 
     showInstrumentConfig();
     redrawInstrument();
-}
-
-void SettingsWindow::setAudioDriver()
-{
-    audioDriver=ui->audioDriverBox->currentText();
-    prefs.setValue("audioDriver",audioDriver);
-    ui->midiHandler->setAudioDriver(audioDriver);
-
-    if(audioDriver=="portaudio")
-    {
-        setAudioDevice();
-    }
 }
 
 void SettingsWindow::setAudioDevice()
@@ -277,13 +255,6 @@ void SettingsWindow::midiHandler(double timeStamp, std::vector<unsigned char> *m
     self->ui->midiHandler->handleMidi(0,message->data(),0);
 }
 
-void SettingsWindow::setDriverList(void *data, const char *name, const char* value)
-{
-    SettingsWindow *self=(SettingsWindow*)data;
-    QString file="file";
-    if(value != file)self->ui->audioDriverBox->addItem(value);
-}
-
 void SettingsWindow::setDeviceList(void *data, const char *name, const char *value)
 {
     SettingsWindow *self=(SettingsWindow*)data;
@@ -292,13 +263,11 @@ void SettingsWindow::setDeviceList(void *data, const char *name, const char *val
 
 void SettingsWindow::setDefaults()
 {
-    ui->audioDriverBox->setCurrentIndex(0);
     ui->instrumentTypeBox->setCurrentIndex(0);
-    ui->audioDriverBox->setCurrentIndex(0);
+    ui->audioDeviceBox->setCurrentIndex(0);
 
     prefs.setValue("midiInPort", 0);
     prefs.setValue("instrumentType",PIANO);
-    prefs.setValue("audioDriver",ui->audioDriverBox->currentText());
 }
 
 void SettingsWindow::midiSetArg(double timeStamp, std::vector<unsigned char> *message, void *userData)

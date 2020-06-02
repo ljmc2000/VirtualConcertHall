@@ -86,50 +86,40 @@
        <widget class="QComboBox" name="instrumentTypeBox"/>
       </item>
       <item row="3" column="0">
-       <widget class="QLabel" name="audioDriverLabel">
+       <widget class="QLabel" name="audioDeviceLabel">
         <property name="text">
-         <string>Audio Driver</string>
+         <string>Audio Device</string>
         </property>
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QComboBox" name="audioDriverBox"/>
+       <widget class="QComboBox" name="audioDeviceBox"/>
       </item>
-      <item row="5" column="0">
+      <item row="4" column="0">
        <widget class="QLabel" name="soundFontLabel">
         <property name="text">
          <string>Sound Font</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
+      <item row="4" column="1">
        <widget class="QPushButton" name="pickSfButton">
         <property name="text">
          <string>Select</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="0">
+      <item row="5" column="0">
        <widget class="QLabel" name="signinLabel">
         <property name="text">
          <string>Signed in as</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="1">
+      <item row="5" column="1">
        <widget class="QPushButton" name="signinButton">
         <property name="text">
          <string>Sign out</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QComboBox" name="audioDeviceBox"/>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="audioDeviceLabel">
-        <property name="text">
-         <string>Audio Device</string>
         </property>
        </widget>
       </item>

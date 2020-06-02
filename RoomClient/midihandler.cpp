@@ -7,6 +7,9 @@
 
 using namespace RoomCommon;
 
+const char* MidiHandler::audioDriver="portaudio";
+const char* MidiHandler::driverDotDevice="audio.portaudio.device";
+
 MidiHandler::MidiHandler(QWidget *parent):
     QWidget(parent),
     ui(new Ui::MidiHandler)
@@ -14,9 +17,8 @@ MidiHandler::MidiHandler(QWidget *parent):
     ui->setupUi(this);
 
     QSettings prefs;
-    soundfont=prefs.value("soundfont").toString();
-    audioDriver=prefs.value("audioDriver").toString();
-
+    this->soundfont=prefs.value("soundfont").toString();
+    this->audioDevice=prefs.value("audioDevice").toString();
     initSynth();
 }
 
@@ -156,39 +158,31 @@ instrument_args_t MidiHandler::getDefaultInstrumentArgs(InstrumentType type)
     return args;
 }
 
-void MidiHandler::setAudioDriver(QString audioDriver)
-{
-    this->audioDriver=audioDriver;
-    fluid_settings_t* fluidSettings = fluid_synth_get_settings(synth);
-    delete_fluid_audio_driver(soundout);
-    soundout = new_fluid_audio_driver(fluidSettings,synth);
-}
-
 void MidiHandler::setAudioDevice(QString audioDevice)
 {
     this->audioDevice=audioDevice;
+    if(audioDevice=="") return;
 
     if(audioDevice.length()!=0)
     {
-        QString driverDotDevice("audio."+audioDriver+".device");
         fluid_settings_t* fluidSettings = fluid_synth_get_settings(synth);
-        fluid_settings_setstr(fluidSettings,driverDotDevice.toUtf8().constData(),audioDevice.toUtf8().constData());
+        fluid_settings_setstr(fluidSettings,driverDotDevice,audioDevice.toUtf8().constData());
     }
+    reinitialize();
 }
 
 void MidiHandler::initSynth()
 {
     fluid_settings_t* fluidSettings=new_fluid_settings();
 
-    fluid_settings_setstr(fluidSettings,"audio.driver",audioDriver.toUtf8().constData());
+    fluid_settings_setstr(fluidSettings,"audio.driver",AUDIODRIVER);
     fluid_settings_setstr(fluidSettings,"audio.jack.id","VirtualConcertHall");
     fluid_settings_setint(fluidSettings,"synth.midi-channels",256); //16 users per synth with 16 channels each
     fluid_settings_setint(fluidSettings,"synth.polyphony",65535);   //so there are enough notes to go around
 
     if(audioDevice.length()!=0)
     {
-        QString driverDotDevice("audio."+audioDriver+".device");
-        fluid_settings_setstr(fluidSettings,driverDotDevice.toUtf8().constData(),audioDevice.toUtf8().constData());
+        fluid_settings_setstr(fluidSettings,driverDotDevice,audioDevice.toUtf8().constData());
     }
 
     synth=new_fluid_synth(fluidSettings);
@@ -202,6 +196,12 @@ void MidiHandler::deleteSynth()
     fluid_settings_t* settings=fluid_synth_get_settings(synth);
     delete_fluid_synth(synth);
     delete_fluid_settings(settings);
+}
+
+void MidiHandler::reinitialize()
+{
+    deleteSynth();
+    initSynth();
 }
 
 void MidiHandler::addChannel(client_id_t clientId, QString username, InstrumentType instrument, instrument_args_t args, QWidget *parent)

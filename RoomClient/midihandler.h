@@ -11,6 +11,8 @@
 #include "userview.h"
 #include "roomcommon.h"
 
+#define AUDIODRIVER "portaudio"
+
 
 using namespace RoomCommon;
 
@@ -29,7 +31,7 @@ public:
 
     void addChannel(client_id_t clientId, QString username, InstrumentType instrument, instrument_args_t args, QWidget *parent=nullptr),delChannel(client_id_t clientId);
     void handleMidi(client_id_t clientId, quint8* midiMessage, qint16 latency);
-    void setSoundFont(QString soundfont), setAudioDriver(QString audioDriver), setAudioDevice(QString audioDevice);
+    void setSoundFont(QString soundfont), setAudioDevice(QString audioDevice);
     void reorganizeInstrumentViews();
     void setUsername(client_id_t clientId, QString username);
 
@@ -37,10 +39,12 @@ public:
     static instrument_args_t getInstrumentArgs(QSettings *prefs, InstrumentType type);
     static instrument_args_t getDefaultInstrumentArgs(InstrumentType type);
 
+    static const char* audioDriver;
+    static const char* driverDotDevice;
     qint16 maxLatency = 50;
 
 private:    //methods
-    void initSynth(), deleteSynth();
+    void initSynth(), deleteSynth(), reinitialize();
     void shuffleChannels();
 
 private:
@@ -53,7 +57,7 @@ private:
     quint8 peruser;
 
     QString soundfont;
-    QString audioDriver,audioDevice;
+    QString audioDevice;
 
     InstrumentType insturmentType;
     instrument_args_t instrumentArgs=0;

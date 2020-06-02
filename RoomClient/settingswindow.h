@@ -30,7 +30,6 @@ public:
 public slots:
     void setMidiInPort();
     void setSoundFont();
-    void setAudioDriver();
     void setAudioDevice();
     void setInstrumentType();
     void redrawInstrument();
@@ -46,7 +45,6 @@ private: //methods
     void setMidiPortsList();
     void showInstrumentConfig();
     void clearInstrumentConfig();
-    static void setDriverList(void *data, const char *name, const char* value);
     static void setDeviceList(void *data, const char *name, const char* value);
     static void midiHandler( double timeStamp, std::vector<unsigned char> *message, void *userData );
     static void midiSetArg(double timeStamp, std::vector<unsigned char> *message, void *userData);
@@ -60,7 +58,7 @@ private:
 
     InstrumentType instrumentType=PIANO;
     instrument_args_t instrumentArgs=0; quint8* changeAttr=0;
-    QString audioDriver,audioDevice,soundfont;
+    QString soundfont;
     QString username;
 
     GuitarUtils guitarUtils;
