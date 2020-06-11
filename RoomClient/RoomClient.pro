@@ -29,6 +29,7 @@ SOURCES += \
     main.cpp \
     midihandler.cpp \
     $$PWD/../RoomCommon/httpapiclient.cpp \
+    replaylogger.cpp \
     settingswindow.cpp \
     mainwindow.cpp \
     playscreen.cpp \
@@ -49,8 +50,10 @@ HEADERS += \
     guitarinstrumentview.h \
     midihandler.h \
     $$PWD/../RoomCommon/roomcommon.h \
+    $$PWD/../RoomCommon/replay.h \
     $$PWD/../RoomCommon/httpapiclient.h \
     $$PWD/../RoomCommon/onlinestatusnamespace.h \
+    replaylogger.h \
     settingswindow.h \
     mainwindow.h \
     playscreen.h \

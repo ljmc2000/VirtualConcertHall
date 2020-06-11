@@ -9,6 +9,7 @@
 
 #include "bihash.h"
 #include "userview.h"
+#include "replaylogger.h"
 #include "roomcommon.h"
 
 #define AUDIODRIVER "portaudio"
@@ -39,6 +40,10 @@ public:
     static instrument_args_t getInstrumentArgs(QSettings *prefs, InstrumentType type);
     static instrument_args_t getDefaultInstrumentArgs(InstrumentType type);
 
+public slots:
+    void toggleRecording(bool on);
+
+public: //attributes
     static const char* audioDriver;
     static const char* driverDotDevice;
     qint16 maxLatency = 50;
@@ -54,6 +59,7 @@ private:
     fluid_audio_driver_t* soundout;
     QHash<client_id_t,quint8> channelMap;
     QHash<client_id_t,UserView*> instrumentViews;
+    ReplayLogger replayLogger;
     quint8 peruser;
 
     QString soundfont;

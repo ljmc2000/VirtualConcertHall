@@ -2,6 +2,7 @@
 #include "ui_midihandler.h"
 
 #include <QDebug>
+#include <QFileDialog>
 #include <QPushButton>
 #include <math.h>
 
@@ -39,6 +40,7 @@ void MidiHandler::resizeEvent(QResizeEvent *event)
 
 void MidiHandler::handleMidi(client_id_t clientId, quint8 *midiMessage, qint16 latency)
 {
+    MidiMessageType instruction=(MidiMessageType)(midiMessage[0]>>4);
     quint8 channel=midiMessage[0]%16;
     if(channel>peruser) return;
     channel+=channelMap.value(clientId);
@@ -47,13 +49,13 @@ void MidiHandler::handleMidi(client_id_t clientId, quint8 *midiMessage, qint16 l
 
     u->setLatency(latency);
 
-    switch(midiMessage[0]>>4)
+    switch(instruction)
     {
-    case 0b1000:    //note off event
+    case NOTE_OFF:
         fluid_synth_noteoff(synth,channel,midiMessage[1]);
         break;
 
-    case 0b1001:    //note on event
+    case NOTE_ON:
         if(midiMessage[2]==0) {
             fluid_synth_noteoff(synth,channel,midiMessage[1]);
         } else if(latency>maxLatency) {
@@ -64,23 +66,23 @@ void MidiHandler::handleMidi(client_id_t clientId, quint8 *midiMessage, qint16 l
         }
         break;
 
-    case 0b1010:    //Polyphonic Key Pressure
+    case POLYPHONIC_KEY_PRESSURE:
         fluid_synth_key_pressure(synth,channel,midiMessage[1],midiMessage[2]);
         break;
 
-    case 0b1011:    //Control Change
+    case CONTROL_CHANGE:
         fluid_synth_cc(synth,channel,midiMessage[1],midiMessage[2]);
         break;
 
-    case 0b1100:    //Program Change
+    case PROGRAM_CHANGE:
         fluid_synth_program_change(synth,channel,midiMessage[1]);
         break;
 
-    case 0b1101:    //Channel Pressure
+    case CHANNEL_PRESSURE_CHANGE:
         fluid_synth_channel_pressure(synth,channel,midiMessage[1]);
         break;
 
-    case 0b1110:    //Pitch Bend Change
+    case PITCH_BEND_CHANGE:
         int value=midiMessage[1]+(midiMessage[2]<<7);
         fluid_synth_pitch_bend(synth,channel,value);
         break;
@@ -88,6 +90,7 @@ void MidiHandler::handleMidi(client_id_t clientId, quint8 *midiMessage, qint16 l
 
     QString m;
     for(unsigned int i=0; i<MIDIMESSAGESIZE; i++) m.append(QString::number(midiMessage[i])+":");
+    replayLogger.handleMidi(channel,midiMessage);
     qDebug() << clientId << m << channel << latency<<"ms";
 }
 
@@ -263,4 +266,13 @@ void MidiHandler::setUsername(client_id_t clientId, QString username)
 {
     UserView *u=instrumentViews[clientId];
     u->setUsername(username);
+}
+
+void MidiHandler::toggleRecording(bool on)
+{
+    if(on){
+        replayLogger.enable(QFileDialog::getSaveFileName(this, "Replay location", "", REPLAY_FILE_DESC));
+    } else {
+        replayLogger.disable();
+    }
 }

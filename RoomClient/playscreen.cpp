@@ -43,6 +43,9 @@ PlayScreen::PlayScreen(RoomConnectionInfo r,HttpAPIClient *httpApiClient,QWidget
     connect(ui->latencySlider, &QSlider::valueChanged,
             [=](){ui->midiout->maxLatency=ui->latencySlider->value();});
 
+    connect(ui->recordButton, &QCheckBox::stateChanged,
+            ui->midiout, &MidiHandler::toggleRecording);
+
     pingOffsetSyncClock.setInterval(PINGPACKETINTERVAL);
     connect(
                 &pingOffsetSyncClock, SIGNAL(timeout()),

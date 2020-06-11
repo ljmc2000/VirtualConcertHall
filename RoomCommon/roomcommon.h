@@ -24,6 +24,17 @@ namespace RoomCommon
 {
     Q_NAMESPACE;
 
+    enum MidiMessageType:quint8             //what the first 4 digits of a midi message mean: calculated as message[0]>>4
+    {
+        NOTE_OFF=0b1000,                    //note off event
+        NOTE_ON=0b1001,                     //note on event
+        POLYPHONIC_KEY_PRESSURE=0b1010,     //Polyphonic Key Pressure
+        CONTROL_CHANGE=0b1011,              //Control Change
+        PROGRAM_CHANGE=0b1100,              //Program Change
+        CHANNEL_PRESSURE_CHANGE=0b1101,     //Channel Pressure
+        PITCH_BEND_CHANGE=0b1110,           //Pitch Bend Change
+    };
+
     enum PacketType: qint8
     {
         CONNECT,           //sent to request connection
