@@ -27,10 +27,15 @@ SettingsWindow::SettingsWindow(HttpAPIClient *httpApiClient, QWidget *parent) :
 
     setMidiPortsList();
 
+#ifdef Q_OS_LINUX
+    ui->audioDeviceLabel->deleteLater();
+    ui->audioDeviceBox->deleteLater();
+#else
     fluid_settings_t *settings=new_fluid_settings();
     fluid_settings_foreach_option(settings,MidiHandler::driverDotDevice,this,&SettingsWindow::setDeviceList);
     delete_fluid_settings(settings);
     ui->audioDeviceBox->setCurrentText(prefs.value("audioDevice").toString());
+#endif
 
     ui->pickSfButton->setText(soundfont);
 

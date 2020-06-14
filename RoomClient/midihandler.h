@@ -12,8 +12,6 @@
 #include "replaylogger.h"
 #include "roomcommon.h"
 
-#define AUDIODRIVER "portaudio"
-
 
 using namespace RoomCommon;
 

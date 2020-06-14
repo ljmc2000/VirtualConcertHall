@@ -14,6 +14,12 @@
 #define MAXCONNECTATTEMPTS 5        //attempt to connect to server no more than n times
 #define PINGPACKETINTERVAL 100      //how often to send a packet to determine ping
 
+#ifdef Q_OS_LINUX
+#define AUDIODRIVER "pulseaudio"
+#else
+#define AUDIODRIVER "portaudio"
+#endif
+
 #define GETTIME() QDateTime::currentDateTime().toMSecsSinceEpoch()
 
 typedef quint16 instrument_args_t;
@@ -24,7 +30,7 @@ namespace RoomCommon
 {
     Q_NAMESPACE;
 
-    enum MidiMessageType:quint8             //what the first 4 digits of a midi message mean: calculated as message[0]>>4
+    enum MidiMessageType: quint8            //what the first 4 digits of a midi message mean: calculated as message[0]>>4
     {
         NOTE_OFF=0b1000,                    //note off event
         NOTE_ON=0b1001,                     //note on event
