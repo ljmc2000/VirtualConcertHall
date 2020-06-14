@@ -16,15 +16,20 @@ class ReplayPlayer;
 
 class ReplayPlayerThread: public QThread
 {
+    Q_OBJECT
 public:
     ReplayPlayerThread(QString filename, QString soundfont, QObject *parent=nullptr);
     ~ReplayPlayerThread();
     void run();
 
+public slots:
+    void stop();
+
 private: //methods
     void playNote(ReplayLogChunk chunk);
 
 private: //attrs
+    bool stopped=false;
     QFile in;
     ReplayLogChunk chunk;
     fluid_synth_t *synth;

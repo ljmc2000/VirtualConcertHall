@@ -39,7 +39,8 @@ void ReplayPlayer::play()
 {
     t=new ReplayPlayerThread(ui->pickReplayButton->text(),soundfont,this);
     ui->PlayButton->setText("Stop");
-    connect(ui->PlayButton, &QPushButton::clicked, this, &ReplayPlayer::stop);
+    disconnect(ui->PlayButton, SIGNAL(clicked()), this, SLOT(play()));
+    connect(ui->PlayButton, &QPushButton::clicked, t, &ReplayPlayerThread::stop);
     connect(t, &QThread::finished,this, &ReplayPlayer::stop);
     t->start();
 }
@@ -47,9 +48,10 @@ void ReplayPlayer::play()
 void ReplayPlayer::stop()
 {
     ui->PlayButton->setText("Play");
+    disconnect(ui->PlayButton, &QPushButton::clicked, this, &ReplayPlayer::stop);
     connect(ui->PlayButton, &QPushButton::clicked, this, &ReplayPlayer::play);
-    t->exit();
     t->deleteLater();
+    t=nullptr;
 }
 
 ReplayPlayerThread::ReplayPlayerThread(QString filename, QString soundfont, QObject *parent): QThread(parent),
@@ -83,11 +85,16 @@ void ReplayPlayerThread::run()
         playNote(chunk);
     }
 
-    while(!in.atEnd())
+    while(!(in.atEnd()|stopped))
     {
         in.read((char*)&chunk,sizeof(ReplayLogChunk));
         playNote(chunk);
     }
+}
+
+void ReplayPlayerThread::stop()
+{
+    stopped=true;
 }
 
 void ReplayPlayerThread::playNote(ReplayLogChunk chunk)
