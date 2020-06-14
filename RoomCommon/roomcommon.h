@@ -19,6 +19,12 @@
 #else
 #define AUDIODRIVER "portaudio"
 #endif
+#define MIDICHANNELS 256            //16 users per synth with 16 channels each
+#define POLYPHONY 65535             //so there are enough notes to go around
+
+#define CONFIGURE_SYNTH(fluidSettings)fluid_settings_setstr(fluidSettings,"audio.driver",AUDIODRIVER);\
+fluid_settings_setint(fluidSettings,"synth.midi-channels",MIDICHANNELS);\
+fluid_settings_setint(fluidSettings,"synth.polyphony",POLYPHONY);
 
 #define GETTIME() QDateTime::currentDateTime().toMSecsSinceEpoch()
 

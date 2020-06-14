@@ -30,6 +30,7 @@ SOURCES += \
     midihandler.cpp \
     $$PWD/../RoomCommon/httpapiclient.cpp \
     replaylogger.cpp \
+    replayplayer.cpp \
     settingswindow.cpp \
     mainwindow.cpp \
     playscreen.cpp \
@@ -54,6 +55,7 @@ HEADERS += \
     $$PWD/../RoomCommon/httpapiclient.h \
     $$PWD/../RoomCommon/onlinestatusnamespace.h \
     replaylogger.h \
+    replayplayer.h \
     settingswindow.h \
     mainwindow.h \
     playscreen.h \
@@ -71,6 +73,7 @@ HEADERS += \
     userview.h
 
 FORMS += \
+    replayplayer.ui \
     settingswindow.ui \
     mainwindow.ui \
     playscreen.ui \

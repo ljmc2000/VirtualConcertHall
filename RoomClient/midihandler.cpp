@@ -178,9 +178,7 @@ void MidiHandler::initSynth()
 {
     fluid_settings_t* fluidSettings=new_fluid_settings();
 
-    fluid_settings_setstr(fluidSettings,"audio.driver",AUDIODRIVER);
-    fluid_settings_setint(fluidSettings,"synth.midi-channels",256); //16 users per synth with 16 channels each
-    fluid_settings_setint(fluidSettings,"synth.polyphony",65535);   //so there are enough notes to go around
+    CONFIGURE_SYNTH(fluidSettings);
 
     if(audioDevice.length()!=0)
     {

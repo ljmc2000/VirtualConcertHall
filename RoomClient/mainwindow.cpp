@@ -4,6 +4,7 @@
 #include "loginwindow.h"
 #include "mainmenu.h"
 #include "playscreen.h"
+#include "replayplayer.h"
 #include "roombrowser.h"
 #include "roomcreator.h"
 #include "settingswindow.h"
@@ -69,6 +70,9 @@ void MainWindow::openWidget(Mode mode)
         break;
     case ROOMCREATOR:
         activeWidget=new RoomCreator(&httpApiClient,this);
+        break;
+    case REPLAYPLAYER:
+        activeWidget=new ReplayPlayer(this);
         break;
     case PLAYSCREEN:
         RoomConnectionInfo r = httpApiClient.getCurrentRoom();

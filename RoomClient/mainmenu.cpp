@@ -17,6 +17,9 @@ MainMenu::MainMenu(QWidget *parent) :
     connect(ui->createButton, &QPushButton::clicked,
            [=](){ emit switchScreen(ROOMCREATOR) ;});
 
+    connect(ui->viewReplayButton, &QPushButton::clicked,
+            [=](){ emit switchScreen(REPLAYPLAYER) ;});
+
     connect(ui->settingsButton, &QPushButton::clicked,
             [=](){ emit switchScreen(SETTINGS) ;});
 }
