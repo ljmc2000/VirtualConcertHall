@@ -17,7 +17,7 @@ class ReplayPlayer;
 class ReplayPlayerThread: public QThread
 {
 public:
-    ReplayPlayerThread(QString filename, QString soundfont);
+    ReplayPlayerThread(QString filename, QString soundfont, QObject *parent=nullptr);
     ~ReplayPlayerThread();
     void run();
 
@@ -25,7 +25,8 @@ private: //methods
     void playNote(ReplayLogChunk chunk);
 
 private: //attrs
-    QString filename;
+    QFile in;
+    ReplayLogChunk chunk;
     fluid_synth_t *synth;
     fluid_audio_driver_t *driver;
 };
@@ -45,7 +46,8 @@ signals:
 
 private slots:
     void selectReplay();
-    void playPause();
+    void play();
+    void stop();
 
 private:
     Ui::ReplayPlayer *ui;

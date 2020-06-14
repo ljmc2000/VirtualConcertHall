@@ -19,7 +19,7 @@ ReplayPlayer::ReplayPlayer(QWidget *parent) :
             this, SLOT(selectReplay()));
 
     connect(ui->PlayButton, SIGNAL(clicked()),
-            this, SLOT(playPause()));
+            this, SLOT(play()));
 
     QSettings settings;
     soundfont=settings.value("soundfont").toString();
@@ -35,16 +35,27 @@ void ReplayPlayer::selectReplay()
     ui->pickReplayButton->setText(QFileDialog::getOpenFileName(this, "Replay location", "", REPLAY_FILE_DESC));
 }
 
-void ReplayPlayer::playPause()
+void ReplayPlayer::play()
 {
-    t=new ReplayPlayerThread(ui->pickReplayButton->text(),soundfont);
-    connect(t, &QThread::finished, t, &QObject::deleteLater);
+    t=new ReplayPlayerThread(ui->pickReplayButton->text(),soundfont,this);
+    ui->PlayButton->setText("Stop");
+    connect(ui->PlayButton, &QPushButton::clicked, this, &ReplayPlayer::stop);
+    connect(t, &QThread::finished,this, &ReplayPlayer::stop);
     t->start();
 }
 
-ReplayPlayerThread::ReplayPlayerThread(QString filename, QString soundfont)
+void ReplayPlayer::stop()
 {
-    this->filename=filename;
+    ui->PlayButton->setText("Play");
+    connect(ui->PlayButton, &QPushButton::clicked, this, &ReplayPlayer::play);
+    t->exit();
+    t->deleteLater();
+}
+
+ReplayPlayerThread::ReplayPlayerThread(QString filename, QString soundfont, QObject *parent): QThread(parent),
+    in(filename)
+{
+    in.open(QIODevice::ReadOnly);
 
     fluid_settings_t *s=new_fluid_settings();
     CONFIGURE_SYNTH(s);
@@ -59,14 +70,12 @@ ReplayPlayerThread::~ReplayPlayerThread()
     delete_fluid_audio_driver(driver);
     delete_fluid_synth(synth);
     delete_fluid_settings(s);
+
+    in.close();
 }
 
 void ReplayPlayerThread::run()
 {
-    ReplayLogChunk chunk;
-    QFile in(filename);
-    in.open(QIODevice::ReadOnly);
-
     //first
     {
         in.read((char*)&chunk,sizeof(ReplayLogChunk));
