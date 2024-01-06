@@ -54,6 +54,13 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,2e-5)">
+    <rect
+        style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke-width:0.132292;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:10"
+        id="rect1"
+        width="208.64285"
+        height="58.208344"
+        x="0.75595266"
+        y="239.63687" />
     <path
        style="fill:#000000;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 0.75595238,241.05949 8.31547602,-0.75595 v 31.74999 h 7.5595236 l -1.511905,-30.99404 8.315477,0.75595 1.511904,29.48215 9.071429,0.75594 L 31.75,240.30354 h 20.410714 l -1.511905,30.99405 10.583333,0.75594 -1.511904,-30.23809 7.559522,1.51191 v 27.2143 l 9.07143,-0.75597 -3.023809,-27.97024 10.583333,1.51191 v 25.70239 h 8.315476 l -2.173363,-25.32441 8.220982,-0.75595 z"
